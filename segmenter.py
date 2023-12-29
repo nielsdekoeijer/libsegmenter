@@ -1,7 +1,7 @@
 import torch
 
 class Segmenter(torch.nn.Module):
-    def __init__(self, segment_size, hop_size, window, perform_validation=True, validation_sne=50.0, normalize_window=True):
+    def __init__(self, segment_size, hop_size, window, perform_validation=True, validation_ser=50.0, normalize_window=True):
         super(Segmenter, self).__init__()
         self.hop_size = hop_size
         self.segment_size = segment_size
@@ -30,11 +30,6 @@ class Segmenter(torch.nn.Module):
             self.postwindow[i:] += self.window[:-i]
             i += self.hop_size
 
-        plt.plot(self.prewindow)
-        plt.plot(self.postwindow)
-        plt.plot(self.prewindow + self.postwindow)
-        plt.savefig('plot.png')
-
         # this is a tiny bit hacked, but it works well in practise
         if normalize_window:
             normalization = self.prewindow[0]
@@ -42,23 +37,28 @@ class Segmenter(torch.nn.Module):
             self.prewindow = self.prewindow / normalization
             self.postwindow = self.postwindow / normalization
 
+        # here we ensure that the forward and backward pass have perfrect reconstruction
         if perform_validation:
+            # here we assert that the window doesn't have a "DC" component
+            # if we are to change the frames individually, such a DC component breaks reconsturction
+            # (imagine problems that exist with e.g. a boxcar window, they will exist for hamming too!)
             if abs(self.window[0]) > 1e-8 or abs(self.window[-1]) > 1e-8:
                 raise ValueError("filter non-zero at first and / or last entry")
 
+            # next we assert that the reconstruction forward backward is below some ser in db
             # not batched
             itest = torch.randn(segment_size + 10 * hop_size)
             otest = self.unsegment(self.segment(itest))
-            sne = 20 * torch.log10(torch.norm(otest)) - 20 * torch.log10(torch.norm(itest - otest))
-            if sne < validation_sne:
-                raise ValueError(f"segmentation results in {sne} dB signal to error ratio when max allowable ratio is {validation_sne} dB")
+            ser = 20 * torch.log10(torch.norm(otest)) - 20 * torch.log10(torch.norm(itest - otest))
+            if ser < validation_ser:
+                raise ValueError(f"segmentation results in {ser} dB signal to error ratio when max allowable ratio is {validation_ser} dB")
 
             # batched
             itest = torch.randn((2, segment_size + 10 * hop_size))
             otest = self.unsegment(self.segment(itest))
-            sne = 20 * torch.log10(torch.norm(otest)) - 20 * torch.log10(torch.norm(itest - otest))
-            if sne < validation_sne:
-                raise ValueError(f"segmentation results in {sne} dB signal to error ratio when max allowable ratio is {validation_sne} dB")
+            ser = 20 * torch.log10(torch.norm(otest)) - 20 * torch.log10(torch.norm(itest - otest))
+            if ser < validation_ser:
+                raise ValueError(f"segmentation results in {ser} dB signal to error ratio when max allowable ratio is {validation_ser} dB")
 
     def segment(self, x):
         N = x.shape[-1]
