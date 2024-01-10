@@ -1,41 +1,99 @@
+# single-file implementation of a segmentation class
+# can perform OLA and WOLA depending on the input configuration
+
 import torch
 
+def _segmenter_validate_tensor_window(window, segment_size):
+    if window.shape != (segment_size):
+        raise ValueError(f"provided iwindow tensor shape is {iwindow.shape}, expected {(segment_size)}")
+
+def _segmenter_lookup_window(string):
+    None
+
+def _segmenter_compute_begwindow(segment_size, hop_size, window):
+    begwindow = window.clone()
+    i = hop_size
+    while i < segment_size:
+        begwindow[:-i] += window[i:]
+        i += hop_size
+
+def _segmenter_compute_endwindow(segment_size, hop_size, window):
+    endwindow = window.clone()
+    i = hop_size
+    while i < segment_size:
+        endwindow[i:] += window[:-i]
+        i += hop_size
+
 class Segmenter(torch.nn.Module):
-    def __init__(self, segment_size, hop_size, window, perform_validation=True, validation_ser=50.0, normalize_window=True):
+    """
+    docstring
+    """
+    def __init__(
+            self, 
+            segment_size: int, 
+            hop_size: int, 
+            iwindow: torch.tensor, 
+            owindow: torch.tensor, 
+            auto_normalize_windows: bool = True,
+            apply_boundary_corrections: bool = True,
+            check_perfect_reconstruction: bool = True, 
+            check_perfect_reconstruction_ser_db: float = 50.0, 
+            check_cola: bool = True, 
+            device=None,
+            dtype=None,
+        ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
         super(Segmenter, self).__init__()
-        self.hop_size = hop_size
+
+        # validate inputs
         self.segment_size = segment_size
-        self.window = window
-
-        # asserts to ensure correctness
         if self.segment_size % 2 != 0:
-            raise ValueError("only even segment_size is supported")
+            raise ValueError(f"only even segment_size is supported")
 
+        # hop sizes can never exceed segment size
+        self.hop_size = hop_size
         if self.hop_size > self.segment_size:
-            raise ValueError("hop_size cannot be larger than segment_size")
+            raise ValueError(f"hop_size cannot be larger than segment_size")
+        
+        # we allow the user to use strings to use a predefined window (recommended)
+        if isinstance(iwindow, str):
+            iwindow = _segmenter_lookup_window(iwindow)
 
-        if self.window.shape[0] != self.segment_size:
-            raise ValueError("specified window must have the same size as segment_size")
+        if isinstance(owindow, str):
+            owindow = _segmenter_lookup_window(owindow)
 
-        # compute prewindow and postwindow
-        self.prewindow = self.window.clone()
-        i = self.hop_size
-        while i < self.segment_size:
-            self.prewindow[:-i] += self.window[i:]
-            i += self.hop_size
+        # we validate window sizes
+        if isinstance(iwindow, torch.Tensor):
+            _segmenter_validate_tensor_window(iwindow, segment_size)
+        else:
+            raise ValueError(f"invalid iwindow, expected either a str or a torch.Tensor")
 
-        self.postwindow = self.window.clone()
-        i = self.hop_size
-        while i < self.segment_size:
-            self.postwindow[i:] += self.window[:-i]
-            i += self.hop_size
+        if isinstance(owindow, torch.Tensor):
+            _segmenter_validate_tensor_window(owindow, segment_size)
+        else:
+            raise ValueError(f"invalid owindow, expected either a str or a torch.Tensor")
+
+        # compute beg(in)window and endwindow
+        self.apply_boundary_corrections = apply_boundary_corrections
+        if self.apply_boundary_corrections:
+            self.ibegwindow = _segmenter_compute_begwindow(self.segment_size, self.hop_size, self.iwindow)
+            self.iendwindow = _segmenter_compute_endwindow(self.segment_size, self.hop_size, self.iwindow)
+            self.obegwindow = _segmenter_compute_begwindow(self.segment_size, self.hop_size, self.owindow)
+            self.oendwindow = _segmenter_compute_endwindow(self.segment_size, self.hop_size, self.owindow)
+        else:
+            self.ibegwindow = self.iwindow.clone()
+            self.iendwindow = self.iwindow.clone()
+            self.obegwindow = self.owindow.clone()
+            self.oendwindow = self.owindow.clone()
 
         # this is a tiny bit hacked, but it works well in practise
-        if normalize_window:
-            normalization = self.prewindow[0]
-            self.window = self.window / normalization
-            self.prewindow = self.prewindow / normalization
-            self.postwindow = self.postwindow / normalization
+        self.auto_normalize_windows = auto_normalize_windows
+        self.normalization_factor = None
+        if self.auto_normalize_windows:
+            self.normalization_factor = self.prewindow[0]
+            self.window = self.window / self.normalization_factor 
+            self.prewindow = self.prewindow / self.normalization_factor
+            self.postwindow = self.postwindow / self.normalization_factor
 
         # here we ensure that the forward and backward pass have perfrect reconstruction
         if perform_validation:
