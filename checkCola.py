@@ -42,9 +42,10 @@ def checkCola(window, hopSize):
     ax.grid()
     fig.savefig("test.png")
     print(20*np.log10(ubound-lbound))
+    normalizationValue = (ubound+lbound)/2
     if (ubound-lbound) < 1e-5:
-        return True
+        return True, normalizationValue
     else:
-        return False
+        return False, normalizationValue
     
 
