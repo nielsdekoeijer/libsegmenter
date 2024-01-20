@@ -1,4 +1,6 @@
 import numpy as np
+# Implementation of default window types and associated hopSizes ensuring COLA condition.
+# Expressions based off information on Julius O. Smidth's website: https://ccrma.stanford.edu/~jos/sasp/Spectrum_Analysis_Windows.html#10250
 
 def bartlett(windowLength):
     # Bartlett (triangular) window
