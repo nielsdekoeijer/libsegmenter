@@ -6,13 +6,13 @@ import segmenterTensorFlow as segmenter
 import tensorflow as tf
 
 windowSize = 32
-val = winSelector.defaultWindowSelector("bartlett75",windowSize)
+val = winSelector.defaultWindowSelector("hann75",windowSize)
 window = val[0]
 hopSize = val[1]
 window = np.float32(window)
 
 
-signalLength = 2*windowSize
+signalLength = 4*windowSize
 batchSize = 3
 input = tf.ones(shape=(batchSize, signalLength))
 
