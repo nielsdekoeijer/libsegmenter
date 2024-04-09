@@ -13,7 +13,11 @@ def blackman(windowLength):
     # Provides COLA-compliant windows for hopSize = (M-1)/3 when M is odd and hopSize M/3 when M is even
     M = np.float64(windowLength + 1.0)
     m = np.arange(0,M-1, dtype=np.float64)/(M-1)
-    window = 0.42 - 0.5*np.cos(2.0*np.pi*m) + 0.08*np.cos(4.0*np.pi*m)
+    a0 = 7938/18608
+    a1 = 9240/18608
+    a2 = 1430/18608
+    window = a0 - a1*np.cos(2.0*np.pi*m) + a2*np.cos(4.0*np.pi*m)
+    
     return window
 
 def hamming(windowLength):
