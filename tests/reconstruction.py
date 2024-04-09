@@ -74,7 +74,7 @@ tests testing the creational pattern for the Segmenters
                 window=libsegmenter.blackman(30),
             ),
             torch.randn((300)),
-        ),  # BREAKS
+        ), 
         (
             libsegmenter.make_segmenter(
                 backend="torch",
@@ -83,7 +83,7 @@ tests testing the creational pattern for the Segmenters
                 window=libsegmenter.blackman(30),
             ),
             torch.randn((1, 300)),
-        ),  # BREAKS
+        ), 
         (
             libsegmenter.make_segmenter(
                 backend="tensorflow",
@@ -146,7 +146,7 @@ tests testing the creational pattern for the Segmenters
                 window=libsegmenter.blackman(30),
             ),
             tensorflow.random.normal(shape=[300]),
-        ),  # BREAKS
+        ), 
         (
             libsegmenter.make_segmenter(
                 backend="tensorflow",
@@ -155,7 +155,7 @@ tests testing the creational pattern for the Segmenters
                 window=libsegmenter.blackman(30),
             ),
             tensorflow.random.normal(shape=[1, 300]),
-        ),  # BREAKS
+        ), 
     ],
 )
 def test_reconstruction(segmenter, x):

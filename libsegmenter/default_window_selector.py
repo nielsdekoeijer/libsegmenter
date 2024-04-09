@@ -18,10 +18,7 @@ def blackman(window_length: int) -> np.array:
     """
     M = np.float64(window_length + 1.0)
     m = np.arange(0, M - 1, dtype=np.float64) / (M - 1)
-    window = 0.42 - 0.5 * np.cos(2.0 * np.pi * m) + 0.08 * np.cos(4.0 * np.pi * m)
-
-    # truncat, numerically we sometimes obtain negative entries
-    window[window < 0.0] = 0.0
+    window = 7938.0/18608.0 - 9240.0/18608.0 * np.cos(2.0 * np.pi * m) + 1430.0/18608.0 * np.cos(4.0 * np.pi * m)
 
     return window
 
