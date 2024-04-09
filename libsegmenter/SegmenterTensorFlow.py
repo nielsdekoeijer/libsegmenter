@@ -39,6 +39,14 @@ class SegmenterTensorFlow(tf.Module):
         if self.window.shape[0] != self.frame_size:
             raise ValueError("specified window must have the same size as frame_size")
 
+        if any(window < 0.0):
+            raise ValueError("specified window contains negative values")
+
+        if check_cola(window, self.hop_size)[0] == False:
+            raise ValueError(
+                "specified window is not COLA, consider using `default_window_selector`"
+            )
+
         # compute prewindow and postwindow
         prewindow = np.copy(window)
         for hIdx in range(1, self.frame_size // self.hop_size + 1):

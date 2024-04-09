@@ -48,6 +48,9 @@ class SegmenterTorch(torch.nn.Module):
         if self.window.shape[0] != self.frame_size:
             raise ValueError("specified window must have the same size as frame_size")
 
+        if any(window < 0.0):
+            raise ValueError("specified window contains negative values")
+
         if check_cola(self.window.cpu().numpy(), self.hop_size)[0] == False:
             raise ValueError(
                 "specified window is not COLA, consider using `default_window_selector`"
