@@ -334,6 +334,9 @@ tests testing the creational pattern for the Segmenters
         ), 
     ],
 )
+
+
+
 def test_reconstruction(segmenter, x):
     X = segmenter.segment(x)
     y = segmenter.unsegment(X)
@@ -341,3 +344,368 @@ def test_reconstruction(segmenter, x):
     y = numpy.array(y)
     x = numpy.array(x)
     assert y == pytest.approx(x)
+     
+@pytest.mark.parametrize(
+    ("segmenter", "x"),
+    [
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((300)),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='wola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 300)),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1, 1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1, 1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[300]),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='wola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1, 300]),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 1000)),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((300)),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="torch",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='ola',
+                edge_correction=False,
+            ),
+            torch.randn((1, 300)),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hamming(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1, 1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.hann(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1, 1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=100,
+                hop_size=50,
+                window=libsegmenter.bartlett(100),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1000]),
+        ),
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[300]),
+        ), 
+        (
+            libsegmenter.make_segmenter(
+                backend="tensorflow",
+                frame_size=30,
+                hop_size=10,
+                window=libsegmenter.blackman(30),
+                mode='ola',
+                edge_correction=False,
+            ),
+            tensorflow.random.normal(shape=[1, 300]),
+        ), 
+    ],
+)
+def test_reconstruction_(segmenter, x):
+    X = segmenter.segment(x)
+    y = segmenter.unsegment(X)
+
+    y = numpy.array(y)
+    x = numpy.array(x)
+    assert y[segmenter.frame_size:-segmenter.frame_size] == pytest.approx(x[segmenter.frame_size:-segmenter.frame_size])
