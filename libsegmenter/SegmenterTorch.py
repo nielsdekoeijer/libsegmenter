@@ -146,20 +146,23 @@ class SegmenterTorch(torch.nn.Module):
                         :, k * self.hop_size : k * self.hop_size + self.frame_size
                     ]
 
+        X = X.permute(0, 2, 1)
+
         if not batched:
             # convert back to not-batched
             X = X.squeeze(0)
+
         return X
 
     def unsegment(self, X):
         if X.dim() == 3:
             number_of_batch_elements = X.shape[0]
-            number_of_segments = X.shape[1]
+            number_of_segments = X.shape[2]
             batched = True
 
         elif X.dim() == 2:
             number_of_batch_elements = 1
-            number_of_segments = X.shape[0]
+            number_of_segments = X.shape[1]
 
             # convert to batched to simplify subsequent code
             batched = False
@@ -168,6 +171,8 @@ class SegmenterTorch(torch.nn.Module):
             raise ValueError(
                 f"only support for inputs with dimension 2 or 3, provided {X.dim()}"
             )
+
+        X = X.permute(0, 2, 1)
 
         number_of_samples = (number_of_segments - 1) * self.hop_size + self.frame_size
 
