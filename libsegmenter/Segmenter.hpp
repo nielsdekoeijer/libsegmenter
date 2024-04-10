@@ -33,6 +33,8 @@
 #include <cstddef>
 #include <cmath>
 
+#define SEGMENTER_M_PI 3.14159265358979323846
+
 template<typename T>
 void populateBartlettWindow(std::span<T>& vec) {
     const std::size_t windowLength = vec.size();
@@ -47,7 +49,7 @@ void populateBlackmanWindow(std::span<T>& vec) {
     const std::size_t windowLength = vec.size();
     const T M = T(windowLength + 1);
     for(std::size_t i = 0; i < windowLength; i++) {
-        vec[i] = 7938.0/18608.0 - 9240.0/18608.0 * cos(2.0 * M_PI * T(i) / T(M - 1)) + 1430.0/18608.0 * cos(4.0 * M_PI * T(i) / T(M - 1));
+        vec[i] = 7938.0/18608.0 - 9240.0/18608.0 * cos(2.0 * SEGMENTER_M_PI * T(i) / T(M - 1)) + 1430.0/18608.0 * cos(4.0 * SEGMENTER_M_PI * T(i) / T(M - 1));
     }
 }
 
@@ -59,7 +61,7 @@ void populateHammingWindow(std::span<T>& vec) {
     const T beta = (1.0 - alpha) / 2.0;
     for(std::size_t i = 0; i < windowLength; i++) {
         vec[i] = alpha - 2.0 * beta * cos(
-            2.0 * M_PI * T(i) / M
+            2.0 * SEGMENTER_M_PI * T(i) / M
         );
     }
 }
@@ -69,7 +71,7 @@ void populateHannWindow(std::span<T>& vec) {
     const std::size_t windowLength = vec.size();
     const T M = T(windowLength);
     for(std::size_t i = 0; i < windowLength; i++) {
-        vec[i] = 0.5 * (1.0 - cos(2.0 * M_PI * T(i) / M));
+        vec[i] = 0.5 * (1.0 - cos(2.0 * SEGMENTER_M_PI * T(i) / M));
     }
 }
 
