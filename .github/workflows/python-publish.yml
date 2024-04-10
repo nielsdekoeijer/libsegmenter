@@ -57,7 +57,7 @@ jobs:
   #        path: ./wheelhouse/*.whl
 
   upload-wheels:
-    needs: build-wheels
+    # needs: build-wheels
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
