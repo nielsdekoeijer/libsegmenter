@@ -64,7 +64,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v2
       with:
-        path: dist
+        path: dist/
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -79,4 +79,4 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       run: |
-        twine upload --repository-url https://upload.pypi.org/legacy/ dist/*.whl --verbose
+        twine upload --repository-url https://upload.pypi.org/legacy/ dist/* --verbose
