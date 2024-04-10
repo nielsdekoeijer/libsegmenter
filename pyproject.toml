@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "libsegmenter"
-version = "0.2"
+version = "0.3"
 description = "An opinionated segmentation library for (machine learning) audio. Note that all versions before 1.0 are considered unstable and still subject to testing..."
 authors = [
     { name = "Niels de Koeijer" },
