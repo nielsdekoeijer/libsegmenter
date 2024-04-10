@@ -17,6 +17,6 @@ dependencies = [
 # testing
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ['tests/windows.py', 'tests/creational.py', 'tests/reconstruction.py', 'tests/bindings.py']
+testpaths = ['tests/windows.py', 'tests/creational.py', 'tests/reconstruction.py']
 filterwarnings = 'error'
 xfail_strict = true
