@@ -28,8 +28,8 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-      name: wheels-${{ matrix.os }}
-      path: ./wheelhouse/*.whl
+        name: wheels-${{ matrix.os }}
+        path: ./wheelhouse/*.whl
 
   upload-wheels:
     needs: build-wheels
