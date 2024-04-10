@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "pybind11>=2.10.0" ]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,11 +14,9 @@ dependencies = [
     "numpy"
 ]
 
-[tool.setuptools]
-packages = ["libsegmenter"]
-
+# testing
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ['tests/windows.py', 'tests/creational.py', 'tests/reconstruction.py']
+testpaths = ['tests/windows.py', 'tests/creational.py', 'tests/reconstruction.py', 'tests/bindings.py']
 filterwarnings = 'error'
 xfail_strict = true
