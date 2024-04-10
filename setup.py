@@ -17,7 +17,7 @@ ext_modules = [
 
 setup(
     name="libsegmenter",
-    version="0.3",
+    version="0.4",
     packages=find_packages(),  # Ensure all packages are found
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},

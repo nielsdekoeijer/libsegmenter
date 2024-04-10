@@ -31,7 +31,7 @@ jobs:
       run: pytest
   
   build-wheels:
-    # needs: test
+    needs: test
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
