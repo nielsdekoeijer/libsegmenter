@@ -11,7 +11,7 @@ ext_modules = [
         include_dirs=[
             os.path.join(setup_dir, "libsegmenter/"),
         ],
-        extra_compile_args=["-O3", "-std=c++20"],
+        extra_compile_args=["-O3"],
     ),
 ]
 

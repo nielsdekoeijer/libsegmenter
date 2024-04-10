@@ -9,8 +9,7 @@ py::array_t<DATATYPE> py_bartlett(size_t size) {
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE *ptr = static_cast<DATATYPE *>(buf.ptr);
-    std::span<DATATYPE> vec(ptr, size);
-    populateBartlettWindow(vec);
+    populateBartlettWindow(ptr, size);
     return result;
 }
 
@@ -18,8 +17,7 @@ py::array_t<DATATYPE> py_blackman(size_t size) {
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE *ptr = static_cast<DATATYPE *>(buf.ptr);
-    std::span<DATATYPE> vec(ptr, size);
-    populateBlackmanWindow(vec);
+    populateBlackmanWindow(ptr, size);
     return result;
 }
 
@@ -27,8 +25,7 @@ py::array_t<DATATYPE> py_hamming(size_t size) {
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE *ptr = static_cast<DATATYPE *>(buf.ptr);
-    std::span<DATATYPE> vec(ptr, size);
-    populateHammingWindow(vec);
+    populateHammingWindow(ptr, size);
     return result;
 }
 
@@ -36,8 +33,7 @@ py::array_t<DATATYPE> py_hann(size_t size) {
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE *ptr = static_cast<DATATYPE *>(buf.ptr);
-    std::span<DATATYPE> vec(ptr, size);
-    populateHannWindow(vec);
+    populateHannWindow(ptr, size);
     return result;
 }
 
@@ -45,8 +41,7 @@ py::array_t<DATATYPE> py_rectangular(size_t size) {
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE *ptr = static_cast<DATATYPE *>(buf.ptr);
-    std::span<DATATYPE> vec(ptr, size);
-    populateRectangularWindow(vec);
+    populateRectangularWindow(ptr, size);
     return result;
 }
 

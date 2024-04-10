@@ -29,15 +29,13 @@
  * ==============================================================================
  */
 
-#include <span>
 #include <cstddef>
 #include <cmath>
 
 #define SEGMENTER_M_PI 3.14159265358979323846
 
 template<typename T>
-void populateBartlettWindow(std::span<T>& vec) {
-    const std::size_t windowLength = vec.size();
+void populateBartlettWindow(T* vec, const std::size_t windowLength) {
     const T M = windowLength + 1.0;
     for(std::size_t i = 0; i < windowLength; i++) {
         vec[i] = 1.0 - std::abs(-1.0 * (M - 1) / 2.0 + i) * 2.0 / (M - 1.0);
@@ -45,8 +43,7 @@ void populateBartlettWindow(std::span<T>& vec) {
 }
 
 template<typename T>
-void populateBlackmanWindow(std::span<T>& vec) {
-    const std::size_t windowLength = vec.size();
+void populateBlackmanWindow(T* vec, const std::size_t windowLength) {
     const T M = T(windowLength + 1);
     for(std::size_t i = 0; i < windowLength; i++) {
         vec[i] = 7938.0/18608.0 - 9240.0/18608.0 * cos(2.0 * SEGMENTER_M_PI * T(i) / T(M - 1)) + 1430.0/18608.0 * cos(4.0 * SEGMENTER_M_PI * T(i) / T(M - 1));
@@ -54,8 +51,7 @@ void populateBlackmanWindow(std::span<T>& vec) {
 }
 
 template<typename T>
-void populateHammingWindow(std::span<T>& vec) {
-    const std::size_t windowLength = vec.size();
+void populateHammingWindow(T* vec, const std::size_t windowLength) {
     const T M = T(windowLength);
     const T alpha = 25.0 / 46.0;
     const T beta = (1.0 - alpha) / 2.0;
@@ -67,8 +63,7 @@ void populateHammingWindow(std::span<T>& vec) {
 }
 
 template<typename T>
-void populateHannWindow(std::span<T>& vec) {
-    const std::size_t windowLength = vec.size();
+void populateHannWindow(T* vec, const std::size_t windowLength) {
     const T M = T(windowLength);
     for(std::size_t i = 0; i < windowLength; i++) {
         vec[i] = 0.5 * (1.0 - cos(2.0 * SEGMENTER_M_PI * T(i) / M));
@@ -76,8 +71,7 @@ void populateHannWindow(std::span<T>& vec) {
 }
 
 template<typename T>
-void populateRectangularWindow(std::span<T>& vec) {
-    const std::size_t windowLength = vec.size();
+void populateRectangularWindow(T* vec, const std::size_t windowLength) {
     for(std::size_t i = 0; i < windowLength; i++) {
         vec[i] = T(1);
     }
