@@ -1,7 +1,6 @@
 import numpy as np
 
 
-
 # DEPRICATED IN FAVOUR OF THE CPP VERSION, BUT KEPT FOR DOCUMENTATION
 # def bartlett(window_length: int) -> np.array:
 #     """
@@ -11,8 +10,8 @@ import numpy as np
 #     m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0, dtype=np.float64)
 #     window = 1 - abs(m) * 2.0 / (M - 1)
 #     return window
-# 
-# 
+#
+#
 # def blackman(window_length: int) -> np.array:
 #     """
 #     Provides COLA-compliant windows for hopSize = (M-1)/3 when M is odd and
@@ -25,10 +24,10 @@ import numpy as np
 #         - 9240.0 / 18608.0 * np.cos(2.0 * np.pi * m)
 #         + 1430.0 / 18608.0 * np.cos(4.0 * np.pi * m)
 #     )
-# 
+#
 #     return window
-# 
-# 
+#
+#
 # def hamming(window_length: int) -> np.array:
 #     """
 #     Provides COLA-compliant windows for hopSize = M/2, M/4, ...
@@ -40,8 +39,8 @@ import numpy as np
 #         2.0 * np.pi * np.arange(0, window_length, dtype=np.float64) / window_length
 #     )
 #     return window
-# 
-# 
+#
+#
 # def hann(window_length: int) -> np.array:
 #     """
 #     Provides COLA-compliant windows for hopSize = window_length/2,
@@ -51,6 +50,7 @@ import numpy as np
 #     m = np.arange(0, M, dtype=np.float64)
 #     window = 0.5 * (1.0 - np.cos(2.0 * np.pi * m / M))
 #     return window
+
 
 def kaiser(window_length: int, beta: float) -> np.array:
     """
@@ -68,7 +68,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     if window_name == "bartlett50":
         # Bartlett (triangular) window with 50% overlap
         if int(window_length) % 2 != 0:
-            raise ValueError("Odd length Bartlett window with 50 percent overlap is not currently supported.")
+            raise ValueError(
+                "Odd length Bartlett window with 50 percent overlap is not currently supported."
+            )
         else:
             window = bartlett(window_length)
             hopSize = int(window_length) // 2
@@ -76,7 +78,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     elif window_name == "bartlett75":
         # Bartlett window with 75% overlap
         if int(window_length) % 4 != 0:
-            raise ValueError("Bartlett windows with 75 percent overlap expects a window_length divisible by 4.")
+            raise ValueError(
+                "Bartlett windows with 75 percent overlap expects a window_length divisible by 4."
+            )
         else:
             window = bartlett(window_length)
             hopSize = int(window_length) // 4
@@ -84,7 +88,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     elif window_name == "blackman":
         # Blackman window with 2/3 overlap
         if int(window_length) % 3 != 0:
-            raise ValueError("The Blackman window currently only supports overlaps of 2/3.")
+            raise ValueError(
+                "The Blackman window currently only supports overlaps of 2/3."
+            )
         else:
             window = blackman(window_length)
             hopSize = int(window_length) // 3
@@ -104,7 +110,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     elif window_name == "hamming50":
         # Hamming window with 50% overlap
         if window_length % 2 != 0:
-            raise ValueError("Odd length Hamming window at 50 percent overlap is not currently supported.")
+            raise ValueError(
+                "Odd length Hamming window at 50 percent overlap is not currently supported."
+            )
         else:
             window = hamming(window_length)
             hopSize = int(window_length) // 2
@@ -112,7 +120,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     elif window_name == "hamming75":
         # Hamming window with 75% overlap
         if int(window_length) % 4 != 0:
-            raise ValueError("For Hamming windows with 75 percent overlay, the window_length is expected to be divisible by 4.")
+            raise ValueError(
+                "For Hamming windows with 75 percent overlay, the window_length is expected to be divisible by 4."
+            )
         else:
             window = hamming(window_length)
             hopSize = int(window_length) // 4
@@ -120,7 +130,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     elif window_name == "hann50":
         # Hann window with 50% overlap
         if int(window_length) % 2 != 0:
-            raise ValueError("Odd length Hann window at 50 percent overlap is not currently supported.")
+            raise ValueError(
+                "Odd length Hann window at 50 percent overlap is not currently supported."
+            )
         else:
             window = hann(window_length)
             hopSize = int(window_length) // 2
@@ -128,7 +140,9 @@ def default_window_selector(window_name: str, window_length: int) -> np.array:
     elif window_name == "hann75":
         # Hann window with 75% overlap
         if int(window_length) % 4 != 0:
-            raise ValueError("For Hann windows with 75 percent overlap, the window_length is expected to be divisible by 4.")
+            raise ValueError(
+                "For Hann windows with 75 percent overlap, the window_length is expected to be divisible by 4."
+            )
         else:
             window = hann(window_length)
             hopSize = int(window_length) // 4
