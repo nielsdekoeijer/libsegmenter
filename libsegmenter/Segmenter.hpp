@@ -125,10 +125,5 @@ class Segmenter {
                 throw std::runtime_error("specified window contains negative values");
             }
         }
-
-        if check_cola(self.window.cpu().numpy(), self.hop_size)[0] == False:
-            raise ValueError(
-                "specified window is not COLA, consider using `default_window_selector`"
-            )
     }
 };
