@@ -14,6 +14,8 @@ class SegmenterTorch(torch.nn.Module):
         normalize_window=True,
         device=None,
         dtype=None,
+        compute_spectrogram=False,
+        spectrogram_norm="backward",
     ):
         """
         A class for segmenting input data using windowing and hop size with support for WOLA and OLA modes.
@@ -94,6 +96,9 @@ class SegmenterTorch(torch.nn.Module):
         else:
             raise ValueError(f"only support for model ola and wola")
 
+        self.compute_spectrogram = mode
+        self.spectrogram_norm = spectrogram_norm
+
     def segment(self, x):
         if (x.dim() == 2) and (x.shape[1] > 1):
             number_of_batch_elements = x.shape[0]
@@ -146,6 +151,10 @@ class SegmenterTorch(torch.nn.Module):
                         :, k * self.hop_size : k * self.hop_size + self.frame_size
                     ]
 
+        if self.compute_spectrogram:
+            X = torch.fft.rfft(X, norm=self.spectrogram_norm)
+
+        # torchaudio convention
         X = X.permute(0, 2, 1)
 
         if not batched:
@@ -172,7 +181,11 @@ class SegmenterTorch(torch.nn.Module):
                 f"only support for inputs with dimension 2 or 3, provided {X.dim()}"
             )
 
+        # torchaudio convention
         X = X.permute(0, 2, 1)
+
+        if self.compute_spectrogram:
+            X = torch.fft.irfft(X, norm=self.spectrogram_norm)
 
         number_of_samples = (number_of_segments - 1) * self.hop_size + self.frame_size
 

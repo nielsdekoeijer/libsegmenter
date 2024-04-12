@@ -10,7 +10,7 @@ py::array_t<DATATYPE> py_bartlett(size_t size)
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateBartlettWindow(ptr, size);
+    populateBartlettWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -19,7 +19,7 @@ py::array_t<DATATYPE> py_blackman(size_t size)
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateBlackmanWindow(ptr, size);
+    populateBlackmanWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -28,7 +28,7 @@ py::array_t<DATATYPE> py_hamming(size_t size)
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateHammingWindow(ptr, size);
+    populateHammingWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -37,7 +37,7 @@ py::array_t<DATATYPE> py_hann(size_t size)
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateHannWindow(ptr, size);
+    populateHannWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -46,7 +46,7 @@ py::array_t<DATATYPE> py_rectangular(size_t size)
     auto result = py::array_t<DATATYPE>(size);
     auto buf = result.request();
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateRectangularWindow(ptr, size);
+    populateRectangularWindow<DATATYPE>(ptr, size);
     return result;
 }
 
