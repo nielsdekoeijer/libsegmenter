@@ -150,7 +150,7 @@ class SegmenterTorch(torch.nn.Module):
             X = torch.fft.rfft(X)
 
         # torchaudio convention
-        X = X.permute(0, 2, 1)
+        # X = X.permute(0, 2, 1)
 
         if not batched:
             # convert back to not-batched
@@ -161,12 +161,12 @@ class SegmenterTorch(torch.nn.Module):
     def _unsegment(self, X, compute_spectrogram=False):
         if X.dim() == 3:
             number_of_batch_elements = X.shape[0]
-            number_of_segments = X.shape[2]
+            number_of_segments = X.shape[1]
             batched = True
 
         elif X.dim() == 2:
             number_of_batch_elements = 1
-            number_of_segments = X.shape[1]
+            number_of_segments = X.shape[0]
 
             # convert to batched to simplify subsequent code
             batched = False
@@ -177,7 +177,7 @@ class SegmenterTorch(torch.nn.Module):
             )
 
         # torchaudio convention
-        X = X.permute(0, 2, 1)
+        # X = X.permute(0, 2, 1)
 
         if compute_spectrogram:
             X = torch.fft.irfft(X)

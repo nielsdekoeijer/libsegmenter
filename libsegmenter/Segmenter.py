@@ -16,3 +16,8 @@ def make_segmenter(backend: str = "base", *args, **kwargs):
         from .SegmenterTensorFlow import SegmenterTensorFlow
 
         return SegmenterTensorFlow(*args, **kwargs)
+
+    if backend == "base":
+        from .bindings import Segmenter
+
+        return Segmenter(*args, **kwargs)
