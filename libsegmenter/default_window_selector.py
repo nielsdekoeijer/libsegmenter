@@ -1,57 +1,5 @@
 import numpy as np
 
-
-# DEPRICATED IN FAVOUR OF THE CPP VERSION, BUT KEPT FOR DOCUMENTATION
-# def bartlett(window_length: int) -> np.array:
-#     """
-#     Bartlett (triangular) window
-#     """
-#     M = np.float64(window_length + 1.0)
-#     m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0, dtype=np.float64)
-#     window = 1 - abs(m) * 2.0 / (M - 1)
-#     return window
-#
-#
-# def blackman(window_length: int) -> np.array:
-#     """
-#     Provides COLA-compliant windows for hopSize = (M-1)/3 when M is odd and
-#     hopSize M/3 when M is even
-#     """
-#     M = np.float64(window_length + 1.0)
-#     m = np.arange(0, M - 1, dtype=np.float64) / (M - 1)
-#     window = (
-#         7938.0 / 18608.0
-#         - 9240.0 / 18608.0 * np.cos(2.0 * np.pi * m)
-#         + 1430.0 / 18608.0 * np.cos(4.0 * np.pi * m)
-#     )
-#
-#     return window
-#
-#
-# def hamming(window_length: int) -> np.array:
-#     """
-#     Provides COLA-compliant windows for hopSize = M/2, M/4, ...
-#     """
-#     M = np.float64(window_length)
-#     alpha = 25.0 / 46.0
-#     beta = (1 - alpha) / 2.0
-#     window = alpha - 2 * beta * np.cos(
-#         2.0 * np.pi * np.arange(0, window_length, dtype=np.float64) / window_length
-#     )
-#     return window
-#
-#
-# def hann(window_length: int) -> np.array:
-#     """
-#     Provides COLA-compliant windows for hopSize = window_length/2,
-#     window_length/4, ...
-#     """
-#     M = np.float64(window_length)
-#     m = np.arange(0, M, dtype=np.float64)
-#     window = 0.5 * (1.0 - np.cos(2.0 * np.pi * m / M))
-#     return window
-
-
 def kaiser(window_length: int, beta: float) -> np.array:
     """
     Note that the Kaiser window is not strictly speaking COLA compliant as it does not have harmonic nulls that can be tuned to the

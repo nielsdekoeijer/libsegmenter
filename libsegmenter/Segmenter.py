@@ -1,9 +1,7 @@
 import numpy as np
 from .default_window_selector import default_window_selector
-from .check_cola import check_cola
 
 backends = ["torch", "tensorflow", "base"]
-
 
 def make_segmenter(backend: str = "base", *args, **kwargs):
     if backend not in backends:

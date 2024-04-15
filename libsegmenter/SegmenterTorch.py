@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from .check_cola import check_cola
+from .bindings import check_cola
 
 
 class SegmenterTorch(torch.nn.Module):
@@ -14,8 +14,6 @@ class SegmenterTorch(torch.nn.Module):
         normalize_window=True,
         device=None,
         dtype=None,
-        compute_spectrogram=False,
-        spectrogram_norm="backward",
     ):
         """
         A class for segmenting input data using windowing and hop size with support for WOLA and OLA modes.
@@ -96,10 +94,7 @@ class SegmenterTorch(torch.nn.Module):
         else:
             raise ValueError(f"only support for model ola and wola")
 
-        self.compute_spectrogram = mode
-        self.spectrogram_norm = spectrogram_norm
-
-    def segment(self, x):
+    def _segment(self, x, compute_spectrogram=False):
         if (x.dim() == 2) and (x.shape[1] > 1):
             number_of_batch_elements = x.shape[0]
             number_of_samples = x.shape[1]
@@ -151,8 +146,8 @@ class SegmenterTorch(torch.nn.Module):
                         :, k * self.hop_size : k * self.hop_size + self.frame_size
                     ]
 
-        if self.compute_spectrogram:
-            X = torch.fft.rfft(X, norm=self.spectrogram_norm)
+        if compute_spectrogram:
+            X = torch.fft.rfft(X)
 
         # torchaudio convention
         X = X.permute(0, 2, 1)
@@ -163,7 +158,7 @@ class SegmenterTorch(torch.nn.Module):
 
         return X
 
-    def unsegment(self, X):
+    def _unsegment(self, X, compute_spectrogram=False):
         if X.dim() == 3:
             number_of_batch_elements = X.shape[0]
             number_of_segments = X.shape[2]
@@ -184,8 +179,8 @@ class SegmenterTorch(torch.nn.Module):
         # torchaudio convention
         X = X.permute(0, 2, 1)
 
-        if self.compute_spectrogram:
-            X = torch.fft.irfft(X, norm=self.spectrogram_norm)
+        if compute_spectrogram:
+            X = torch.fft.irfft(X)
 
         number_of_samples = (number_of_segments - 1) * self.hop_size + self.frame_size
 
@@ -209,3 +204,15 @@ class SegmenterTorch(torch.nn.Module):
             # convert back to not-batched
             x = x.squeeze(0)
         return x
+
+    def segment(self, x):
+        return self._segment(x)
+
+    def unsegment(self, X):
+        return self._unsegment(X)
+
+    def spectrogram(self, x):
+        X = self._segment(x, compute_spectrogram=True)
+
+    def unspectrogram(self, X):
+        return self._unsegment(X, compute_spectrogram=True)

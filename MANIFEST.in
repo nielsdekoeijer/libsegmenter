@@ -1,1 +1,4 @@
 include libsegmenter/*.hpp
+include libsegmenter/*.cpp
+include CMakeLists.txt
+include cmake/CPM.cmake

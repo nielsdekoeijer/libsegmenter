@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from .check_cola import check_cola
+from .bindings import check_cola
 
 
 class SegmenterTensorFlow(tf.Module):
@@ -12,7 +12,6 @@ class SegmenterTensorFlow(tf.Module):
         mode="wola",
         edge_correction=True,
         normalize_window=True,
-        compute_spectrogram=False,
     ):
         """
         A class for segmenting input data using windowing and hop size with support for WOLA and OLA modes.
@@ -95,9 +94,7 @@ class SegmenterTensorFlow(tf.Module):
         self.prewindow = tf.convert_to_tensor(prewindow, dtype=tf.float32)
         self.postwindow = tf.convert_to_tensor(postwindow, dtype=tf.float32)
 
-        self.compute_spectrogram = mode
-
-    def segment(self, x):
+    def _segment(self, x, compute_spectrogram=False):
         if (tf.rank(x) == 2) and (x.shape[1] > 1):
             number_of_batch_elements = x.shape[0]
             number_of_samples = x.shape[1]
@@ -156,7 +153,7 @@ class SegmenterTensorFlow(tf.Module):
                     )
                     X = tf.tensor_scatter_nd_add(X, [[[b, k]]], tmp)
 
-        if self.compute_spectrogram:
+        if compute_spectrogram:
             X = tf.signal.rfft(X)
 
         X = tf.transpose(X, perm=[0, 2, 1])
@@ -167,7 +164,7 @@ class SegmenterTensorFlow(tf.Module):
 
         return X
 
-    def unsegment(self, X):
+    def _unsegment(self, X, compute_spectrogram=False):
         if tf.rank(X) == 3:
             number_of_batch_elements = X.shape[0]
             number_of_frames = X.shape[2]
@@ -187,9 +184,8 @@ class SegmenterTensorFlow(tf.Module):
 
         X = tf.transpose(X, perm=[0, 2, 1])
 
-        if self.compute_spectrogram:
+        if compute_spectrogram:
             X = tf.signal.irfft(X)
-
 
         x = tf.zeros(shape=(number_of_batch_elements, number_of_samples))
         for b in range(number_of_batch_elements):
@@ -226,3 +222,15 @@ class SegmenterTensorFlow(tf.Module):
             x = tf.squeeze(x, axis=0)
 
         return x
+
+    def segment(self, x):
+        return self._segment(x)
+
+    def unsegment(self, X):
+        return self._unsegment(X)
+
+    def spectrogram(self, x):
+        X = self._segment(x, compute_spectrogram=True)
+
+    def unspectrogram(self, X):
+        return self._unsegment(X, compute_spectrogram=True)

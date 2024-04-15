@@ -1,18 +1,23 @@
 [build-system]
-requires = ["setuptools", "wheel", "pybind11>=2.10.0" ]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "ninja",
+    "cmake>=3.12",
+]
 build-backend = "setuptools.build_meta"
 
-[project]
-name = "libsegmenter"
-version = "0.5"
-description = "An opinionated segmentation library for (machine learning) audio. Note that all versions before 1.0 are considered unstable and still subject to testing..."
-authors = [
-    { name = "Niels de Koeijer" },
-    { name = "Martin Bo Moller" }
-]
-dependencies = [
-    "numpy"
-]
+[tool.mypy]
+files = "setup.py"
+strict = true
+show_error_codes = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["ninja"]
+ignore_missing_imports = true
+
 
 # testing
 [tool.pytest.ini_options]
