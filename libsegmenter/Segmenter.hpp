@@ -29,6 +29,8 @@
  * ==============================================================================
  */
 
+#pragma once
+
 #include <cmath>
 #include <complex>
 #include <cstddef>
@@ -151,10 +153,11 @@ COLAResult<T> checkCola(const T* window, const std::size_t windowSize,
         lbound -= Wfb / T(hopSize);
     }
 
-    return COLAResult<T>{
-        .isCola = (ubound - lbound) < eps,
-        .normalizationValue = (ubound + lbound) / 2.0,
-    };
+    COLAResult<T> result;
+    result.isCola = (ubound - lbound) < eps;
+    result.normalizationValue = (ubound + lbound) / 2.0;
+
+    return result;
 }
 
 /*

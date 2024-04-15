@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(Segmenter VERSION 1.0 LANGUAGES CXX)
 set(NAMESPACE Segmenter)
+set(CMAKE_CXX_STANDARD 17)
 
 include(cmake/CPM.cmake)
 CPMAddPackage("gh:macoustics/split-radix-fft#0.1")
-
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
