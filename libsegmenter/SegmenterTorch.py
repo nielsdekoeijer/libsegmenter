@@ -56,21 +56,26 @@ class SegmenterTorch(torch.nn.Module):
                 "specified window is not COLA, consider using `default_window_selector`"
             )
 
+        # print(self.window)
+
         # compute prewindow and postwindow
         self.prewindow = self.window.clone()
         self.postwindow = self.window.clone()
         i = self.hop_size
-        for h_idx in range(1, self.frame_size // self.hop_size + 1):
-            idx1_start = h_idx * self.hop_size
-            idx1_end = self.frame_size
-            idx2_start = 0
-            idx2_end = self.frame_size - idx1_start
-            self.prewindow[idx2_start:idx2_end] = (
-                self.prewindow[idx2_start:idx2_end] + self.window[idx1_start:idx1_end]
-            )
-            self.postwindow[idx1_start:idx1_end] = (
-                self.postwindow[idx1_start:idx1_end] + self.window[idx2_start:idx2_end]
-            )
+        if edge_correction:
+            for h_idx in range(1, self.frame_size // self.hop_size + 1):
+                idx1_start = h_idx * self.hop_size
+                idx1_end = self.frame_size
+                idx2_start = 0
+                idx2_end = self.frame_size - idx1_start
+                self.prewindow[idx2_start:idx2_end] = (
+                    self.prewindow[idx2_start:idx2_end]
+                    + self.window[idx1_start:idx1_end]
+                )
+                self.postwindow[idx1_start:idx1_end] = (
+                    self.postwindow[idx1_start:idx1_end]
+                    + self.window[idx2_start:idx2_end]
+                )
 
         # Perform normalization of window function
         if normalize_window:
@@ -80,11 +85,8 @@ class SegmenterTorch(torch.nn.Module):
             self.prewindow = self.prewindow / normalization
             self.postwindow = self.postwindow / normalization
 
-        if not edge_correction:
-            self.prewindow = self.window
-            self.postwindow = self.window
-
         if mode == "wola":
+            print("sqrting")
             self.mode = mode
             self.window = torch.sqrt(self.window)
             self.prewindow = torch.sqrt(self.prewindow)
@@ -111,6 +113,8 @@ class SegmenterTorch(torch.nn.Module):
                 f"only support for inputs with dimension 1 or 2, provided {x.dim()}"
             )
 
+        print(x)
+
         number_of_segments = (
             (number_of_samples) // self.hop_size - self.frame_size // self.hop_size + 1
         )
@@ -120,31 +124,30 @@ class SegmenterTorch(torch.nn.Module):
             **self.factory_kwargs,
         )
 
-        for b in range(number_of_batch_elements):
-            if self.mode == "wola":
-                k = 0
+        if self.mode == "wola":
+            k = 0
+            X[:, k, :] = (
+                x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
+                * self.prewindow
+            )
+            for k in range(1, number_of_segments - 1):
                 X[:, k, :] = (
-                    x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
-                    * self.prewindow
-                )
-                for k in range(1, number_of_segments - 1):
-                    X[:, k, :] = (
-                        x[
-                            :,
-                            k * self.hop_size : k * self.hop_size + self.frame_size,
-                        ]
-                        * self.window
-                    )
-                k = number_of_segments - 1
-                X[:, k, :] = (
-                    x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
-                    * self.postwindow
-                )
-            else:
-                for k in range(number_of_segments):
-                    X[:, k, :] = x[
-                        :, k * self.hop_size : k * self.hop_size + self.frame_size
+                    x[
+                        :,
+                        k * self.hop_size : k * self.hop_size + self.frame_size,
                     ]
+                    * self.window
+                )
+            k = number_of_segments - 1
+            X[:, k, :] = (
+                x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
+                * self.postwindow
+            )
+        else:
+            for k in range(number_of_segments):
+                X[:, k, :] = x[
+                    :, k * self.hop_size : k * self.hop_size + self.frame_size
+                ]
 
         if compute_spectrogram:
             X = torch.fft.rfft(X)

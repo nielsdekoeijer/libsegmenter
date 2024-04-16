@@ -3,6 +3,7 @@ from .default_window_selector import default_window_selector
 
 backends = ["torch", "tensorflow", "base"]
 
+
 def make_segmenter(backend: str = "base", *args, **kwargs):
     if backend not in backends:
         raise ValueError(f"Unsupported backend {backend}, availible: {backends}")

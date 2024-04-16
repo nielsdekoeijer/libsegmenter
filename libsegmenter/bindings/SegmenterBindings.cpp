@@ -1,15 +1,20 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include <iostream>
+#include <string>
 namespace py = pybind11;
 
 #include "Segmenter.hpp"
 
 using DATATYPE = double;
+using PYARRAY =
+    py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>;
 
-py::array_t<DATATYPE> py_bartlett(size_t size)
+PYARRAY py_bartlett(size_t size)
 {
-    auto result =
-        py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>(size);
+    auto result = PYARRAY(size);
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
@@ -17,10 +22,9 @@ py::array_t<DATATYPE> py_bartlett(size_t size)
     return result;
 }
 
-py::array_t<DATATYPE> py_blackman(size_t size)
+PYARRAY py_blackman(size_t size)
 {
-    auto result =
-        py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>(size);
+    auto result = PYARRAY(size);
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
@@ -28,10 +32,9 @@ py::array_t<DATATYPE> py_blackman(size_t size)
     return result;
 }
 
-py::array_t<DATATYPE> py_hamming(size_t size)
+PYARRAY py_hamming(size_t size)
 {
-    auto result =
-        py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>(size);
+    auto result = PYARRAY(size);
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
@@ -39,10 +42,9 @@ py::array_t<DATATYPE> py_hamming(size_t size)
     return result;
 }
 
-py::array_t<DATATYPE> py_hann(size_t size)
+PYARRAY py_hann(size_t size)
 {
-    auto result =
-        py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>(size);
+    auto result = PYARRAY(size);
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
@@ -50,10 +52,9 @@ py::array_t<DATATYPE> py_hann(size_t size)
     return result;
 }
 
-py::array_t<DATATYPE> py_rectangular(size_t size)
+PYARRAY py_rectangular(size_t size)
 {
-    auto result =
-        py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>(size);
+    auto result = PYARRAY(size);
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
@@ -61,9 +62,8 @@ py::array_t<DATATYPE> py_rectangular(size_t size)
     return result;
 }
 
-py::tuple py_checkCola(
-    py::array_t<DATATYPE, py::array::c_style | py::array::forcecast> window,
-    std::size_t hopSize, DATATYPE eps = static_cast<DATATYPE>(1e-5))
+py::tuple py_checkCola(PYARRAY window, std::size_t hopSize,
+                       DATATYPE eps = static_cast<DATATYPE>(1e-5))
 {
 
     auto buf = window.request();
@@ -92,36 +92,88 @@ class py_Segmenter {
         }
     }
 
-    template <typename T>
-    T** make2DPointerView(T* ptr, const std::array<std::size_t, 2>& shape)
+    PYARRAY makePythonArray(DATATYPE* data,
+                            const std::array<std::size_t, 3>& shape)
     {
-        T** view = new T*[shape[0]];
-        for (std::size_t i = 0; i < shape[0]; i++) {
-            view[i] = ptr + i * shape[1];
-        }
+        std::size_t size = sizeof(DATATYPE);
+        std::array<std::size_t, 3> stride;
+        stride[0] = size * shape[1] * shape[2];
+        stride[1] = size * shape[2];
+        stride[2] = size;
 
-        return view;
+        py::capsule free_when_done(
+            data, [](void* f) { delete[] reinterpret_cast<DATATYPE*>(f); });
+
+        return py::array(
+            py::buffer_info(
+                data,                                      // ptr to data
+                size,                                      // scalar size
+                py::format_descriptor<DATATYPE>::format(), // python format
+                3,     // number of dimensions
+                shape, // output shape
+                stride // output stride
+                ),
+            free_when_done // capsule will free the data when Python object is
+                           // collected
+        );
     }
 
-    template <typename T>
-    T*** make3DPointerView(T* ptr, const std::array<std::size_t, 3>& shape)
+    PYARRAY makePythonArray(DATATYPE* data,
+                            const std::array<std::size_t, 2>& shape)
     {
-        T*** view = new T**[shape[0]];
-        for (std::size_t i = 0; i < shape[0]; i++) {
-            view[i] = make2DPointerView(ptr + i * (shape[1] * shape[2]),
-                                        {shape[1], shape[2]});
-        }
+        std::size_t size = sizeof(DATATYPE);
+        std::array<std::size_t, 2> stride;
+        stride[0] = size * shape[1];
+        stride[1] = size;
 
-        return view;
+        py::capsule free_when_done(
+            data, [](void* f) { delete[] reinterpret_cast<DATATYPE*>(f); });
+
+        return py::array(
+            py::buffer_info(
+                data,                                      // ptr to data
+                size,                                      // scalar size
+                py::format_descriptor<DATATYPE>::format(), // python format
+                2,     // number of dimensions
+                shape, // output shape
+                stride // output stride
+                ),
+            free_when_done // capsule will free the data when Python object is
+                           // collected
+        );
+    }
+
+    PYARRAY makePythonArray(DATATYPE* data,
+                            const std::array<std::size_t, 1>& shape)
+    {
+        std::size_t size = sizeof(DATATYPE);
+        std::array<std::size_t, 1> stride;
+        stride[0] = size;
+
+        py::capsule free_when_done(
+            data, [](void* f) { delete[] reinterpret_cast<DATATYPE*>(f); });
+
+        return py::array(
+            py::buffer_info(
+                data,                                      // ptr to data
+                size,                                      // scalar size
+                py::format_descriptor<DATATYPE>::format(), // python format
+                1,     // number of dimensions
+                shape, // output shape
+                stride // output stride
+                ),
+            free_when_done // capsule will free the data when Python object is
+                           // collected
+        );
     }
 
   public:
     // Constructor: Initializes the Segmenter with provided arguments
-    py_Segmenter(
-        std::size_t frameSize, std::size_t hopSize,
-        py::array_t<DATATYPE, py::array::c_style | py::array::forcecast> window,
-        std::string modeString, bool edgeCorrection, bool normalizeWindow)
+    py_Segmenter(std::size_t frameSize, std::size_t hopSize, PYARRAY window,
+                 std::string modeString = "wola", bool edgeCorrection = true,
+                 bool normalizeWindow = true)
     {
+        // Determine wola mode based on string
         SegmenterMode mode = determineMode(modeString);
 
         // Obtain an array from numpy
@@ -137,65 +189,85 @@ class py_Segmenter {
             normalizeWindow);
     }
 
-    py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>
-    segment(const py::array_t<DATATYPE,
-                              py::array::c_style | py::array::forcecast>& x)
+    PYARRAY
+    segment(const PYARRAY& arr)
     {
-        auto buf = x.request();
+        auto buf = arr.request();
 
-        // determine batch size
-        std::size_t batchSize, inputLength;
+        // extract input size
+        bool batched;
+        std::array<std::size_t, 2> ishape{};
         if (buf.ndim == 1) {
-            batchSize = 1;
-            inputLength = buf.shape[0];
-        } else if (buf.ndim != 2) {
-            batchSize = buf.shape[0];
-            inputLength = buf.shape[1];
-
+            ishape[0] = 1;
+            ishape[1] = buf.shape[0];
+            batched = false;
+        } else if (buf.ndim == 2) {
+            ishape[0] = buf.shape[0];
+            ishape[1] = buf.shape[1];
+            batched = true;
         } else {
             throw std::runtime_error(
                 "input should be a 1-dimensional or 2-dimensional array");
         }
 
+        std::array<std::size_t, 3> oshape{};
+        m_segmenter->getSegmentationShape(ishape, oshape);
+
         // get input pointer
-        DATATYPE* inputPtr = static_cast<DATATYPE*>(buf.ptr);
+        DATATYPE* iptr = static_cast<DATATYPE*>(buf.ptr);
+        std::unique_ptr<DATATYPE[]> optr(
+            new DATATYPE[oshape[0] * oshape[1] * oshape[2]]);
 
-        // make input pointer view
-        std::array<std::size_t, 2> inputBatchShape{batchSize, inputLength};
-        DATATYPE** inputBatchPtrView =
-            make2DPointerView(inputPtr, inputBatchShape);
+        m_segmenter->segment(iptr, ishape, optr.get(), oshape);
 
-        // get output pointer
-        std::size_t frameCount = m_segmenter->getFrameCount(inputLength);
-        std::size_t frameSize = m_segmenter->getFrameSize();
-        DATATYPE* outputPtr = new DATATYPE[batchSize * frameSize * frameCount];
-
-        // make output pointer view
-        std::array<std::size_t, 3> outputBatchShape{batchSize, frameCount,
-                                                    frameSize};
-        DATATYPE*** outputBatchPtrView =
-            make3DPointerView(outputPtr, outputBatchShape);
-
-        // segment
-        m_segmenter->segment(inputBatchPtrView, inputBatchShape,
-                             outputBatchPtrView, outputBatchShape);
-
-        // wrap in pyarray
-        return py::array(py::buffer_info(
-            outputPtr, sizeof(DATATYPE),
-            py::format_descriptor<DATATYPE>::format(), 3, outputBatchShape,
-            {sizeof(DATATYPE) * outputBatchShape[1] * outputBatchShape[2],
-             sizeof(DATATYPE) * outputBatchShape[2], sizeof(DATATYPE)}));
+        if (batched) {
+            return makePythonArray(optr.release(), oshape);
+        } else {
+            return makePythonArray(optr.release(), std::array<std::size_t, 2>{
+                                                       oshape[1], oshape[2]});
+        }
     }
-    /*
-    void unsegment(const py::array_t<DATATYPE, py::array::c_style |
-                                                   py::array::forcecast>& X)
+
+    PYARRAY
+    unsegment(const PYARRAY& arr)
     {
-        void; // m_segmenter->unsegment();
+        auto buf = arr.request();
+
+        // extract input size
+        bool batched;
+        std::array<std::size_t, 3> ishape{};
+        if (buf.ndim == 2) {
+            ishape[0] = 1;
+            ishape[1] = buf.shape[0];
+            ishape[2] = buf.shape[1];
+            batched = false;
+        } else if (buf.ndim == 3) {
+            ishape[0] = buf.shape[0];
+            ishape[1] = buf.shape[1];
+            ishape[2] = buf.shape[2];
+            batched = true;
+        } else {
+            throw std::runtime_error(
+                "input should be a 2-dimensional or 3-dimensional array");
+        }
+
+        std::array<std::size_t, 2> oshape{};
+        m_segmenter->getSegmentationShape(oshape, ishape);
+
+        // get input pointer
+        DATATYPE* iptr = static_cast<DATATYPE*>(buf.ptr);
+        std::unique_ptr<DATATYPE[]> optr(
+            new DATATYPE[oshape[0] * oshape[1] * oshape[2]]);
+
+        m_segmenter->unsegment(iptr, ishape, optr.get(), oshape);
+
+        if (batched) {
+            return makePythonArray(optr.release(), oshape);
+        } else {
+            return makePythonArray(optr.release(),
+                                   std::array<std::size_t, 1>{oshape[1]});
+        }
     }
-    void spectrogram() { m_segmenter->spectrogram(); }
-    void unspectrogram() { m_segmenter->unspectrogram(); }
-    */
 };
 
 PYBIND11_MODULE(bindings, m)
@@ -211,9 +283,11 @@ PYBIND11_MODULE(bindings, m)
           py::arg("window"), py::arg("hop_size"), py::arg("eps") = 1e-5);
 
     py::class_<py_Segmenter>(m, "Segmenter")
-        .def(py::init<
-             std::size_t, std::size_t,
-             py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>,
-             std::string, bool, bool>())
-        .def("segment", &py_Segmenter::segment);
+        .def(py::init<std::size_t, std::size_t, PYARRAY, std::string, bool,
+                      bool>(),
+             py::arg("frame_size"), py::arg("hop_size"), py::arg("window"),
+             py::arg("mode") = "wola", py::arg("edge_correction") = true,
+             py::arg("normalize_window") = true)
+        .def("segment", &py_Segmenter::segment)
+        .def("unsegment", &py_Segmenter::unsegment);
 }
