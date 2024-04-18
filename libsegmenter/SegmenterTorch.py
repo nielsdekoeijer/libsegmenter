@@ -56,21 +56,26 @@ class SegmenterTorch(torch.nn.Module):
                 "specified window is not COLA, consider using `default_window_selector`"
             )
 
+        # print(self.window)
+
         # compute prewindow and postwindow
         self.prewindow = self.window.clone()
         self.postwindow = self.window.clone()
         i = self.hop_size
-        for h_idx in range(1, self.frame_size // self.hop_size + 1):
-            idx1_start = h_idx * self.hop_size
-            idx1_end = self.frame_size
-            idx2_start = 0
-            idx2_end = self.frame_size - idx1_start
-            self.prewindow[idx2_start:idx2_end] = (
-                self.prewindow[idx2_start:idx2_end] + self.window[idx1_start:idx1_end]
-            )
-            self.postwindow[idx1_start:idx1_end] = (
-                self.postwindow[idx1_start:idx1_end] + self.window[idx2_start:idx2_end]
-            )
+        if edge_correction:
+            for h_idx in range(1, self.frame_size // self.hop_size + 1):
+                idx1_start = h_idx * self.hop_size
+                idx1_end = self.frame_size
+                idx2_start = 0
+                idx2_end = self.frame_size - idx1_start
+                self.prewindow[idx2_start:idx2_end] = (
+                    self.prewindow[idx2_start:idx2_end]
+                    + self.window[idx1_start:idx1_end]
+                )
+                self.postwindow[idx1_start:idx1_end] = (
+                    self.postwindow[idx1_start:idx1_end]
+                    + self.window[idx2_start:idx2_end]
+                )
 
         # Perform normalization of window function
         if normalize_window:
@@ -79,10 +84,6 @@ class SegmenterTorch(torch.nn.Module):
             self.window = self.window / normalization
             self.prewindow = self.prewindow / normalization
             self.postwindow = self.postwindow / normalization
-
-        if not edge_correction:
-            self.prewindow = self.window
-            self.postwindow = self.window
 
         if mode == "wola":
             self.mode = mode
@@ -111,6 +112,8 @@ class SegmenterTorch(torch.nn.Module):
                 f"only support for inputs with dimension 1 or 2, provided {x.dim()}"
             )
 
+        # print(x)
+
         number_of_segments = (
             (number_of_samples) // self.hop_size - self.frame_size // self.hop_size + 1
         )
@@ -120,37 +123,36 @@ class SegmenterTorch(torch.nn.Module):
             **self.factory_kwargs,
         )
 
-        for b in range(number_of_batch_elements):
-            if self.mode == "wola":
-                k = 0
+        if self.mode == "wola":
+            k = 0
+            X[:, k, :] = (
+                x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
+                * self.prewindow
+            )
+            print("multiplying")
+            print(x[:, k * self.hop_size : k * self.hop_size + self.frame_size])
+            # print(X[:, k, :])
+            for k in range(1, number_of_segments - 1):
                 X[:, k, :] = (
-                    x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
-                    * self.prewindow
-                )
-                for k in range(1, number_of_segments - 1):
-                    X[:, k, :] = (
-                        x[
-                            :,
-                            k * self.hop_size : k * self.hop_size + self.frame_size,
-                        ]
-                        * self.window
-                    )
-                k = number_of_segments - 1
-                X[:, k, :] = (
-                    x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
-                    * self.postwindow
-                )
-            else:
-                for k in range(number_of_segments):
-                    X[:, k, :] = x[
-                        :, k * self.hop_size : k * self.hop_size + self.frame_size
+                    x[
+                        :,
+                        k * self.hop_size : k * self.hop_size + self.frame_size,
                     ]
+                    * self.window
+                )
+            k = number_of_segments - 1
+            X[:, k, :] = (
+                x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
+                * self.postwindow
+            )
+        else:
+            for k in range(number_of_segments):
+                X[:, k, :] = x[
+                    :, k * self.hop_size : k * self.hop_size + self.frame_size
+                ]
 
         if compute_spectrogram:
             X = torch.fft.rfft(X)
-
-        # torchaudio convention
-        X = X.permute(0, 2, 1)
 
         if not batched:
             # convert back to not-batched
@@ -161,12 +163,12 @@ class SegmenterTorch(torch.nn.Module):
     def _unsegment(self, X, compute_spectrogram=False):
         if X.dim() == 3:
             number_of_batch_elements = X.shape[0]
-            number_of_segments = X.shape[2]
+            number_of_segments = X.shape[1]
             batched = True
 
         elif X.dim() == 2:
             number_of_batch_elements = 1
-            number_of_segments = X.shape[1]
+            number_of_segments = X.shape[0]
 
             # convert to batched to simplify subsequent code
             batched = False
@@ -175,9 +177,6 @@ class SegmenterTorch(torch.nn.Module):
             raise ValueError(
                 f"only support for inputs with dimension 2 or 3, provided {X.dim()}"
             )
-
-        # torchaudio convention
-        X = X.permute(0, 2, 1)
 
         if compute_spectrogram:
             X = torch.fft.irfft(X)

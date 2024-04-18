@@ -3,6 +3,7 @@ from .default_window_selector import default_window_selector
 
 backends = ["torch", "tensorflow", "base"]
 
+
 def make_segmenter(backend: str = "base", *args, **kwargs):
     if backend not in backends:
         raise ValueError(f"Unsupported backend {backend}, availible: {backends}")
@@ -16,3 +17,8 @@ def make_segmenter(backend: str = "base", *args, **kwargs):
         from .SegmenterTensorFlow import SegmenterTensorFlow
 
         return SegmenterTensorFlow(*args, **kwargs)
+
+    if backend == "base":
+        from .bindings import Segmenter
+
+        return Segmenter(*args, **kwargs)

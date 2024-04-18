@@ -48,6 +48,7 @@ def hann(window_length: int) -> np.array:
     window = 0.5 * (1.0 - np.cos(2.0 * np.pi * m / M))
     return window
 
+
 def check_cola(window: np.array, hop_size: int, eps=1e-5) -> (bool, np.float64):
     window_length = window.size
 

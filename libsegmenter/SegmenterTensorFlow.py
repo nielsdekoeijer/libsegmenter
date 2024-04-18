@@ -156,7 +156,8 @@ class SegmenterTensorFlow(tf.Module):
         if compute_spectrogram:
             X = tf.signal.rfft(X)
 
-        X = tf.transpose(X, perm=[0, 2, 1])
+        # torchaudio convention
+        # X = tf.transpose(X, perm=[0, 2, 1])
 
         if not batched:
             # convert back to not-batched
@@ -167,11 +168,11 @@ class SegmenterTensorFlow(tf.Module):
     def _unsegment(self, X, compute_spectrogram=False):
         if tf.rank(X) == 3:
             number_of_batch_elements = X.shape[0]
-            number_of_frames = X.shape[2]
+            number_of_frames = X.shape[1]
             batched = True
         elif tf.rank(X) == 2:
-            number_of_frames = X.shape[1]
             number_of_batch_elements = 1
+            number_of_frames = X.shape[0]
 
             # convert to batched to simplify subsequent code
             batched = False
@@ -182,7 +183,8 @@ class SegmenterTensorFlow(tf.Module):
             )
         number_of_samples = (number_of_frames - 1) * self.hop_size + self.frame_size
 
-        X = tf.transpose(X, perm=[0, 2, 1])
+        # torchaudio convention
+        # X = tf.transpose(X, perm=[0, 2, 1])
 
         if compute_spectrogram:
             X = tf.signal.irfft(X)
