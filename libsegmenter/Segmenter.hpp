@@ -181,16 +181,17 @@ enum class SegmenterMode {
 
 template <typename T>
 class Segmenter {
-    const std::size_t m_frameSize;
     const std::size_t m_hopSize;
     const SegmenterMode m_mode;
     const bool m_edgeCorrection;
     const bool m_normalizeWindow;
+    const std::size_t m_frameSize;
     std::unique_ptr<T[]> m_window;
     std::unique_ptr<T[]> m_preWindow;
     std::unique_ptr<T[]> m_postWindow;
 
   public:
+
     Segmenter(std::size_t frameSize, std::size_t hopSize, const T* window,
               const std::size_t windowSize,
               const SegmenterMode mode = SegmenterMode::WOLA,
@@ -290,9 +291,9 @@ class Segmenter {
         }
     }
 
-    void
-    getSegmentationShape(const std::array<std::size_t, 2>& unsegmentedShape,
-                         std::array<std::size_t, 3>& segmentedShape)
+    void getSegmentationShapeFromUnsegmented(
+        const std::array<std::size_t, 2>& unsegmentedShape,
+        std::array<std::size_t, 3>& segmentedShape)
     {
         if (unsegmentedShape[1] % m_hopSize != 0) {
             throw std::runtime_error("specified input shape is not a modulus "
@@ -304,12 +305,25 @@ class Segmenter {
         segmentedShape[2] = m_frameSize;
     }
 
+    void getSegmentationShapeFromSegmented(
+        std::array<std::size_t, 2>& unsegmentedShape,
+        const std::array<std::size_t, 3>& segmentedShape)
+    {
+        unsegmentedShape[0] = segmentedShape[0];
+        unsegmentedShape[1] = (segmentedShape[1] - 1) * m_hopSize + m_frameSize;
+        if (unsegmentedShape[1] % m_hopSize != 0) {
+            throw std::runtime_error("specified input shape is not a modulus "
+                                     "of the specified hop size");
+        }
+    }
+
     void validateSegmentationShape(
         const std::array<std::size_t, 2>& unsegmentedShape,
         const std::array<std::size_t, 3>& segmentedShape)
     {
         std::array<std::size_t, 3> expected_segmentedShape{};
-        getSegmentationShape(unsegmentedShape, expected_segmentedShape);
+        getSegmentationShapeFromUnsegmented(unsegmentedShape,
+                                            expected_segmentedShape);
         if (segmentedShape[0] != expected_segmentedShape[0]) {
             throw std::runtime_error("input and output batch sizes different "
                                      "for given input shapes.");
@@ -331,16 +345,6 @@ class Segmenter {
         validateSegmentationShape(ishape, oshape);
         std::size_t batchCount = oshape[0];
         std::size_t frameCount = oshape[1];
-
-        /*
-        std::cout << "Running with ishape: " << ishape[0] << ", " << ishape[1] << std::endl; 
-        std::cout << "Running with oshape: " << oshape[0] << ", " << oshape[1]  << ", " << oshape[2] << std::endl; 
-        for (std::size_t i = 0; i < ishape[1]; i++) {
-            std::cout << itensor[i] << ", "; 
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
-        */
 
         switch (m_mode) {
         case (SegmenterMode::WOLA):
@@ -375,14 +379,6 @@ class Segmenter {
                 }
             }
         }
-
-        /*
-        for (std::size_t i = 0; i < oshape[1] * oshape[2]; i++) {
-            std::cout << otensor[i] << ", "; 
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
-        */
     }
 
     // operates on contiguous data in right_layout / c-style row major
@@ -390,26 +386,28 @@ class Segmenter {
                    T* otensor, const std::array<std::size_t, 2> oshape)
     {
         validateSegmentationShape(oshape, ishape);
-        std::size_t batchCount = oshape[0];
-        std::size_t frameCount = oshape[1];
+        std::size_t batchCount = ishape[0];
+        std::size_t frameCount = ishape[1];
 
         for (std::size_t i = 0; i < batchCount; i++) {
             std::size_t j = 0;
             for (std::size_t k = 0; k < m_frameSize; k++) {
-                otensor[i * oshape[1] + j * m_hopSize + k] =
+                otensor[i * oshape[1] + j * m_hopSize + k] +=
                     m_preWindow[k] *
                     itensor[i * ishape[1] * ishape[2] + j * ishape[2] + k];
             }
+
             for (j = 1; j < frameCount - 1; j++) {
                 for (std::size_t k = 0; k < m_frameSize; k++) {
-                    otensor[i * oshape[1] + j * m_hopSize + k] =
+                    otensor[i * oshape[1] + j * m_hopSize + k] +=
                         m_window[k] *
                         itensor[i * ishape[1] * ishape[2] + j * ishape[2] + k];
                 }
             }
+
             j = frameCount - 1;
             for (std::size_t k = 0; k < m_frameSize; k++) {
-                otensor[i * oshape[1] + j * m_hopSize + k] =
+                otensor[i * oshape[1] + j * m_hopSize + k] +=
                     m_postWindow[k] *
                     itensor[i * ishape[1] * ishape[2] + j * ishape[2] + k];
             }

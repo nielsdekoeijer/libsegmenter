@@ -1,12 +1,11 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
-#include <iostream>
-#include <string>
 namespace py = pybind11;
 
 #include "Segmenter.hpp"
+#include <iostream>
+#include <string>
 
 using DATATYPE = double;
 using PYARRAY =
@@ -211,7 +210,7 @@ class py_Segmenter {
         }
 
         std::array<std::size_t, 3> oshape{};
-        m_segmenter->getSegmentationShape(ishape, oshape);
+        m_segmenter->getSegmentationShapeFromUnsegmented(ishape, oshape);
 
         // get input pointer
         DATATYPE* iptr = static_cast<DATATYPE*>(buf.ptr);
@@ -252,12 +251,11 @@ class py_Segmenter {
         }
 
         std::array<std::size_t, 2> oshape{};
-        m_segmenter->getSegmentationShape(oshape, ishape);
+        m_segmenter->getSegmentationShapeFromSegmented(oshape, ishape);
 
         // get input pointer
         DATATYPE* iptr = static_cast<DATATYPE*>(buf.ptr);
-        std::unique_ptr<DATATYPE[]> optr(
-            new DATATYPE[oshape[0] * oshape[1] * oshape[2]]);
+        std::unique_ptr<DATATYPE[]> optr(new DATATYPE[oshape[0] * oshape[1]]);
 
         m_segmenter->unsegment(iptr, ishape, optr.get(), oshape);
 

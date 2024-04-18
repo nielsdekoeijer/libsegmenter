@@ -86,7 +86,6 @@ class SegmenterTorch(torch.nn.Module):
             self.postwindow = self.postwindow / normalization
 
         if mode == "wola":
-            print("sqrting")
             self.mode = mode
             self.window = torch.sqrt(self.window)
             self.prewindow = torch.sqrt(self.prewindow)
@@ -113,7 +112,7 @@ class SegmenterTorch(torch.nn.Module):
                 f"only support for inputs with dimension 1 or 2, provided {x.dim()}"
             )
 
-        print(x)
+        # print(x)
 
         number_of_segments = (
             (number_of_samples) // self.hop_size - self.frame_size // self.hop_size + 1
@@ -152,9 +151,6 @@ class SegmenterTorch(torch.nn.Module):
         if compute_spectrogram:
             X = torch.fft.rfft(X)
 
-        # torchaudio convention
-        # X = X.permute(0, 2, 1)
-
         if not batched:
             # convert back to not-batched
             X = X.squeeze(0)
@@ -178,9 +174,6 @@ class SegmenterTorch(torch.nn.Module):
             raise ValueError(
                 f"only support for inputs with dimension 2 or 3, provided {X.dim()}"
             )
-
-        # torchaudio convention
-        # X = X.permute(0, 2, 1)
 
         if compute_spectrogram:
             X = torch.fft.irfft(X)

@@ -204,7 +204,7 @@ def test_torch_vs_tensorflow_unsegment(segmenter, x):
 
 
 test_cases_torch_vs_base = []
-for mode in ["ola"]:
+for mode in ["wola", "ola"]:
     for window_settings in [
         {
             "hop_size": 50,
@@ -275,56 +275,16 @@ for mode in ["ola"]:
 def test_torch_vs_base_segment(segmenter, x):
     X_tc = segmenter[0].segment(x.clone())
     X_ba = segmenter[1].segment(x.clone())
+    assert X_tc.shape == X_ba.shape
     assert X_ba == pytest.approx(X_tc, abs=1e-5)
 
 @pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
-def test_torch_vs_tensorflow_unsegment(segmenter, x):
-    x_tc = segmenter[0].unsegment(segmenter[0].segment(x))
-    x_ba = segmenter[1].unsegment(segmenter[1].segment(x))
-    assert x_tc == pytest.approx(x_ba, abs=1e-5)
-
-"""
-def test_torch_vs_base_segment():
-    x = torch.randn((1,1000));
-    segtc = libsegmenter.make_segmenter(
-        backend="torch",
-        frame_size=100,
-        hop_size=50,
-        window=libsegmenter.hamming(100),
-        mode='wola',
-        edge_correction=True,
-    )
-    segba = libsegmenter.make_segmenter(
-        backend="base",
-        frame_size=100,
-        hop_size=50,
-        window=libsegmenter.hamming(100),
-        mode='wola',
-        edge_correction=True,
-    )
-    print(segtc.prewindow)
-    print(segtc.window)
-    print(segtc.postwindow)
-    X_tc = segtc.segment(x.clone())
-    X_ba = segba.segment(x.clone())
-
-
-    for i in range(X_tc.shape[0]):
-        for j in range(X_tc.shape[1]):
-            for k in range(X_tc.shape[2]):
-                print("====")
-                print(f"{k}")
-                print(X_ba[i][j][k])
-                print(X_tc[i][j][k])
-                print("====")
-            assert X_ba[i,j,k] == pytest.approx(X_tc[i,j,k], abs=1e-5)
-
-    assert True == False
-
-@pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
 def test_torch_vs_base_unsegment(segmenter, x):
-    x_tc = segmenter[0].unsegment(segmenter[0].segment(x))
-    x_ba = segmenter[1].unsegment(segmenter[1].segment(x))
+    x_tc = segmenter[0].segment(x.clone())
+    x_ba = segmenter[1].segment(x.clone())
+    assert x_tc.shape == x_ba.shape
 
-    assert x_ba == pytest.approx(x_tc, abs=1e-5)
-"""
+    segmenter[0].unsegment(x_tc)
+    segmenter[1].unsegment(x_ba)
+    assert x_tc.shape == x_ba.shape
+    assert x_tc == pytest.approx(x_ba, abs=1e-5)
