@@ -129,6 +129,9 @@ class SegmenterTorch(torch.nn.Module):
                 x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
                 * self.prewindow
             )
+            print("multiplying")
+            print(x[:, k * self.hop_size : k * self.hop_size + self.frame_size])
+            # print(X[:, k, :])
             for k in range(1, number_of_segments - 1):
                 X[:, k, :] = (
                     x[

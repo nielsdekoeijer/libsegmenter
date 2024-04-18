@@ -22,8 +22,16 @@ for backend in ["torch", "tensorflow", "base"]:
                 "window": libsegmenter.hamming(100),
                 "input_size": (1, 1000),
             },
-            {"hop_size": 50, "window": libsegmenter.hann(100), "input_size": (1000,)},
-            {"hop_size": 50, "window": libsegmenter.hann(100), "input_size": (1, 1000)},
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hann(100),
+                "input_size": (1000,),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hann(100),
+                "input_size": (1, 1000),
+            },
             {
                 "hop_size": 50,
                 "window": libsegmenter.bartlett(100),
@@ -34,7 +42,11 @@ for backend in ["torch", "tensorflow", "base"]:
                 "window": libsegmenter.bartlett(100),
                 "input_size": (1, 1000),
             },
-            {"hop_size": 10, "window": libsegmenter.blackman(30), "input_size": (300,)},
+            {
+                "hop_size": 10,
+                "window": libsegmenter.blackman(30),
+                "input_size": (300,),
+            },
             {
                 "hop_size": 10,
                 "window": libsegmenter.blackman(30),
@@ -82,8 +94,16 @@ for backend in ["torch", "tensorflow", "base"]:
                 "window": libsegmenter.hamming(100),
                 "input_size": (1, 1000),
             },
-            {"hop_size": 50, "window": libsegmenter.hann(100), "input_size": (1000,)},
-            {"hop_size": 50, "window": libsegmenter.hann(100), "input_size": (1, 1000)},
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hann(100),
+                "input_size": (1000,),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hann(100),
+                "input_size": (1, 1000),
+            },
             {
                 "hop_size": 50,
                 "window": libsegmenter.bartlett(100),
@@ -94,7 +114,11 @@ for backend in ["torch", "tensorflow", "base"]:
                 "window": libsegmenter.bartlett(100),
                 "input_size": (1, 1000),
             },
-            {"hop_size": 10, "window": libsegmenter.blackman(30), "input_size": (300,)},
+            {
+                "hop_size": 10,
+                "window": libsegmenter.blackman(30),
+                "input_size": (300,),
+            },
             {
                 "hop_size": 10,
                 "window": libsegmenter.blackman(30),
@@ -143,8 +167,16 @@ for mode in ["wola", "ola"]:
             "window": libsegmenter.hamming(100),
             "input_size": (1, 1000),
         },
-        {"hop_size": 50, "window": libsegmenter.hann(100), "input_size": (1000,)},
-        {"hop_size": 50, "window": libsegmenter.hann(100), "input_size": (1, 1000)},
+        {
+            "hop_size": 50,
+            "window": libsegmenter.hann(100),
+            "input_size": (1000,),
+        },
+        {
+            "hop_size": 50,
+            "window": libsegmenter.hann(100),
+            "input_size": (1, 1000),
+        },
         {
             "hop_size": 50,
             "window": libsegmenter.bartlett(100),
@@ -155,7 +187,11 @@ for mode in ["wola", "ola"]:
             "window": libsegmenter.bartlett(100),
             "input_size": (1, 1000),
         },
-        {"hop_size": 10, "window": libsegmenter.blackman(30), "input_size": (300,)},
+        {
+            "hop_size": 10,
+            "window": libsegmenter.blackman(30),
+            "input_size": (300,),
+        },
         {
             "hop_size": 10,
             "window": libsegmenter.blackman(30),
@@ -204,72 +240,74 @@ def test_torch_vs_tensorflow_unsegment(segmenter, x):
 
 
 test_cases_torch_vs_base = []
-for mode in ["wola", "ola"]:
-    for window_settings in [
-        {
-            "hop_size": 50,
-            "window": libsegmenter.hamming(100),
-            "input_size": (1000),
-        },
-        {
-            "hop_size": 50,
-            "window": libsegmenter.hamming(100),
-            "input_size": (1, 1000),
-        },
-        {
-            "hop_size": 50,
-            "window": libsegmenter.hann(100),
-            "input_size": (1000,),
-        },
-        {
-            "hop_size": 50,
-            "window": libsegmenter.hann(100),
-            "input_size": (1, 1000),
-        },
-        {
-            "hop_size": 50,
-            "window": libsegmenter.bartlett(100),
-            "input_size": (1000,),
-        },
-        {
-            "hop_size": 50,
-            "window": libsegmenter.bartlett(100),
-            "input_size": (1, 1000),
-        },
-        {
-            "hop_size": 10,
-            "window": libsegmenter.blackman(30),
-            "input_size": (300,),
-        },
-        {
-            "hop_size": 10,
-            "window": libsegmenter.blackman(30),
-            "input_size": (1, 300),
-        },
-    ]:
-        test_cases_torch_vs_base.append(
-            (
+for edge_correction in [True, False]:
+    for mode in ["wola", "ola"]:
+        for window_settings in [
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hamming(100),
+                "input_size": (1000),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hamming(100),
+                "input_size": (1, 1000),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hann(100),
+                "input_size": (1000,),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.hann(100),
+                "input_size": (1, 1000),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.bartlett(100),
+                "input_size": (1000,),
+            },
+            {
+                "hop_size": 50,
+                "window": libsegmenter.bartlett(100),
+                "input_size": (1, 1000),
+            },
+            {
+                "hop_size": 10,
+                "window": libsegmenter.blackman(30),
+                "input_size": (300,),
+            },
+            {
+                "hop_size": 10,
+                "window": libsegmenter.blackman(30),
+                "input_size": (1, 300),
+            },
+        ]:
+            test_cases_torch_vs_base.append(
                 (
-                    libsegmenter.make_segmenter(
-                        backend="torch",
-                        frame_size=window_settings["window"].size,
-                        hop_size=window_settings["hop_size"],
-                        window=window_settings["window"].copy(),
-                        mode=mode,
-                        edge_correction=True,
+                    (
+                        libsegmenter.make_segmenter(
+                            backend="torch",
+                            frame_size=window_settings["window"].size,
+                            hop_size=window_settings["hop_size"],
+                            window=window_settings["window"].copy(),
+                            mode=mode,
+                            edge_correction=edge_correction,
+                        ),
+                        libsegmenter.make_segmenter(
+                            backend="base",
+                            frame_size=window_settings["window"].size,
+                            hop_size=window_settings["hop_size"],
+                            window=window_settings["window"].copy(),
+                            mode=mode,
+                            edge_correction=edge_correction,
+                        ),
                     ),
-                    libsegmenter.make_segmenter(
-                        backend="base",
-                        frame_size=window_settings["window"].size,
-                        hop_size=window_settings["hop_size"],
-                        window=window_settings["window"].copy(),
-                        mode=mode,
-                        edge_correction=True,
-                    ),
+                    torch.randn((window_settings["input_size"])),
                 ),
-                torch.randn((window_settings["input_size"])),
-            ),
-        )
+            )
+
 
 @pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
 def test_torch_vs_base_segment(segmenter, x):
@@ -278,12 +316,12 @@ def test_torch_vs_base_segment(segmenter, x):
     assert X_tc.shape == X_ba.shape
     assert X_ba == pytest.approx(X_tc, abs=1e-5)
 
+
 @pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
 def test_torch_vs_base_unsegment(segmenter, x):
     x_tc = segmenter[0].segment(x.clone())
     x_ba = segmenter[1].segment(x.clone())
     assert x_tc.shape == x_ba.shape
-
     segmenter[0].unsegment(x_tc)
     segmenter[1].unsegment(x_ba)
     assert x_tc.shape == x_ba.shape

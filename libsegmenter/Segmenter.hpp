@@ -191,7 +191,6 @@ class Segmenter {
     std::unique_ptr<T[]> m_postWindow;
 
   public:
-
     Segmenter(std::size_t frameSize, std::size_t hopSize, const T* window,
               const std::size_t windowSize,
               const SegmenterMode mode = SegmenterMode::WOLA,
@@ -339,9 +338,24 @@ class Segmenter {
     }
 
     // operates on contiguous data in right_layout / c-style row major
+    // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
     void segment(const T* itensor, const std::array<std::size_t, 2>& ishape,
                  T* otensor, const std::array<std::size_t, 3>& oshape)
     {
+        // debug
+        for (std::size_t i = 0; i < m_frameSize; i++) {
+            std::cout << "m_preWindow [" << i << "] :: " << m_preWindow[i]
+                      << std::endl;
+        }
+        for (std::size_t i = 0; i < m_frameSize; i++) {
+            std::cout << "m_window [" << i << "] :: " << m_window[i]
+                      << std::endl;
+        }
+        for (std::size_t i = 0; i < m_frameSize; i++) {
+            std::cout << "m_postWindow [" << i << "] :: " << m_postWindow[i]
+                      << std::endl;
+        }
+
         validateSegmentationShape(ishape, oshape);
         std::size_t batchCount = oshape[0];
         std::size_t frameCount = oshape[1];
@@ -369,6 +383,7 @@ class Segmenter {
                         itensor[i * ishape[1] + j * m_hopSize + k];
                 }
             }
+            break;
         case (SegmenterMode::OLA):
             for (std::size_t i = 0; i < batchCount; i++) {
                 for (std::size_t j = 0; j < frameCount; j++) {
@@ -378,10 +393,12 @@ class Segmenter {
                     }
                 }
             }
+            break;
         }
     }
 
     // operates on contiguous data in right_layout / c-style row major
+    // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
     void unsegment(const T* itensor, const std::array<std::size_t, 3> ishape,
                    T* otensor, const std::array<std::size_t, 2> oshape)
     {
