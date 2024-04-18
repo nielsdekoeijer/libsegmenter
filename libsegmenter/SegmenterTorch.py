@@ -56,8 +56,6 @@ class SegmenterTorch(torch.nn.Module):
                 "specified window is not COLA, consider using `default_window_selector`"
             )
 
-        # print(self.window)
-
         # compute prewindow and postwindow
         self.prewindow = self.window.clone()
         self.postwindow = self.window.clone()
@@ -112,7 +110,6 @@ class SegmenterTorch(torch.nn.Module):
                 f"only support for inputs with dimension 1 or 2, provided {x.dim()}"
             )
 
-        # print(x)
 
         number_of_segments = (
             (number_of_samples) // self.hop_size - self.frame_size // self.hop_size + 1
@@ -129,9 +126,6 @@ class SegmenterTorch(torch.nn.Module):
                 x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
                 * self.prewindow
             )
-            print("multiplying")
-            print(x[:, k * self.hop_size : k * self.hop_size + self.frame_size])
-            # print(X[:, k, :])
             for k in range(1, number_of_segments - 1):
                 X[:, k, :] = (
                     x[
@@ -211,7 +205,7 @@ class SegmenterTorch(torch.nn.Module):
         return self._unsegment(X)
 
     def spectrogram(self, x):
-        X = self._segment(x, compute_spectrogram=True)
+        return self._segment(x, compute_spectrogram=True)
 
     def unspectrogram(self, X):
         return self._unsegment(X, compute_spectrogram=True)

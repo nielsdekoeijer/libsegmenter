@@ -244,9 +244,9 @@ for edge_correction in [True, False]:
     for mode in ["wola", "ola"]:
         for window_settings in [
             {
-                "hop_size": 50,
-                "window": libsegmenter.hamming(100),
-                "input_size": (1000),
+                "hop_size": 32,
+                "window": libsegmenter.hamming(64),
+                "input_size": (640),
             },
             {
                 "hop_size": 50,
@@ -326,3 +326,23 @@ def test_torch_vs_base_unsegment(segmenter, x):
     segmenter[1].unsegment(x_ba)
     assert x_tc.shape == x_ba.shape
     assert x_tc == pytest.approx(x_ba, abs=1e-5)
+
+@pytest.mark.parametrize(("segmenter", "x"), [test_cases_torch_vs_base[0]])
+def test_torch_vs_base_segment(segmenter, x):
+    X_tc = segmenter[0].spectrogram(x.clone())
+    X_ba = segmenter[1].spectrogram(x.clone())
+    assert X_tc.shape == X_ba.shape
+    assert X_ba == pytest.approx(X_tc, abs=1e-5)
+
+
+"""
+@pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
+def test_torch_vs_base_unsegment(segmenter, x):
+    x_tc = segmenter[0].spectrogram(x.clone())
+    x_ba = segmenter[1].spectrogram(x.clone())
+    assert x_tc.shape == x_ba.shape
+    segmenter[0].unspectrogram(x_tc)
+    segmenter[1].unspectrogram(x_ba)
+    assert x_tc.shape == x_ba.shape
+    assert x_tc == pytest.approx(x_ba, abs=1e-5)
+"""

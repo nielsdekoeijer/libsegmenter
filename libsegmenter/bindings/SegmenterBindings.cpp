@@ -7,9 +7,12 @@ namespace py = pybind11;
 #include <iostream>
 #include <string>
 
+template <typename T>
+using TPYARRAY = py::array_t<T, py::array::c_style | py::array::forcecast>;
+
 using DATATYPE = double;
-using PYARRAY =
-    py::array_t<DATATYPE, py::array::c_style | py::array::forcecast>;
+using PYARRAY = TPYARRAY<DATATYPE>;
+using CPYARRAY = TPYARRAY<std::complex<DATATYPE>>;
 
 PYARRAY py_bartlett(size_t size)
 {
@@ -91,76 +94,76 @@ class py_Segmenter {
         }
     }
 
-    PYARRAY makePythonArray(DATATYPE* data,
-                            const std::array<std::size_t, 3>& shape)
+    template <typename T>
+    TPYARRAY<T> makePythonArray(T* data,
+                                const std::array<std::size_t, 3>& shape)
     {
-        std::size_t size = sizeof(DATATYPE);
+        std::size_t size = sizeof(T);
         std::array<std::size_t, 3> stride;
         stride[0] = size * shape[1] * shape[2];
         stride[1] = size * shape[2];
         stride[2] = size;
 
         py::capsule free_when_done(
-            data, [](void* f) { delete[] reinterpret_cast<DATATYPE*>(f); });
+            data, [](void* f) { delete[] reinterpret_cast<T*>(f); });
 
         return py::array(
-            py::buffer_info(
-                data,                                      // ptr to data
-                size,                                      // scalar size
-                py::format_descriptor<DATATYPE>::format(), // python format
-                3,     // number of dimensions
-                shape, // output shape
-                stride // output stride
-                ),
+            py::buffer_info(data,                               // ptr to data
+                            size,                               // scalar size
+                            py::format_descriptor<T>::format(), // python format
+                            3,     // number of dimensions
+                            shape, // output shape
+                            stride // output stride
+                            ),
             free_when_done // capsule will free the data when Python object is
                            // collected
         );
     }
 
-    PYARRAY makePythonArray(DATATYPE* data,
-                            const std::array<std::size_t, 2>& shape)
+    template <typename T>
+    TPYARRAY<T> makePythonArray(T* data,
+                                const std::array<std::size_t, 2>& shape)
     {
-        std::size_t size = sizeof(DATATYPE);
+        std::size_t size = sizeof(T);
         std::array<std::size_t, 2> stride;
         stride[0] = size * shape[1];
         stride[1] = size;
 
         py::capsule free_when_done(
-            data, [](void* f) { delete[] reinterpret_cast<DATATYPE*>(f); });
+            data, [](void* f) { delete[] reinterpret_cast<T*>(f); });
 
         return py::array(
-            py::buffer_info(
-                data,                                      // ptr to data
-                size,                                      // scalar size
-                py::format_descriptor<DATATYPE>::format(), // python format
-                2,     // number of dimensions
-                shape, // output shape
-                stride // output stride
-                ),
+            py::buffer_info(data,                               // ptr to data
+                            size,                               // scalar size
+                            py::format_descriptor<T>::format(), // python format
+                            2,     // number of dimensions
+                            shape, // output shape
+                            stride // output stride
+                            ),
             free_when_done // capsule will free the data when Python object is
                            // collected
         );
     }
 
-    PYARRAY makePythonArray(DATATYPE* data,
-                            const std::array<std::size_t, 1>& shape)
+    template <typename T>
+    TPYARRAY<T> makePythonArray(T* data,
+                                const std::array<std::size_t, 1>& shape)
     {
-        std::size_t size = sizeof(DATATYPE);
+        std::size_t size = sizeof(T);
         std::array<std::size_t, 1> stride;
         stride[0] = size;
 
         py::capsule free_when_done(
-            data, [](void* f) { delete[] reinterpret_cast<DATATYPE*>(f); });
+            data, [](void* f) { delete[] reinterpret_cast<T*>(f); });
 
         return py::array(
-            py::buffer_info(
-                data,                                      // ptr to data
-                size,                                      // scalar size
-                py::format_descriptor<DATATYPE>::format(), // python format
-                1,     // number of dimensions
-                shape, // output shape
-                stride // output stride
-                ),
+            py::buffer_info(data,                               // ptr to data
+                            size,                               // scalar size
+                            py::format_descriptor<T>::format(), // python format
+                            1,     // number of dimensions
+                            shape, // output shape
+                            stride // output stride
+                            ),
             free_when_done // capsule will free the data when Python object is
                            // collected
         );
@@ -266,6 +269,90 @@ class py_Segmenter {
                                    std::array<std::size_t, 1>{oshape[1]});
         }
     }
+
+    CPYARRAY
+    spectrogram(const PYARRAY& arr)
+    {
+        auto buf = arr.request();
+
+        // extract input size
+        bool batched;
+        std::array<std::size_t, 2> ishape{};
+        if (buf.ndim == 1) {
+            ishape[0] = 1;
+            ishape[1] = buf.shape[0];
+            batched = false;
+        } else if (buf.ndim == 2) {
+            ishape[0] = buf.shape[0];
+            ishape[1] = buf.shape[1];
+            batched = true;
+        } else {
+            throw std::runtime_error(
+                "input should be a 1-dimensional or 2-dimensional array");
+        }
+
+        std::array<std::size_t, 3> oshape{};
+        m_segmenter->getSpectrogramShapeFromUnsegmented(ishape, oshape);
+
+        // get input pointer
+        DATATYPE* iptr = static_cast<DATATYPE*>(buf.ptr);
+        std::unique_ptr<std::complex<DATATYPE>[]> optr(
+            new std::complex<DATATYPE>[oshape[0] * oshape[1] * oshape[2]]);
+        if (optr.get() == nullptr) {
+            throw std::runtime_error("nullptr");
+        }
+
+        m_segmenter->spectrogram(iptr, ishape, optr.get(), oshape);
+
+        if (batched) {
+            return makePythonArray<std::complex<DATATYPE>>(optr.release(),
+                                                           oshape);
+        } else {
+            return makePythonArray<std::complex<DATATYPE>>(
+                optr.release(),
+                std::array<std::size_t, 2>{oshape[1], oshape[2]});
+        }
+    }
+
+    PYARRAY unspectrogram(const CPYARRAY& arr)
+    {
+        auto buf = arr.request();
+
+        // extract input size
+        bool batched;
+        std::array<std::size_t, 3> ishape{};
+        if (buf.ndim == 2) {
+            ishape[0] = 1;
+            ishape[1] = buf.shape[0];
+            ishape[2] = buf.shape[1];
+            batched = false;
+        } else if (buf.ndim == 3) {
+            ishape[0] = buf.shape[0];
+            ishape[1] = buf.shape[1];
+            ishape[2] = buf.shape[2];
+            batched = true;
+        } else {
+            throw std::runtime_error(
+                "input should be a 2-dimensional or 3-dimensional array");
+        }
+
+        std::array<std::size_t, 2> oshape{};
+        m_segmenter->getSpectrogramShapeFromSegmented(oshape, ishape);
+
+        // get input pointer
+        std::complex<DATATYPE>* iptr =
+            static_cast<std::complex<DATATYPE>*>(buf.ptr);
+        std::unique_ptr<DATATYPE[]> optr(new DATATYPE[oshape[0] * oshape[1]]);
+
+        m_segmenter->unspectrogram(iptr, ishape, optr.get(), oshape);
+
+        if (batched) {
+            return makePythonArray(optr.release(), oshape);
+        } else {
+            return makePythonArray(optr.release(),
+                                   std::array<std::size_t, 1>{oshape[1]});
+        }
+    }
 };
 
 PYBIND11_MODULE(bindings, m)
@@ -287,5 +374,7 @@ PYBIND11_MODULE(bindings, m)
              py::arg("mode") = "wola", py::arg("edge_correction") = true,
              py::arg("normalize_window") = true)
         .def("segment", &py_Segmenter::segment)
-        .def("unsegment", &py_Segmenter::unsegment);
+        .def("unsegment", &py_Segmenter::unsegment)
+        .def("spectrogram", &py_Segmenter::spectrogram)
+        .def("unspectrogram", &py_Segmenter::unspectrogram);
 }

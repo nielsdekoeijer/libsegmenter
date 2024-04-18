@@ -40,9 +40,6 @@
 #include <memory>
 #include <stdexcept>
 
-#include <iostream>
-#include <string>
-
 #define SEGMENTER_M_PI 3.14159265358979323846
 
 /*
@@ -182,6 +179,7 @@ enum class SegmenterMode {
 template <typename T>
 class Segmenter {
     const std::size_t m_hopSize;
+    const std::size_t m_halfSpectrumSize;
     const SegmenterMode m_mode;
     const bool m_edgeCorrection;
     const bool m_normalizeWindow;
@@ -189,6 +187,11 @@ class Segmenter {
     std::unique_ptr<T[]> m_window;
     std::unique_ptr<T[]> m_preWindow;
     std::unique_ptr<T[]> m_postWindow;
+    std::unique_ptr<std::complex<T>[]> m_fftFWTwiddleFactors;
+    std::unique_ptr<std::complex<T>[]> m_fftBWTwiddleFactors;
+    std::unique_ptr<std::complex<T>[]> m_scratch0;
+    std::unique_ptr<std::complex<T>[]> m_scratch1;
+    std::unique_ptr<T[]> m_intermediate;
 
   public:
     Segmenter(std::size_t frameSize, std::size_t hopSize, const T* window,
@@ -196,7 +199,8 @@ class Segmenter {
               const SegmenterMode mode = SegmenterMode::WOLA,
               const bool edgeCorrection = true,
               const bool normalizeWindow = true)
-        : m_frameSize(frameSize), m_hopSize(hopSize), m_mode(mode),
+        : m_frameSize(frameSize), m_hopSize(hopSize),
+          m_halfSpectrumSize(frameSize / 2 + 1), m_mode(mode),
           m_edgeCorrection(edgeCorrection), m_normalizeWindow(normalizeWindow),
           m_window(std::move(std::make_unique<T[]>(windowSize))),
           m_preWindow(std::move(std::make_unique<T[]>(windowSize))),
@@ -288,6 +292,30 @@ class Segmenter {
                 m_postWindow[i] = sqrt(m_postWindow[i]);
             }
         }
+
+        // Setup fft for spectrogram
+        fft::FFTSTATUS err;
+        m_fftFWTwiddleFactors =
+            std::make_unique<std::complex<T>[]>(m_frameSize);
+        err = fft::populateRfftTwiddleFactorsForward<T>(
+            m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize);
+        if (err != fft::FFTSTATUS::OK) {
+            throw std::runtime_error("error occured in the creation of the fft "
+                                     "forward twiddle factors");
+        }
+
+        m_fftBWTwiddleFactors =
+            std::make_unique<std::complex<T>[]>(m_frameSize);
+        err = fft::populateRfftTwiddleFactorsBackward<T>(
+            m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize);
+        if (err != fft::FFTSTATUS::OK) {
+            throw std::runtime_error("error occured in the creation of the fft "
+                                     "backward twiddle factors");
+        }
+
+        m_scratch0 = std::make_unique<std::complex<T>[]>(m_halfSpectrumSize);
+        m_scratch1 = std::make_unique<std::complex<T>[]>(m_halfSpectrumSize);
+        m_intermediate = std::make_unique<T[]>(m_frameSize);
     }
 
     void getSegmentationShapeFromUnsegmented(
@@ -337,25 +365,63 @@ class Segmenter {
         }
     }
 
+    void getSpectrogramShapeFromUnsegmented(
+        const std::array<std::size_t, 2>& unsegmentedShape,
+        std::array<std::size_t, 3>& segmentedShape)
+    {
+        if (unsegmentedShape[1] % m_hopSize != 0) {
+            throw std::runtime_error("specified input shape is not a modulus "
+                                     "of the specified hop size");
+        }
+        segmentedShape[0] = unsegmentedShape[0];
+        segmentedShape[1] =
+            (unsegmentedShape[1] / m_hopSize) - m_frameSize / m_hopSize + 1;
+        segmentedShape[2] = m_halfSpectrumSize;
+    }
+
+    void getSpectrogramShapeFromSegmented(
+        std::array<std::size_t, 2>& unsegmentedShape,
+        const std::array<std::size_t, 3>& segmentedShape)
+    {
+        unsegmentedShape[0] = segmentedShape[0];
+        unsegmentedShape[1] = (segmentedShape[1] - 1) * m_hopSize + m_frameSize;
+        if (unsegmentedShape[1] % m_hopSize != 0) {
+            throw std::runtime_error("specified input shape is not a modulus "
+                                     "of the specified hop size");
+        }
+    }
+
+    void
+    validateSpectrogramShape(const std::array<std::size_t, 2>& unsegmentedShape,
+                             const std::array<std::size_t, 3>& segmentedShape)
+    {
+        if (!(m_frameSize && !(m_frameSize & (m_frameSize - 1)))) {
+            throw std::runtime_error(
+                "given segmenter is configured to a non-radix 2 frame size, "
+                "spectrogram is thus not supported");
+        }
+        std::array<std::size_t, 3> expected_segmentedShape{};
+        getSpectrogramShapeFromUnsegmented(unsegmentedShape,
+                                           expected_segmentedShape);
+        if (segmentedShape[0] != expected_segmentedShape[0]) {
+            throw std::runtime_error("input and output batch sizes different "
+                                     "for given input shapes.");
+        }
+        if (segmentedShape[1] != expected_segmentedShape[1]) {
+            throw std::runtime_error(
+                "output frame count invalid for given input shape");
+        }
+        if (segmentedShape[2] != expected_segmentedShape[2]) {
+            throw std::runtime_error(
+                "output frame size invalid for configured frame size");
+        }
+    }
+
     // operates on contiguous data in right_layout / c-style row major
     // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
     void segment(const T* itensor, const std::array<std::size_t, 2>& ishape,
                  T* otensor, const std::array<std::size_t, 3>& oshape)
     {
-        // debug
-        for (std::size_t i = 0; i < m_frameSize; i++) {
-            std::cout << "m_preWindow [" << i << "] :: " << m_preWindow[i]
-                      << std::endl;
-        }
-        for (std::size_t i = 0; i < m_frameSize; i++) {
-            std::cout << "m_window [" << i << "] :: " << m_window[i]
-                      << std::endl;
-        }
-        for (std::size_t i = 0; i < m_frameSize; i++) {
-            std::cout << "m_postWindow [" << i << "] :: " << m_postWindow[i]
-                      << std::endl;
-        }
-
         validateSegmentationShape(ishape, oshape);
         std::size_t batchCount = oshape[0];
         std::size_t frameCount = oshape[1];
@@ -399,8 +465,8 @@ class Segmenter {
 
     // operates on contiguous data in right_layout / c-style row major
     // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
-    void unsegment(const T* itensor, const std::array<std::size_t, 3> ishape,
-                   T* otensor, const std::array<std::size_t, 2> oshape)
+    void unsegment(const T* itensor, const std::array<std::size_t, 3>& ishape,
+                   T* otensor, const std::array<std::size_t, 2>& oshape)
     {
         validateSegmentationShape(oshape, ishape);
         std::size_t batchCount = ishape[0];
@@ -431,14 +497,142 @@ class Segmenter {
         }
     }
 
-    void spectrogram(const T*** itensor, const std::size_t ishape[3],
-                     std::complex<T>*** otensor, const std::size_t oshape[3])
+    // operates on contiguous data in right_layout / c-style row major
+    // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
+    void spectrogram(const T* itensor, const std::array<std::size_t, 2>& ishape,
+                     std::complex<T>* otensor,
+                     const std::array<std::size_t, 3>& oshape)
     {
+        validateSpectrogramShape(ishape, oshape);
+        std::size_t batchCount = oshape[0];
+        std::size_t frameCount = oshape[1];
+        std::complex<T>* out;
+        fft::FFTSTATUS err;
+        switch (m_mode) {
+        case (SegmenterMode::WOLA):
+            for (std::size_t i = 0; i < batchCount; i++) {
+                std::size_t j = 0;
+                for (std::size_t k = 0; k < m_frameSize; k++) {
+                    m_intermediate[k] =
+                        m_preWindow[k] *
+                        itensor[i * ishape[1] + j * m_hopSize + k];
+                }
+                out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+
+                err = fft::performRfftForward<T>(
+                    m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                    m_intermediate.get(), m_frameSize, out, m_halfSpectrumSize,
+                    m_scratch0.get(), m_halfSpectrumSize);
+
+                if (err != fft::FFTSTATUS::OK) {
+                    throw std::runtime_error("error in fft 1");
+                }
+
+                for (j = 1; j < frameCount - 1; j++) {
+                    for (std::size_t k = 0; k < m_frameSize; k++) {
+                        m_intermediate[k] =
+                            m_window[k] *
+                            itensor[i * ishape[1] + j * m_hopSize + k];
+                    }
+                    out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+                    err = fft::performRfftForward<T>(
+                        m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                        m_intermediate.get(), m_frameSize, out,
+                        m_halfSpectrumSize, m_scratch0.get(),
+                        m_halfSpectrumSize);
+                    if (err != fft::FFTSTATUS::OK) {
+                        throw std::runtime_error("error in fft 2");
+                    }
+                }
+
+                j = frameCount - 1;
+                for (std::size_t k = 0; k < m_frameSize; k++) {
+                    m_intermediate[k] =
+                        m_postWindow[k] *
+                        itensor[i * ishape[1] + j * m_hopSize + k];
+                }
+                out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+                err = fft::performRfftForward<T>(
+                    m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                    m_intermediate.get(), m_frameSize, out, m_halfSpectrumSize,
+                    m_scratch0.get(), m_halfSpectrumSize);
+                if (err != fft::FFTSTATUS::OK) {
+                    throw std::runtime_error("error in fft 3");
+                }
+            }
+            break;
+        case (SegmenterMode::OLA):
+            for (std::size_t i = 0; i < batchCount; i++) {
+                for (std::size_t j = 0; j < frameCount; j++) {
+                    for (std::size_t k = 0; k < m_frameSize; k++) {
+                        m_intermediate[k] =
+                            m_window[k] *
+                            itensor[i * ishape[1] + j * m_hopSize + k];
+                    }
+                    out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+                    err = fft::performRfftForward<T>(
+                        m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                        m_intermediate.get(), m_frameSize, out,
+                        m_halfSpectrumSize, m_scratch0.get(),
+                        m_halfSpectrumSize);
+                    if (err != fft::FFTSTATUS::OK) {
+                        throw std::runtime_error("error in fft 4");
+                    }
+                }
+            }
+            break;
+        }
     }
 
-    void unspectrogram(const std::complex<T>*** itensor,
-                       const std::size_t ishape[3], T*** otensor,
-                       const std::size_t oshape[3])
+    // operates on contiguous data in right_layout / c-style row major
+    // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
+    void unspectrogram(const std::complex<T>* itensor,
+                       const std::array<std::size_t, 3>& ishape, T* otensor,
+                       const std::array<std::size_t, 2>& oshape)
     {
+        validateSpectrogramShape(oshape, ishape);
+        std::size_t batchCount = ishape[0];
+        std::size_t frameCount = ishape[1];
+
+        const std::complex<T>* in;
+        for (std::size_t i = 0; i < batchCount; i++) {
+            std::size_t j = 0;
+            in = &itensor[i * ishape[1] * ishape[2] + j * ishape[2]];
+
+            fft::performRfftBackward<T>(
+                m_halfSpectrumSize, m_fftBWTwiddleFactors.get(),
+                m_halfSpectrumSize, in, m_halfSpectrumSize,
+                m_intermediate.get(), m_frameSize, m_scratch0.get(),
+                m_scratch1.get(), m_halfSpectrumSize);
+            for (std::size_t k = 0; k < m_frameSize; k++) {
+                otensor[i * oshape[1] + j * m_hopSize + k] +=
+                    m_preWindow[k] * m_intermediate[k];
+            }
+
+            for (j = 1; j < frameCount - 1; j++) {
+                in = &itensor[i * ishape[1] * ishape[2] + j * ishape[2]];
+                fft::performRfftBackward<T>(
+                    m_halfSpectrumSize, m_fftBWTwiddleFactors.get(),
+                    m_halfSpectrumSize, in, m_halfSpectrumSize,
+                    m_intermediate.get(), m_frameSize, m_scratch0.get(),
+                    m_scratch1.get(), m_halfSpectrumSize);
+                for (std::size_t k = 0; k < m_frameSize; k++) {
+                    otensor[i * oshape[1] + j * m_hopSize + k] +=
+                        m_window[k] * m_intermediate[k];
+                }
+            }
+
+            j = frameCount - 1;
+            in = &itensor[i * ishape[1] * ishape[2] + j * ishape[2]];
+            fft::performRfftBackward<T>(
+                m_halfSpectrumSize, m_fftBWTwiddleFactors.get(),
+                m_halfSpectrumSize, in, m_halfSpectrumSize,
+                m_intermediate.get(), m_frameSize, m_scratch0.get(),
+                m_scratch1.get(), m_halfSpectrumSize);
+            for (std::size_t k = 0; k < m_frameSize; k++) {
+                otensor[i * oshape[1] + j * m_hopSize + k] +=
+                    m_postWindow[k] * m_intermediate[k];
+            }
+        }
     }
 };
