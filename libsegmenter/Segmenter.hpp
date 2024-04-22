@@ -40,7 +40,8 @@
 #include <memory>
 #include <stdexcept>
 
-#define SEGMENTER_M_PI 3.14159265358979323846
+template<typename T>
+T PI = std::acos(T{-1});
 
 /*
  * ==============================================================================
@@ -67,8 +68,8 @@ void populateBlackmanWindow(T* vec, const std::size_t windowSize)
     for (std::size_t i = 0; i < windowSize; i++) {
         vec[i] =
             7938.0 / 18608.0 -
-            9240.0 / 18608.0 * cos(2.0 * SEGMENTER_M_PI * T(i) / T(M - 1)) +
-            1430.0 / 18608.0 * cos(4.0 * SEGMENTER_M_PI * T(i) / T(M - 1));
+            9240.0 / 18608.0 * cos(2.0 * PI<T> * T(i) / T(M - 1)) +
+            1430.0 / 18608.0 * cos(4.0 * PI<T> * T(i) / T(M - 1));
     }
 }
 
@@ -79,7 +80,7 @@ void populateHammingWindow(T* vec, const std::size_t windowSize)
     const T alpha = 25.0 / 46.0;
     const T beta = (1.0 - alpha) / 2.0;
     for (std::size_t i = 0; i < windowSize; i++) {
-        vec[i] = alpha - 2.0 * beta * cos(2.0 * SEGMENTER_M_PI * T(i) / M);
+        vec[i] = alpha - 2.0 * beta * cos(2.0 * PI<T> * T(i) / M);
     }
 }
 
@@ -88,7 +89,7 @@ void populateHannWindow(T* vec, const std::size_t windowSize)
 {
     const T M = T(windowSize);
     for (std::size_t i = 0; i < windowSize; i++) {
-        vec[i] = 0.5 * (1.0 - cos(2.0 * SEGMENTER_M_PI * T(i) / M));
+        vec[i] = 0.5 * (1.0 - cos(2.0 * PI<T> * T(i) / M));
     }
 }
 
@@ -140,7 +141,7 @@ COLAResult<T> checkCola(const T* window, const std::size_t windowSize,
         const T f = frameRate * T(k);
         for (std::size_t n = 0; n < N; n++) {
             csin[n] =
-                std::exp(std::complex<T>(0.0, 2.0 * SEGMENTER_M_PI * f * n));
+                std::exp(std::complex<T>(0.0, 2.0 * PI<T> * f * n));
         }
 
         std::complex<T> Wf = 0.0;
