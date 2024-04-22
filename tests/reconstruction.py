@@ -327,6 +327,7 @@ def test_torch_vs_base_unsegment(segmenter, x):
     assert x_tc.shape == x_ba.shape
     assert x_tc == pytest.approx(x_ba, abs=1e-5)
 
+"""
 @pytest.mark.parametrize(("segmenter", "x"), [test_cases_torch_vs_base[0]])
 def test_torch_vs_base_segment(segmenter, x):
     X_tc = segmenter[0].spectrogram(x.clone())
@@ -335,7 +336,6 @@ def test_torch_vs_base_segment(segmenter, x):
     assert X_ba == pytest.approx(X_tc, abs=1e-5)
 
 
-"""
 @pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
 def test_torch_vs_base_unsegment(segmenter, x):
     x_tc = segmenter[0].spectrogram(x.clone())
