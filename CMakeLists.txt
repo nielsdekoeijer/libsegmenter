@@ -9,7 +9,8 @@ CPMAddPackage("gh:macoustics/split-radix-fft#0.4.1")
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/libsegmenter)
+target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/libsegmenter
+target_link_libraries(${PROJECT_NAME} PRIVATE SplitRadixFft::SplitRadixFft)
 
 option(SEGMENTER_BUILD_PYBINDINGS OFF)
 message("Python bindings build set to ${SEGMENTER_BUILD_PYBINDINGS}")
@@ -17,6 +18,6 @@ if(${SEGMENTER_BUILD_PYBINDINGS})
     set(PYBIND11_NEWPYTHON ON)
     CPMAddPackage("gh:pybind/pybind11@2.12.0")
     pybind11_add_module(bindings libsegmenter/bindings/SegmenterBindings.cpp)
-    target_link_libraries(bindings PRIVATE SplitRadixFft::SplitRadixFft Segmenter::Segmenter)
+    target_link_libraries(bindings PRIVATE Segmenter::Segmenter)
     install(TARGETS bindings LIBRARY DESTINATION libsegmenter)
 endif()
