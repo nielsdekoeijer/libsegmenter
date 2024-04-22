@@ -20,7 +20,7 @@ PYARRAY py_bartlett(size_t size)
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateBartlettWindow<DATATYPE>(ptr, size);
+    segmenter::populateBartlettWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -30,7 +30,7 @@ PYARRAY py_blackman(size_t size)
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateBlackmanWindow<DATATYPE>(ptr, size);
+    segmenter::populateBlackmanWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -40,7 +40,7 @@ PYARRAY py_hamming(size_t size)
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateHammingWindow<DATATYPE>(ptr, size);
+    segmenter::populateHammingWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -50,7 +50,7 @@ PYARRAY py_hann(size_t size)
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateHannWindow<DATATYPE>(ptr, size);
+    segmenter::populateHannWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -60,7 +60,7 @@ PYARRAY py_rectangular(size_t size)
     auto buf = result.request();
 
     DATATYPE* ptr = static_cast<DATATYPE*>(buf.ptr);
-    populateRectangularWindow<DATATYPE>(ptr, size);
+    segmenter::populateRectangularWindow<DATATYPE>(ptr, size);
     return result;
 }
 
@@ -75,20 +75,20 @@ py::tuple py_checkCola(PYARRAY window, std::size_t hopSize,
     const DATATYPE* window_ptr = static_cast<DATATYPE*>(buf.ptr);
     std::size_t windowSize = buf.shape[0];
 
-    auto result = checkCola<DATATYPE>(window_ptr, windowSize, hopSize, eps);
+    auto result = segmenter::checkCola<DATATYPE>(window_ptr, windowSize, hopSize, eps);
     return py::make_tuple(result.isCola, result.normalizationValue);
 }
 
 class py_Segmenter {
   private:
-    std::unique_ptr<Segmenter<DATATYPE>> m_segmenter;
+    std::unique_ptr<segmenter::Segmenter<DATATYPE>> m_segmenter;
 
-    SegmenterMode determineMode(const std::string modeString)
+    segmenter::SegmenterMode determineMode(const std::string modeString)
     {
         if (modeString == "wola") {
-            return SegmenterMode::WOLA;
+            return segmenter::SegmenterMode::WOLA;
         } else if (modeString == "ola") {
-            return SegmenterMode::OLA;
+            return segmenter::SegmenterMode::OLA;
         } else {
             throw std::runtime_error("Mode neither 'wola' nor 'ola'");
         }
@@ -176,7 +176,7 @@ class py_Segmenter {
                  bool normalizeWindow = true)
     {
         // Determine wola mode based on string
-        SegmenterMode mode = determineMode(modeString);
+        segmenter::SegmenterMode mode = determineMode(modeString);
 
         // Obtain an array from numpy
         auto buf = window.request();
@@ -186,7 +186,7 @@ class py_Segmenter {
         std::size_t windowSize = buf.shape[0];
 
         // Create a new Segmenter and pass the arguments
-        m_segmenter = std::make_unique<Segmenter<DATATYPE>>(
+        m_segmenter = std::make_unique<segmenter::Segmenter<DATATYPE>>(
             frameSize, hopSize, window_ptr, windowSize, mode, edgeCorrection,
             normalizeWindow);
     }

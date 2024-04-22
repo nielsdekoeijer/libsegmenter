@@ -50,6 +50,7 @@
  * ==============================================================================
  */
 
+namespace segmenter {
 template <typename T>
 void populateBartlettWindow(T* vec, const std::size_t windowSize)
 {
@@ -636,3 +637,4 @@ class Segmenter {
         }
     }
 };
+}
