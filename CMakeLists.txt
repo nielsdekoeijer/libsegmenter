@@ -9,7 +9,7 @@ CPMAddPackage("gh:macoustics/split-radix-fft#0.4.1")
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/libsegmenter
+target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/libsegmenter)
 target_link_libraries(${PROJECT_NAME} PRIVATE SplitRadixFft::SplitRadixFft)
 
 option(SEGMENTER_BUILD_PYBINDINGS OFF)
