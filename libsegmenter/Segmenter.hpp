@@ -308,7 +308,7 @@ class Segmenter {
         m_fftBWTwiddleFactors =
             std::make_unique<std::complex<T>[]>(m_frameSize);
         err = fft::populateRfftTwiddleFactorsBackward<T>(
-            m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize);
+            m_frameSize, m_fftBWTwiddleFactors.get(), m_frameSize);
         if (err != fft::FFTSTATUS::OK) {
             throw std::runtime_error("error occured in the creation of the fft "
                                      "backward twiddle factors");
@@ -567,8 +567,12 @@ class Segmenter {
                 for (std::size_t j = 0; j < frameCount; j++) {
                     for (std::size_t k = 0; k < m_frameSize; k++) {
                         m_intermediate[k] =
-                            m_window[k] *
                             itensor[i * ishape[1] + j * m_hopSize + k];
+                    }
+                    if (j == 0) {
+                        for (std::size_t k = 0; k < m_frameSize; k++) {
+                            std::cout << m_intermediate[k] << std::endl;
+                        }
                     }
                     out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
                     err = fft::performRfftForward<T>(
@@ -576,6 +580,11 @@ class Segmenter {
                         m_intermediate.get(), m_frameSize, out,
                         m_halfSpectrumSize, m_scratch0.get(),
                         m_halfSpectrumSize);
+                    if (j == 0) {
+                        for (std::size_t k = 0; k < m_halfSpectrumSize; k++) {
+                            std::cout << out[k] << std::endl;
+                        }
+                    }
                     if (err != fft::FFTSTATUS::OK) {
                         throw std::runtime_error("error in fft 4");
                     }
@@ -637,4 +646,4 @@ class Segmenter {
         }
     }
 };
-}
+} // namespace segmenter

@@ -146,7 +146,9 @@ class SegmenterTorch(torch.nn.Module):
                 ]
 
         if compute_spectrogram:
+            print(X[0,0,:])
             X = torch.fft.rfft(X)
+            print(X[0,0,:])
 
         if not batched:
             # convert back to not-batched
