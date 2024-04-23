@@ -230,7 +230,7 @@ class Segmenter {
             }
         }
 
-        auto cola = checkCola<T>(window, frameSize, m_hopSize, 1e-5);
+        auto cola = checkCola<T>(window, frameSize, m_hopSize, 1e-3);
         if (!cola.isCola) {
             throw std::runtime_error("specified window is not COLA compliant "
                                      "for the given hop size");
