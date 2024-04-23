@@ -352,3 +352,24 @@ def test_torch_vs_base_unspectrogram(segmenter, x):
     segmenter[1].unspectrogram(x_ba)
     assert x_tc.shape == x_ba.shape
     assert x_tc == pytest.approx(x_ba, abs=1e-5)
+
+@pytest.mark.parametrize(("segmenter", "x"), test_cases_torch_vs_base)
+def test_torch_vs_base_unspectrogram_twice(segmenter, x):
+    # skip for non radix-2 examples, but sloppy but so be it
+    if not is_radix_2(segmenter[0].frame_size):
+        return
+
+    x_tc = segmenter[0].spectrogram(x.clone())
+    x_ba = segmenter[1].spectrogram(x.clone())
+    assert x_tc.shape == x_ba.shape
+    segmenter[0].unspectrogram(x_tc)
+    segmenter[1].unspectrogram(x_ba)
+    assert x_tc.shape == x_ba.shape
+    assert x_tc == pytest.approx(x_ba, abs=1e-5)
+    x_tc = segmenter[0].spectrogram(x.clone())
+    x_ba = segmenter[1].spectrogram(x.clone())
+    assert x_tc.shape == x_ba.shape
+    segmenter[0].unspectrogram(x_tc)
+    segmenter[1].unspectrogram(x_ba)
+    assert x_tc.shape == x_ba.shape
+    assert x_tc == pytest.approx(x_ba, abs=1e-5)

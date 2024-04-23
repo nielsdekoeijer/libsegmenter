@@ -467,6 +467,97 @@ class Segmenter {
 
     // operates on contiguous data in right_layout / c-style row major
     // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
+    void spectrogram(const T* itensor, const std::array<std::size_t, 2>& ishape,
+                     std::complex<T>* otensor,
+                     const std::array<std::size_t, 3>& oshape)
+    {
+        validateSpectrogramShape(ishape, oshape);
+        std::size_t batchCount = oshape[0];
+        std::size_t frameCount = oshape[1];
+        std::complex<T>* out;
+        fft::FFTSTATUS err;
+        switch (m_mode) {
+        case (SegmenterMode::WOLA):
+            for (std::size_t i = 0; i < batchCount; i++) {
+                std::size_t j = 0;
+                for (std::size_t k = 0; k < m_frameSize; k++) {
+                    m_intermediate[k] =
+                        m_preWindow[k] *
+                        itensor[i * ishape[1] + j * m_hopSize + k];
+                }
+                out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+
+                err = fft::performRfftForward<T>(
+                    m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                    m_intermediate.get(), m_frameSize, out, m_halfSpectrumSize,
+                    m_scratch0.get(), m_halfSpectrumSize);
+
+                if (err != fft::FFTSTATUS::OK) {
+                    throw std::runtime_error("error in fft");
+                }
+
+                for (j = 1; j < frameCount - 1; j++) {
+                    for (std::size_t k = 0; k < m_frameSize; k++) {
+                        m_intermediate[k] =
+                            m_window[k] *
+                            itensor[i * ishape[1] + j * m_hopSize + k];
+                    }
+                    out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+                    err = fft::performRfftForward<T>(
+                        m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                        m_intermediate.get(), m_frameSize, out,
+                        m_halfSpectrumSize, m_scratch0.get(),
+                        m_halfSpectrumSize);
+                    if (err != fft::FFTSTATUS::OK) {
+                        throw std::runtime_error("error in fft");
+                    }
+                }
+
+                j = frameCount - 1;
+                for (std::size_t k = 0; k < m_frameSize; k++) {
+                    m_intermediate[k] =
+                        m_postWindow[k] *
+                        itensor[i * ishape[1] + j * m_hopSize + k];
+                }
+                out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+                err = fft::performRfftForward<T>(
+                    m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                    m_intermediate.get(), m_frameSize, out, m_halfSpectrumSize,
+                    m_scratch0.get(), m_halfSpectrumSize);
+                if (err != fft::FFTSTATUS::OK) {
+                    throw std::runtime_error("error in fft");
+                }
+            }
+            break;
+        case (SegmenterMode::OLA):
+            for (std::size_t i = 0; i < batchCount; i++) {
+                for (std::size_t j = 0; j < frameCount; j++) {
+                    for (std::size_t k = 0; k < m_frameSize; k++) {
+                        m_intermediate[k] =
+                            itensor[i * ishape[1] + j * m_hopSize + k];
+                    }
+                    if (j == 0) {
+                        for (std::size_t k = 0; k < m_frameSize; k++) {
+                            std::cout << m_intermediate[k] << std::endl;
+                        }
+                    }
+                    out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
+                    err = fft::performRfftForward<T>(
+                        m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
+                        m_intermediate.get(), m_frameSize, out,
+                        m_halfSpectrumSize, m_scratch0.get(),
+                        m_halfSpectrumSize);
+                    if (err != fft::FFTSTATUS::OK) {
+                        throw std::runtime_error("error in fft");
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    // operates on contiguous data in right_layout / c-style row major
+    // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
     void unsegment(const T* itensor, const std::array<std::size_t, 3>& ishape,
                    T* otensor, const std::array<std::size_t, 2>& oshape)
     {
@@ -496,102 +587,6 @@ class Segmenter {
                     m_postWindow[k] *
                     itensor[i * ishape[1] * ishape[2] + j * ishape[2] + k];
             }
-        }
-    }
-
-    // operates on contiguous data in right_layout / c-style row major
-    // NOTE: we don't like this design. Unfortunately, mdspan requires C++23.
-    void spectrogram(const T* itensor, const std::array<std::size_t, 2>& ishape,
-                     std::complex<T>* otensor,
-                     const std::array<std::size_t, 3>& oshape)
-    {
-        validateSpectrogramShape(ishape, oshape);
-        std::size_t batchCount = oshape[0];
-        std::size_t frameCount = oshape[1];
-        std::complex<T>* out;
-        fft::FFTSTATUS err;
-        switch (m_mode) {
-        case (SegmenterMode::WOLA):
-            for (std::size_t i = 0; i < batchCount; i++) {
-                std::size_t j = 0;
-                for (std::size_t k = 0; k < m_frameSize; k++) {
-                    m_intermediate[k] =
-                        m_preWindow[k] *
-                        itensor[i * ishape[1] + j * m_hopSize + k];
-                }
-                out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
-
-                err = fft::performRfftForward<T>(
-                    m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
-                    m_intermediate.get(), m_frameSize, out, m_halfSpectrumSize,
-                    m_scratch0.get(), m_halfSpectrumSize);
-
-                if (err != fft::FFTSTATUS::OK) {
-                    throw std::runtime_error("error in fft 1");
-                }
-
-                for (j = 1; j < frameCount - 1; j++) {
-                    for (std::size_t k = 0; k < m_frameSize; k++) {
-                        m_intermediate[k] =
-                            m_window[k] *
-                            itensor[i * ishape[1] + j * m_hopSize + k];
-                    }
-                    out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
-                    err = fft::performRfftForward<T>(
-                        m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
-                        m_intermediate.get(), m_frameSize, out,
-                        m_halfSpectrumSize, m_scratch0.get(),
-                        m_halfSpectrumSize);
-                    if (err != fft::FFTSTATUS::OK) {
-                        throw std::runtime_error("error in fft 2");
-                    }
-                }
-
-                j = frameCount - 1;
-                for (std::size_t k = 0; k < m_frameSize; k++) {
-                    m_intermediate[k] =
-                        m_postWindow[k] *
-                        itensor[i * ishape[1] + j * m_hopSize + k];
-                }
-                out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
-                err = fft::performRfftForward<T>(
-                    m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
-                    m_intermediate.get(), m_frameSize, out, m_halfSpectrumSize,
-                    m_scratch0.get(), m_halfSpectrumSize);
-                if (err != fft::FFTSTATUS::OK) {
-                    throw std::runtime_error("error in fft 3");
-                }
-            }
-            break;
-        case (SegmenterMode::OLA):
-            for (std::size_t i = 0; i < batchCount; i++) {
-                for (std::size_t j = 0; j < frameCount; j++) {
-                    for (std::size_t k = 0; k < m_frameSize; k++) {
-                        m_intermediate[k] =
-                            itensor[i * ishape[1] + j * m_hopSize + k];
-                    }
-                    if (j == 0) {
-                        for (std::size_t k = 0; k < m_frameSize; k++) {
-                            std::cout << m_intermediate[k] << std::endl;
-                        }
-                    }
-                    out = &otensor[i * oshape[1] * oshape[2] + j * oshape[2]];
-                    err = fft::performRfftForward<T>(
-                        m_frameSize, m_fftFWTwiddleFactors.get(), m_frameSize,
-                        m_intermediate.get(), m_frameSize, out,
-                        m_halfSpectrumSize, m_scratch0.get(),
-                        m_halfSpectrumSize);
-                    if (j == 0) {
-                        for (std::size_t k = 0; k < m_halfSpectrumSize; k++) {
-                            std::cout << out[k] << std::endl;
-                        }
-                    }
-                    if (err != fft::FFTSTATUS::OK) {
-                        throw std::runtime_error("error in fft 4");
-                    }
-                }
-            }
-            break;
         }
     }
 
