@@ -110,7 +110,6 @@ class SegmenterTorch(torch.nn.Module):
                 f"only support for inputs with dimension 1 or 2, provided {x.dim()}"
             )
 
-
         number_of_segments = (
             (number_of_samples) // self.hop_size - self.frame_size // self.hop_size + 1
         )
@@ -146,9 +145,7 @@ class SegmenterTorch(torch.nn.Module):
                 ]
 
         if compute_spectrogram:
-            print(X[0,0,:])
             X = torch.fft.rfft(X)
-            print(X[0,0,:])
 
         if not batched:
             # convert back to not-batched

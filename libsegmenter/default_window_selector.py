@@ -1,6 +1,7 @@
 import numpy as np
 from .bindings import *
 
+
 def kaiser(window_length: int, beta: float) -> np.array:
     """
     Note that the Kaiser window is not strictly speaking COLA compliant as it does not have harmonic nulls that can be tuned to the
