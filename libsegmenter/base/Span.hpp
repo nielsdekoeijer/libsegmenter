@@ -51,9 +51,9 @@ struct Span {
     template<typename... Args>
     const T& operator()(Args... args) const {
         static_assert(sizeof...(args) == dim, "Dimension mismatch");
-        std::size_t indices[] = {args...};
+        std::size_t indices[] = {static_cast<std::size_t>(args)...};
         std::size_t offset = 0;
-        for (int i = 0; i < dim; ++i) {
+        for (std::size_t i = 0; i < dim; ++i) {
             offset = offset * shape[i] + indices[i];
         }
         return data[offset];
@@ -73,9 +73,9 @@ struct MutableSpan {
     template<typename... Args>
     T& operator()(Args... args) const {
         static_assert(sizeof...(args) == dim, "Dimension mismatch");
-        std::size_t indices[] = {args...};
+        std::size_t indices[] = {static_cast<std::size_t>(args)...};
         std::size_t offset = 0;
-        for (int i = 0; i < dim; ++i) {
+        for (std::size_t i = 0; i < dim; ++i) {
             offset = offset * shape[i] + indices[i];
         }
         return data[offset];

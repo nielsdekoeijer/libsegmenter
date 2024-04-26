@@ -43,12 +43,12 @@
 namespace segmenter {
 template <typename T>
 struct SegmenterParameters {
-    const std::unique_ptr<T[]> window = nullptr;
-    const std::size_t frameSize;
-    const std::size_t hopSize;
-    const SegmenterMode mode;
-    const bool edgeCorrection;
-    const bool normalizeWindow;
+    std::unique_ptr<T[]> window;
+    std::size_t frameSize;
+    std::size_t hopSize;
+    SegmenterMode mode;
+    bool edgeCorrection;
+    bool normalizeWindow;
 
     SegmenterParameters(std::unique_ptr<T[]>&& window,
                         const std::size_t frameSize, const std::size_t hopSize,
@@ -59,6 +59,7 @@ struct SegmenterParameters {
           normalizeWindow(normalizeWindow)
     {
     }
+    SegmenterParameters() = default;
 };
 
 template <typename T>

@@ -32,6 +32,7 @@
 #pragma once
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/array.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <fstream>
@@ -49,11 +50,13 @@ void saveSegmenterParameters(const std::string path,
         throw std::runtime_error("Could not open file for saving");
     }
     boost::archive::xml_oarchive xml_oa(ofs);
-    xml_oa << BOOST_SERIALIZATION_NVP(item.frameSize) &
-        BOOST_SERIALIZATION_NVP(item.hopSize) &
-        BOOST_SERIALIZATION_NVP(item.window) &
-        BOOST_SERIALIZATION_NVP(item.edgeCorrection) &
-        BOOST_SERIALIZATION_NVP(item.normalizeWindow);
+    xml_oa << BOOST_SERIALIZATION_NVP(item.frameSize)
+           << BOOST_SERIALIZATION_NVP(item.hopSize)
+           << BOOST_SERIALIZATION_NVP(item.edgeCorrection)
+           << BOOST_SERIALIZATION_NVP(item.normalizeWindow);
+    for (std::size_t i = 0; i < item.frameSize; i++) {
+        xml_oa << BOOST_SERIALIZATION_NVP(item.window[i]);
+    }
 }
 
 template <typename T>
@@ -65,11 +68,14 @@ SegmenterParameters<T> loadSegmenterParameters(const std::string path)
         throw std::runtime_error("Could not open file for loading");
     }
     boost::archive::xml_iarchive xml_ia(ifs);
-    xml_ia >> BOOST_SERIALIZATION_NVP(item.frameSize) &
-        BOOST_SERIALIZATION_NVP(item.hopSize) &
-        BOOST_SERIALIZATION_NVP(item.window) &
-        BOOST_SERIALIZATION_NVP(item.edgeCorrection) &
+    xml_ia >> BOOST_SERIALIZATION_NVP(item.frameSize) >>
+        BOOST_SERIALIZATION_NVP(item.hopSize) >>
+        BOOST_SERIALIZATION_NVP(item.edgeCorrection) >>
         BOOST_SERIALIZATION_NVP(item.normalizeWindow);
+    item.window = std::make_unique<T[]>(item.frameSize);
+    for (std::size_t i = 0; i < item.frameSize; i++) {
+        xml_ia >> BOOST_SERIALIZATION_NVP(item.window[i]);
+    }
 
     return item;
 }
