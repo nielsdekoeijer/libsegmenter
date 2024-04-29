@@ -20,6 +20,19 @@ Before use, the user will have to create a segmenter object using the `libsegmen
  - `hop_size`:
  - `window`: 
  - `mode`: (`ola`), `wola`. Choose either overlap-add (rectangular window applied at segmentation, and chosen window at unsegmentation), or windowed overlap-add (square root of chosen window applied at segmentation and unsegmentation).
+ - `normalize_window`: (`True`), `False`. 
  - `edge_correction`: (`True`), `False`.
- - `gain_normalization`: (`True`), `False`.
+
+Note that upon creation, it will be checked whether the chosen window and hop_size are COLA compliant and will throw an error if this is not the case (if the choice of window and hop_size would lead to errors even if the audio is not changed between being segmented and unsegmented). To ease the use of the library the function `default_window_selector(window_name, window_length)` is introduced. This function will return a window of the requested length and supply a valid hop_size (if this is available for the chosen window length). The function currently supports the following default window types:
+ - `"bartlett50"`: Triangular window with 50% overlap.
+ - `"bartlett75"`: Triangular window with 75% overlap.
+ - `"blackman"`: Blackman window with 2/3 ovelap.
+ - `"hamming50"`: Hamming window with 50% overlap.
+ - `"hamming75"`: Hamming windown with 75% overlap.
+ - `"hann50"`: Hann window with 50% overlap.
+ - `"hann75"`: Hann window with 75% overlap.
+ - `"rectangular0"`: Rectangular window with 0% overlap.
+ - `"rectangular50"`: Rectangular window with 50% overlap.
+Please note that the choice of a suitable window for a given application is entirely left to the user.
+
 The segmenter will accept input audio signals of the shape `[number_of_batch_elements, number_of_samples]` where `number_of_batch_elements` are individual channels or audio files and `number_of_samples` are the number of samples in each batch element. The output of the segmenter is of shape `[number_of_batch_elements, number_of_segments, frame_size]`, where `number_of_segments` will ignore the remaining samples if the `number_of_samples` does not match an integer number of segments with the chosen overlap.
