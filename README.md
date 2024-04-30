@@ -15,10 +15,10 @@ The primary use-case for the library is to support machine learning tasks, which
 
 ## Use
 Before use, the user will have to create a segmenter object using the `libsegmenter.make_segmenter()` function. The `make_segmenter()` function takes the following input arguments:
- - `backend`: `"torch"`
- - `frame_size`:
- - `hop_size`:
- - `window`: 
+ - `backend`: (`"base"`), `"torch"`, `"tensorflow"`. The choise of backend for the segmentation `"base"` is a c++ implementation with python bindings, `"torch"` for pytorch, and `"tensorflow"` for a tensor flow implementation.
+ - `frame_size`: The length of each segment in samples.
+ - `hop_size`: The number of samples the window is displaced between adjacent segments.
+ - `window`: An array specifying the window function. Note this should have the length `frame_size` and be COLA-compliant with the chosen `hop_size`.
  - `mode`: (`"ola"`), `"wola"`. Choose either overlap-add (rectangular window applied at segmentation, and chosen window at unsegmentation), or windowed overlap-add (square root of chosen window applied at segmentation and unsegmentation).
  - `normalize_window`: (`True`), `False`. 
  - `edge_correction`: (`True`), `False`.
