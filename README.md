@@ -15,11 +15,11 @@ The primary use-case for the library is to support machine learning tasks, which
 
 ## Use
 Before use, the user will have to create a segmenter object using the `libsegmenter.make_segmenter()` function. The `make_segmenter()` function takes the following input arguments:
- - `backend`: `torch`
+ - `backend`: `"torch"`
  - `frame_size`:
  - `hop_size`:
  - `window`: 
- - `mode`: (`ola`), `wola`. Choose either overlap-add (rectangular window applied at segmentation, and chosen window at unsegmentation), or windowed overlap-add (square root of chosen window applied at segmentation and unsegmentation).
+ - `mode`: (`"ola"`), `"wola"`. Choose either overlap-add (rectangular window applied at segmentation, and chosen window at unsegmentation), or windowed overlap-add (square root of chosen window applied at segmentation and unsegmentation).
  - `normalize_window`: (`True`), `False`. 
  - `edge_correction`: (`True`), `False`.
 
