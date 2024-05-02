@@ -128,7 +128,7 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="libsegmenter",
-    version="0.9.1",
+    version="0.9.2",
     author=["Niels de Koeijer", "Martin Bo Moller"],
     description="An opinionated segmentation library for (machine learning) audio",
     long_description="",
