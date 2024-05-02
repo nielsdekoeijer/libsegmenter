@@ -32,7 +32,7 @@ class SegmenterTorch(torch.nn.Module):
         self.hop_size = hop_size
         self.frame_size = frame_size
         if isinstance(window, np.ndarray):
-            self.window = torch.tensor(window)
+            self.window = torch.tensor(window, device=device)
         elif isinstance(window, torch.Tensor):
             self.window = window.to(device)
         else:
