@@ -40,6 +40,7 @@ template <typename T>
 struct COLAResult {
     bool isCola;
     T normalizationValue;
+    T epsilon;
 };
 
 template <typename T>
@@ -47,44 +48,45 @@ COLAResult<T> checkCola(const T* window, const std::size_t windowSize,
                         const std::size_t hopSize, const T eps = 1e-5)
 {
     // NOTE: Allocates
-    const T frameRate = 1.0 / T(hopSize);
+    const double frameRate = 1.0 / double(hopSize);
 
-    T factor = 0.0;
+    double factor = 0.0;
     for (std::size_t i = 0; i < windowSize; i++) {
-        factor += window[i];
+        factor += double(window[i]);
     }
-    factor /= T(hopSize);
+    factor /= double(hopSize);
 
     const std::size_t N = 6 * windowSize;
-    auto sp = std::make_unique<std::complex<T>[]>(N);
+    auto sp = std::make_unique<std::complex<double>[]>(N);
     for (std::size_t i = 0; i < N; i++) {
         sp[i] = factor;
     }
-    T ubound = sp[0].real();
-    T lbound = sp[0].real();
+    double ubound = sp[0].real();
+    double lbound = sp[0].real();
 
-    auto csin = std::make_unique<std::complex<T>[]>(N);
+    auto csin = std::make_unique<std::complex<double>[]>(N);
     for (std::size_t k = 1; k < hopSize; k++) {
-        const T f = frameRate * T(k);
+        const double f = frameRate * double(k);
         for (std::size_t n = 0; n < N; n++) {
-            csin[n] = std::exp(std::complex<T>(0.0, 2.0 * PI<T> * f * n));
+            csin[n] = std::exp(std::complex<double>(0.0, 2.0 * PI<double> * f * n));
         }
 
-        std::complex<T> Wf = 0.0;
+        std::complex<double> Wf = 0.0;
         for (std::size_t n = 0; n < windowSize; n++) {
-            Wf += window[n] * std::conj(csin[n]);
+            Wf += double(window[n]) * std::conj(csin[n]);
         }
 
         for (std::size_t n = 0; n < N; n++) {
-            sp[n] += (Wf * csin[n]) / T(hopSize);
+            sp[n] += (Wf * csin[n]) / double(hopSize);
         }
 
-        const T Wfb = abs(Wf);
-        ubound += Wfb / T(hopSize);
-        lbound -= Wfb / T(hopSize);
+        const double Wfb = abs(Wf);
+        ubound += Wfb / double(hopSize);
+        lbound -= Wfb / double(hopSize);
     }
 
     COLAResult<T> result;
+    result.epsilon = (ubound - lbound);
     result.isCola = (ubound - lbound) < eps;
     result.normalizationValue = (ubound + lbound) / 2.0;
 
