@@ -63,6 +63,4 @@ PYBIND11_MODULE(bindings, m)
             }
             return result;
         });
-    m.def("save", &py_saveSegmenterParameters);
-    m.def("load", &py_loadSegmenterParameters);
 }
