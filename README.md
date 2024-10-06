@@ -12,6 +12,14 @@ The primary use-case for the library is to support machine learning tasks, which
  - The segmenter is implemented in both TensorFlow and PyTorch to support multiple machine learning tasks. We also provide a C++ implementation that is identical to the pytorch and tensorflow ones that eases model deployemnet.
 
 ## Installation
+Simply install from PyPi:
+```bash
+python3 -m pip install libsegmenter
+```
+Or build from source
+```bash
+python3 -m pip install .
+```
 
 ## Use
 ### Example
