@@ -54,7 +54,7 @@ jobs:
       run: python -m pip install cibuildwheel==2.21.2
   
     - name: Build wheels
-      run: python -m cibuildwheel --output-dir wheelhouse
+      run: CIBW_REPAIR_WHEEL_COMMAND="" python -m cibuildwheel --output-dir wheelhouse
   
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
