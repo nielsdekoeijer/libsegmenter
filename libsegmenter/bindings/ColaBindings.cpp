@@ -16,4 +16,3 @@ py::tuple py_checkCola(PYARRAY window, std::size_t hopSize,
         segmenter::checkCola<DATATYPE>(window_ptr, windowSize, hopSize, eps);
     return py::make_tuple(result.isCola, result.normalizationValue);
 }
-

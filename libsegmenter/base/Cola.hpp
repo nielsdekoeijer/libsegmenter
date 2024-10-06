@@ -31,8 +31,8 @@
 
 #pragma once
 #include "Helper.hpp"
-#include <memory>
 #include <complex>
+#include <memory>
 
 namespace segmenter {
 
@@ -68,7 +68,8 @@ COLAResult<T> checkCola(const T* window, const std::size_t windowSize,
     for (std::size_t k = 1; k < hopSize; k++) {
         const double f = frameRate * double(k);
         for (std::size_t n = 0; n < N; n++) {
-            csin[n] = std::exp(std::complex<double>(0.0, 2.0 * PI<double> * f * n));
+            csin[n] =
+                std::exp(std::complex<double>(0.0, 2.0 * PI<double> * f * n));
         }
 
         std::complex<double> Wf = 0.0;
@@ -92,4 +93,4 @@ COLAResult<T> checkCola(const T* window, const std::size_t windowSize,
 
     return result;
 }
-}
+} // namespace segmenter

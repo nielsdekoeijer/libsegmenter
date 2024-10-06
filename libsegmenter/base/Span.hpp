@@ -26,7 +26,7 @@
  * Span.hpp
  * Span implementation for use in C++17, should be replaced by mdspan when
  * generally supported in C++23. Essentially an unsafe non-owning view over a
- * contiguous bit of memory where the alignment is assumed to be right-hand 
+ * contiguous bit of memory where the alignment is assumed to be right-hand
  * / c-style / row-index.
  *
  * ==============================================================================
@@ -48,8 +48,9 @@ struct Span {
     {
     }
 
-    template<typename... Args>
-    const T& operator()(Args... args) const {
+    template <typename... Args>
+    const T& operator()(Args... args) const
+    {
         static_assert(sizeof...(args) == dim, "Dimension mismatch");
         std::size_t indices[] = {static_cast<std::size_t>(args)...};
         std::size_t offset = 0;
@@ -70,8 +71,9 @@ struct MutableSpan {
     {
     }
 
-    template<typename... Args>
-    T& operator()(Args... args) const {
+    template <typename... Args>
+    T& operator()(Args... args) const
+    {
         static_assert(sizeof...(args) == dim, "Dimension mismatch");
         std::size_t indices[] = {static_cast<std::size_t>(args)...};
         std::size_t offset = 0;

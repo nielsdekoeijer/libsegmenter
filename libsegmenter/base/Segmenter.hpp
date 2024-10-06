@@ -154,7 +154,8 @@ class Segmenter {
         auto cola = checkCola<T>(window, frameSize, m_hopSize, 1e-3);
         if (!cola.isCola) {
             throw std::runtime_error("specified window is not COLA compliant "
-                                     "for the given hop size, yielded: " + std::to_string(cola.epsilon));
+                                     "for the given hop size, yielded: " +
+                                     std::to_string(cola.epsilon));
         }
 
         // Clone window
@@ -257,7 +258,8 @@ class Segmenter {
                                   m_halfSpectrumSize);
                 for (j = 1; j < frameCount - 1; j++) {
                     for (std::size_t k = 0; k < m_frameSize; k++) {
-                        m_scratch[k] = m_window[k] * iview(i, j * m_hopSize + k);
+                        m_scratch[k] =
+                            m_window[k] * iview(i, j * m_hopSize + k);
                     }
                     out = &oview(i, j, 0);
                     m_FWRfft->process(m_scratch.get(), m_frameSize, out,
@@ -266,7 +268,8 @@ class Segmenter {
 
                 j = frameCount - 1;
                 for (std::size_t k = 0; k < m_frameSize; k++) {
-                    m_scratch[k] = m_postWindow[k] * iview(i, j * m_hopSize + k);
+                    m_scratch[k] =
+                        m_postWindow[k] * iview(i, j * m_hopSize + k);
                 }
                 out = &oview(i, j, 0);
                 m_FWRfft->process(m_scratch.get(), m_frameSize, out,

@@ -14,6 +14,8 @@ The primary use-case for the library is to support machine learning tasks, which
 ## Installation
 
 ## Use
+### Example
+### In Detail
 Before use, the user will have to create a segmenter object using the `libsegmenter.make_segmenter()` function. The `make_segmenter()` function takes the following input arguments:
  - `backend`: (`"base"`), `"torch"`, `"tensorflow"`. The choise of backend for the segmentation `"base"` is a c++ implementation with python bindings, `"torch"` for pytorch, and `"tensorflow"` for a tensor flow implementation.
  - `frame_size`: The length of each segment in samples.

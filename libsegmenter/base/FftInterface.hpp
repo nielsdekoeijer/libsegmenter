@@ -52,8 +52,10 @@ class FWRfft {
   public:
     FWRfft(const std::size_t size)
         : m_size(size), m_halfSpectrumSize(size / 2 + 1),
-          m_fftTwiddleFactors(std::move(std::make_unique<std::complex<T>[]>(m_size))),
-          m_scratch0(std::move(std::make_unique<std::complex<T>[]>(m_halfSpectrumSize)))
+          m_fftTwiddleFactors(
+              std::move(std::make_unique<std::complex<T>[]>(m_size))),
+          m_scratch0(std::move(
+              std::make_unique<std::complex<T>[]>(m_halfSpectrumSize)))
     {
         fft::FFTSTATUS err;
         err = fft::populateRfftTwiddleFactorsForward<T>(

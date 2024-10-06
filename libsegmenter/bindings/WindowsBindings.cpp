@@ -50,4 +50,3 @@ PYARRAY py_rectangular(size_t size)
     segmenter::populateRectangularWindow<DATATYPE>(ptr, size);
     return result;
 }
-

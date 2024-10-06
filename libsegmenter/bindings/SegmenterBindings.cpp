@@ -61,7 +61,7 @@ TPYARRAY<T> makePythonArray(T* data, const std::array<std::size_t, 1>& shape)
     auto array = TPYARRAY<T>(shape[0]);
     auto result = array.template mutable_unchecked<1>();
     for (std::size_t i = 0; i < shape[0]; i++) {
-        result(i) = view(i); 
+        result(i) = view(i);
     }
 
     return array;
