@@ -28,7 +28,7 @@ class CMakeExtension(Extension):
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
-        ext_fullpath = Path.cwd() / 'src' / self.get_ext_fullpath(ext.name)
+        ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
         extdir = ext_fullpath.parent.resolve()
 
         # Using this requires trailing slash for auto-detection & inclusion of
@@ -57,7 +57,7 @@ class CMakeBuild(build_ext):
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
 
         # In this example, we pass in the version to C++. You might not need to.
-        cmake_args += [f"-DEXAMPLE_VERSION_INFO={self.distribution.get_version()}"]
+        # cmake_args += [f"-DEXAMPLE_VERSION_INFO={self.distribution.get_version()}"]
 
         if self.compiler.compiler_type != "msvc":
             # Using Ninja-build since it a) is available as a wheel and b)
@@ -112,7 +112,8 @@ class CMakeBuild(build_ext):
                 # CMake 3.12+ only.
                 build_args += [f"-j{self.parallel}"]
 
-        build_temp = Path(self.build_temp) / ext.name
+        build_temp = Path(self.build_temp)  / ext.name
+        print(build_temp)
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
 
@@ -134,7 +135,7 @@ setup(
     long_description="",
     packages=find_packages(),
     ext_modules=[
-        CMakeExtension("src.libsegmenter.bindings")
+        CMakeExtension("src/libsegmenter/bindings")
     ],
     cmdclass={"build_ext": CMakeBuild},
     setup_requires=['pytest-runner'],
