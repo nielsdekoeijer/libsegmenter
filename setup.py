@@ -28,7 +28,7 @@ class CMakeExtension(Extension):
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
-        ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
+        ext_fullpath = Path.cwd() / 'src' / self.get_ext_fullpath(ext.name)
         extdir = ext_fullpath.parent.resolve()
 
         # Using this requires trailing slash for auto-detection & inclusion of
@@ -135,6 +135,7 @@ setup(
     packages=find_packages(),
     ext_modules=[CMakeExtension("libsegmenter.bindings")],
     cmdclass={"build_ext": CMakeBuild},
+    setup_requires=['pytest-runner'],
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.7",
