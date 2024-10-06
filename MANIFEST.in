@@ -1,4 +1,4 @@
-include libsegmenter/*.hpp
-include libsegmenter/bindings/*.cpp
+include src/libsegmenter/*.hpp
+include src/libsegmenter/bindings/*.cpp
 include CMakeLists.txt
 include cmake/CPM.cmake
