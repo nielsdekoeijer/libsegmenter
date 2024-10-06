@@ -29,13 +29,13 @@ pytest # in project root!
 ### Example
 The general workflow is as follows:
 ```python
-# utilize the window helper
+# utilize the window helper to create a window of 512 samples
 window, hop_size = libsegmenter.default_window_selector(
     "hann75",
     512,
 )
 
-# create the segmenter
+# create the segmenter object
 self.segmenter = libsegmenter.make_segmenter(
     backend="torch",
     frame_size=512,
