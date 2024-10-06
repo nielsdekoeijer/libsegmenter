@@ -20,6 +20,10 @@ Or build from source
 ```bash
 python3 -m pip install .
 ```
+We have tests validating parity between pytorch, tensorflow, and C++ backends. Run them with:
+```bash
+pytest # in project root!
+```
 
 ## Use
 ### Example
