@@ -30,6 +30,7 @@ class CMakeBuild(build_ext):
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
         ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
         extdir = ext_fullpath.parent.resolve()
+        print(f"BUILD: Using extdir: {extdir}", flush=True)
 
         # Using this requires trailing slash for auto-detection & inclusion of
         # auxiliary "native" libs
@@ -51,6 +52,8 @@ class CMakeBuild(build_ext):
             f"-DSEGMENTER_BUILD_PYBINDINGS=ON",
         ]
         build_args = []
+        print(f"BUILD: Using output dir: {extdir}{os.sep}", flush=True)
+
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
@@ -112,8 +115,8 @@ class CMakeBuild(build_ext):
                 # CMake 3.12+ only.
                 build_args += [f"-j{self.parallel}"]
 
-        build_temp = Path(self.build_temp)  / ext.name
-        print(build_temp)
+        build_temp = Path(self.build_temp) / ext.name
+        print(f"BUILD: Using build_temp: {build_temp}", flush=True)
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
 
@@ -133,13 +136,17 @@ setup(
     author=["Niels de Koeijer", "Martin Bo Moller"],
     description="An opinionated segmentation library for (machine learning) audio",
     long_description="",
-    packages=find_packages(),
     ext_modules=[
-        CMakeExtension("src/libsegmenter/bindings")
+        CMakeExtension("libsegmenter.bindings")
     ],
     cmdclass={"build_ext": CMakeBuild},
     setup_requires=['pytest-runner'],
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.7",
+    verbose=True,
+    include_package_data=True,
+    package_data={
+        "libsegmenter.bindings": ["*.cpp", "*.hpp", "*.so"],  # Explicitly include .so, .cpp, etc.
+    },
 )
