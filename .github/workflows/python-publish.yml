@@ -26,7 +26,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest torch tensorflow numpy
         pip install -e .
-        pytest
+      env:
+        PYTHONPATH: src  # Ensure src is in PYTHONPATH
+
+    - name: Test
+      run: pytest
+      env:
+        PYTHONPATH: src  # Ensure src is in PYTHONPATH
   
   build-wheels:
     needs: test
