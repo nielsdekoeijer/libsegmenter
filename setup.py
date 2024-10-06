@@ -133,7 +133,9 @@ setup(
     description="An opinionated segmentation library for (machine learning) audio",
     long_description="",
     packages=find_packages(),
-    ext_modules=[CMakeExtension("libsegmenter.bindings")],
+    ext_modules=[
+        CMakeExtension("src.libsegmenter.bindings")
+    ],
     cmdclass={"build_ext": CMakeBuild},
     setup_requires=['pytest-runner'],
     zip_safe=False,
