@@ -20,9 +20,35 @@ Or build from source
 ```bash
 python3 -m pip install .
 ```
+We have tests validating parity between pytorch, tensorflow, and C++ backends. Run them with:
+```bash
+pytest # in project root!
+```
 
 ## Use
 ### Example
+The general workflow is as follows:
+```python
+# utilize the window helper
+window, hop_size = libsegmenter.default_window_selector(
+    "hann75",
+    512,
+)
+
+# create the segmenter
+self.segmenter = libsegmenter.make_segmenter(
+    backend="torch",
+    frame_size=512,
+    hop_size=hop_size,
+    window=window,
+    mode="wola",
+    edge_correction=False,
+    normalize_window=True
+)
+
+# segment input: (batch, nsamples) => (batch, ntotalframes, nframe)
+X = segmenter.segment(x)
+```
 ### In Detail
 Before use, the user will have to create a segmenter object using the `libsegmenter.make_segmenter()` function. The `make_segmenter()` function takes the following input arguments:
  - `backend`: (`"base"`), `"torch"`, `"tensorflow"`. The choise of backend for the segmentation `"base"` is a c++ implementation with python bindings, `"torch"` for pytorch, and `"tensorflow"` for a tensor flow implementation.
