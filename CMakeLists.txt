@@ -16,8 +16,8 @@ add_library(${NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/libsegmenter/base/)
 target_link_libraries(${PROJECT_NAME} INTERFACE SplitRadixFft::SplitRadixFft)
 
-message("Python bindings build set to ${SEGMENTER_BUILD_PYBINDINGS}")
 if(${SEGMENTER_BUILD_PYBINDINGS})
+    message(STATUS "Building python bindings for libsegmenter...")
     set(PYBIND11_NEWPYTHON ON)
     CPMAddPackage("gh:pybind/pybind11@2.12.0")
     pybind11_add_module(bindings SHARED 
