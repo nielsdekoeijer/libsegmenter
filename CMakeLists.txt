@@ -25,7 +25,6 @@ if(${SEGMENTER_BUILD_PYBINDINGS})
         libsegmenter/bindings/SegmenterBindings.cpp 
         libsegmenter/bindings/ColaBindings.cpp 
         libsegmenter/bindings/WindowsBindings.cpp 
-        libsegmenter/bindings/SerializeBindings.cpp 
     )
     target_link_libraries(bindings PRIVATE Segmenter::Segmenter)
     install(TARGETS bindings LIBRARY DESTINATION libsegmenter)

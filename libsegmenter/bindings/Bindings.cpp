@@ -5,7 +5,6 @@
 
 #include "ColaBindings.hpp"
 #include "SegmenterBindings.hpp"
-#include "SerializeBindings.hpp"
 #include "WindowsBindings.hpp"
 
 PYBIND11_MODULE(bindings, m)
