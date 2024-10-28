@@ -20,10 +20,17 @@ Or build from source
 ```bash
 python3 -m pip install .
 ```
+
+## Development
 We have tests validating parity between pytorch, tensorflow, and C++ backends. Run them with:
 ```bash
-pytest # in project root!
+pip install -e .  # build the python bindings in project root (NOTE: also run on changing C++)
+python3 -m pytest # run in project root!
 ```
+Please note again that rebuilding the python bindings locally in the root as given above is neccessary when developing.
+This is because the development environment (from which `pytest` is run) uses the `libsegmenter` folder in the project root.
+This folder will not contain the bindings by default, and they will not be updated on `pip install .`. 
+As such, you are advised to rerun `pip install -e .` whilst developing to ensure the changes are correctly reflected in the unit tests.
 
 ## Use
 ### Example
