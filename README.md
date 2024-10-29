@@ -79,3 +79,29 @@ Note that upon creation, it will be checked whether the chosen window and hop_si
 Please note that the choice of a suitable window for a given application is entirely left to the user.
 
 The segmenter will accept input audio signals of the shape `[number_of_batch_elements, number_of_samples]` where `number_of_batch_elements` are individual channels or audio files and `number_of_samples` are the number of samples in each batch element. The output of the segmenter is of shape `[number_of_batch_elements, number_of_segments, frame_size]`, where `number_of_segments` will ignore the remaining samples if the `number_of_samples` does not match an integer number of segments with the chosen overlap.
+
+# Experimental features
+### Baseband phase difference spectrogram representation:
+Rather than representing spectrograms in magnitude and phase, it is possible to represent the phase as the baseband phase difference (as described in M. Krawczyk and T. Gerkmann, "STFT Phase Reconstruction in Voiced Speech for an Improved Single-Channel Speech Enhancement", IEEE Transactions on Audio, Speech, and Language Processing, vol. 22, no. 12, pp. 1-10, 2014). 
+
+Below is an example of how one can transform between a regular complex STFT spectrogram and magnitude / baseband phase difference representation:
+```python
+# Create complex spectrogram from signal x
+x_stft = segmenter.spectrogram(x)
+
+# Extract magnitude and phase
+x_mag = segmenter.magnitude_spectrogram(x_stft)
+x_pha = segmenter.phase_spectrogram(x_stft)
+
+# Represent phase as baseband phase difference
+x_bpd = segmenter.bpd_transform(x_pha)
+
+# Convert baseband phase difference back to regular phase
+x_pha_bpd = segmenter.inverse_bpd_transform(x_bpd)
+
+# Combine back to complex valued spectrogram
+x_stft_bpd = segmenter.assemble_spectrogram_magnitude_phase(x_mag, x_pha_bpd)
+```
+A couple of caveats regarding the baseband phase difference representation (in its current implementation):
+ - It is currently only implemented for `torch`
+ - There is some accumulation of rounding errors in the transformation between regular phase and baseband phase difference, which only increases with an increasing number of segments.
