@@ -95,3 +95,6 @@ x_pha_bpd = segmenter.inverse_bpd_transform(x_bpd)
 # Combine back to complex valued spectrogram
 x_stft_bpd = segmenter.assemble_spectrogram_magnitude_phase(x_mag, x_pha_bpd)
 ```
+A couple of caveats regarding the baseband phase difference representation (in its current implementation):
+ - It is currently only implemented for `torch`
+ - There is some accumulation of rounding errors in the transformation between regular phase and baseband phase difference, which only increases with an increasing number of segments.
