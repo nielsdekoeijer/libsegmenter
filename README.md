@@ -73,8 +73,8 @@ Please note that the choice of a suitable window for a given application is enti
 
 The segmenter will accept input audio signals of the shape `[number_of_batch_elements, number_of_samples]` where `number_of_batch_elements` are individual channels or audio files and `number_of_samples` are the number of samples in each batch element. The output of the segmenter is of shape `[number_of_batch_elements, number_of_segments, frame_size]`, where `number_of_segments` will ignore the remaining samples if the `number_of_samples` does not match an integer number of segments with the chosen overlap.
 
-### Experimental features
-# Baseband phase difference spectrogram representation:
+# Experimental features
+### Baseband phase difference spectrogram representation:
 Rather than representing spectrograms in magnitude and phase, it is possible to represent the phase as the baseband phase difference (as described in M. Krawczyk and T. Gerkmann, "STFT Phase Reconstruction in Voiced Speech for an Improved Single-Channel Speech Enhancement", IEEE Transactions on Audio, Speech, and Language Processing, vol. 22, no. 12, pp. 1-10, 2014). 
 
 Below is an example of how one can transform between a regular complex STFT spectrogram and magnitude / baseband phase difference representation:
