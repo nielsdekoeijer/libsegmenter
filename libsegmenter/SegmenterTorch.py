@@ -36,7 +36,8 @@ class SegmenterTorch(torch.nn.Module):
         elif isinstance(window, torch.Tensor):
             self.window = window.to(device)
         else:
-            raise ValueError("provided window is not numpy ndarray nor pytorch tensor")
+            raise ValueError(
+                "provided window is not numpy ndarray nor pytorch tensor")
 
         # asserts to ensure correctness
         if self.frame_size % 2 != 0:
@@ -46,7 +47,8 @@ class SegmenterTorch(torch.nn.Module):
             raise ValueError("hop_size cannot be larger than frame_size")
 
         if self.window.shape[0] != self.frame_size:
-            raise ValueError("specified window must have the same size as frame_size")
+            raise ValueError(
+                "specified window must have the same size as frame_size")
 
         if any(window < 0.0):
             raise ValueError("specified window contains negative values")
@@ -111,7 +113,8 @@ class SegmenterTorch(torch.nn.Module):
             )
 
         number_of_segments = (
-            (number_of_samples) // self.hop_size - self.frame_size // self.hop_size + 1
+            (number_of_samples) // self.hop_size -
+            self.frame_size // self.hop_size + 1
         )
 
         X = torch.zeros(
@@ -122,26 +125,26 @@ class SegmenterTorch(torch.nn.Module):
         if self.mode == "wola":
             k = 0
             X[:, k, :] = (
-                x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
+                x[:, k * self.hop_size: k * self.hop_size + self.frame_size]
                 * self.prewindow
             )
             for k in range(1, number_of_segments - 1):
                 X[:, k, :] = (
                     x[
                         :,
-                        k * self.hop_size : k * self.hop_size + self.frame_size,
+                        k * self.hop_size: k * self.hop_size + self.frame_size,
                     ]
                     * self.window
                 )
             k = number_of_segments - 1
             X[:, k, :] = (
-                x[:, k * self.hop_size : k * self.hop_size + self.frame_size]
+                x[:, k * self.hop_size: k * self.hop_size + self.frame_size]
                 * self.postwindow
             )
         else:
             for k in range(number_of_segments):
                 X[:, k, :] = x[
-                    :, k * self.hop_size : k * self.hop_size + self.frame_size
+                    :, k * self.hop_size: k * self.hop_size + self.frame_size
                 ]
 
         if compute_spectrogram:
@@ -174,21 +177,22 @@ class SegmenterTorch(torch.nn.Module):
         if compute_spectrogram:
             X = torch.fft.irfft(X)
 
-        number_of_samples = (number_of_segments - 1) * self.hop_size + self.frame_size
+        number_of_samples = (number_of_segments - 1) * \
+            self.hop_size + self.frame_size
 
         x = torch.zeros(
             (number_of_batch_elements, number_of_samples), **self.factory_kwargs
         )
         k = 0
-        x[:, k * self.hop_size : k * self.hop_size + self.frame_size] += (
+        x[:, k * self.hop_size: k * self.hop_size + self.frame_size] += (
             self.prewindow * X[:, k, :]
         )
         for k in range(1, number_of_segments - 1):
-            x[:, k * self.hop_size : k * self.hop_size + self.frame_size] += (
+            x[:, k * self.hop_size: k * self.hop_size + self.frame_size] += (
                 self.window * X[:, k, :]
             )
         k = k + 1
-        x[:, k * self.hop_size : k * self.hop_size + self.frame_size] += (
+        x[:, k * self.hop_size: k * self.hop_size + self.frame_size] += (
             self.postwindow * X[:, k, :]
         )
 
@@ -208,3 +212,103 @@ class SegmenterTorch(torch.nn.Module):
 
     def unspectrogram(self, X):
         return self._unsegment(X, compute_spectrogram=True)
+
+    def magnitude_spectrogram(self, spectrogram):
+        return spectrogram.abs()
+
+    def phase_spectrogram(self, spectrogram):
+        return spectrogram.angle()
+
+    def bpd_transform(self, phase_spectrogram):
+        # Transform from phase "spectrogram" to baseband phase difference "spectrogram"
+        if (phase_spectrogram.dim() == 2):
+            number_of_batch_elements = 1
+            number_of_segments = phase_spectrogram.shape[0]
+            number_of_frequencies = phase_spectrogram.shape[1]
+            batched = False
+        elif (phase_spectrogram.dim() == 3):
+            number_of_batch_elements = phase_spectrogram.shape[0]
+            number_of_segments = phase_spectrogram.shape[1]
+            number_of_frequencies = phase_spectrogram.shape[2]
+            batched = True
+        if (number_of_frequencies != self.frame_size//2+1):
+            raise Exception("number_of_frequencies did not match self.frame_size//2+1")
+
+        if (batched):
+            bpd = torch.zeros(
+                (number_of_batch_elements,
+                 number_of_segments, number_of_frequencies),
+                **self.factory_kwargs
+            )
+            modulation_factor = 2.0 * torch.pi * \
+                torch.arange(0, self.frame_size//2 + 1)/self.frame_size * self.hop_size
+
+            for bIdx in range(0, number_of_batch_elements):
+                bpd[bIdx, 0, :] = torch.exp(1.0j*(
+                    phase_spectrogram[bIdx, 0, :] - modulation_factor)).angle()
+                for sIdx in range(1, number_of_segments):
+                    bpd[bIdx, sIdx, :] = torch.exp(1.0j*(phase_spectrogram[bIdx, sIdx, :] -
+                                               phase_spectrogram[bIdx, sIdx - 1, :] - modulation_factor)).angle()
+        else:
+            bpd = torch.zeros(
+                (number_of_segments, number_of_frequencies),
+                **self.factory_kwargs
+            )
+            modulation_factor = 2.0 * torch.pi * \
+                torch.arange(0, self.frame_size//2 + 1)/self.frame_size * self.hop_size
+
+            bpd[0, :] = torch.exp(1.0j*(
+                phase_spectrogram[0, :] - modulation_factor)).angle()
+            for sIdx in range(1, number_of_segments):
+                bpd[sIdx, :] = torch.exp(1.0j*(phase_spectrogram[sIdx, :] -
+                                            phase_spectrogram[sIdx - 1, :] - modulation_factor)).angle()
+        return bpd
+
+    def inverse_bpd_transform(self, bpd):
+        # Transform from baseband phase difference "spectrogram" to phase "spectrogram"
+        if (bpd.dim() == 2):
+            number_of_batch_elements = 1
+            number_of_segments = bpd.shape[0]
+            number_of_frequencies = bpd.shape[1]
+            batched = False
+        elif (bpd.dim() == 3):
+            number_of_batch_elements = bpd.shape[0]
+            number_of_segments = bpd.shape[1]
+            number_of_frequencies = bpd.shape[2]
+            batched = True
+        if (number_of_frequencies != self.frame_size//2+1):
+            raise Exception("number_of_frequencies did not match self.frame_size//2+1")
+
+        modulation_factor = 2.0 * torch.pi * \
+            torch.arange(0, self.frame_size//2 + 1)/self.frame_size * self.hop_size
+        if (batched):
+            phase_spectrogram = torch.zeros(
+                (number_of_batch_elements, number_of_segments, number_of_frequencies),
+                **self.factory_kwargs
+            )
+            for bIdx in range(0, number_of_batch_elements):
+                for fIdx in range(0, number_of_frequencies):
+                    phase_spectrogram[bIdx, :, fIdx] = torch.exp(
+                        1.0j*(torch.cumsum(bpd[bIdx, :, fIdx] + modulation_factor[fIdx], dim=0))).angle()
+        else:
+            phase_spectrogram = torch.zeros(
+                (number_of_segments, number_of_frequencies),
+                **self.factory_kwargs
+            )
+            for fIdx in range(0, number_of_frequencies):
+                phase_spectrogram[:, fIdx] = torch.exp(
+                    1.0j*(torch.cumsum(bpd[:, fIdx] + modulation_factor[fIdx], dim=0))).angle()
+        return phase_spectrogram
+
+    def assemble_spectrogram_magnitude_phase(self, magnitude_spectrogram, phase_spectrogram):
+        tmp = magnitude_spectrogram *torch.exp(1.0j*phase_spectrogram)
+        if (tmp.dim() == 3):
+            tmp[:,:,0] = torch.real(tmp[:,:,0]) + 0j
+            tmp[:,:,-1] = torch.real(tmp[:,:,-1]) + 0j
+        elif (tmp.dim() == 2):
+            tmp[:,0] = torch.real(tmp[:,0]) + 0j
+            tmp[:,-1] = torch.real(tmp[:,-1]) + 0j
+        return tmp
+
+    def assemble_spectrogram_real_imag(self, real_spectrogram, imag_spectrogram):
+        return real_spectrogram + 1.0j*imag_spectrogram

@@ -377,3 +377,11 @@ def test_torch_vs_base_unspectrogram_twice(segmenter, x):
     segmenter[1].unspectrogram(x_ba)
     assert x_tc.shape == x_ba.shape
     assert x_tc == pytest.approx(x_ba, abs=1e-5)
+    x_tc_mag = segmenter[0].magnitude_spectrogram(x_tc)
+    x_tc_pha = segmenter[0].phase_spectrogram(x_tc)
+    x_tc_bpd = segmenter[0].bpd_transform(x_tc_pha)
+    x_tc_bpd_inv = segmenter[0].inverse_bpd_transform(x_tc_bpd)
+    x_tc_reconstructed = segmenter[0].assemble_spectrogram_magnitude_phase(x_tc_mag, x_tc_pha)
+    assert x_tc == pytest.approx(x_tc_reconstructed, abs=1e-5)
+    x_tc_bpd_reconstructed = segmenter[0].assemble_spectrogram_magnitude_phase(x_tc_mag, x_tc_bpd_inv)
+    assert x_tc == pytest.approx(x_tc_bpd_reconstructed, abs=1e-2)
