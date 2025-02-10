@@ -137,3 +137,6 @@ _skbuild/
 compile_commands.json
 .build/
 tags
+
+# uv
+uv.lock

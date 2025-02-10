@@ -1,0 +1,21 @@
+[project]
+name = "libsegmenter"
+version = "1.0.0"
+author = ["Niels de Koeijer", "Martin Bo Moller"]
+description = "An opinionated segmentation library for (machine learning) audio"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.2.2",
+]
+
+[project.optional-dependencies]
+torch = [
+    "torch>=2.6.0",
+]
+octave = [
+    "octave-kernel>=0.36.0",
+]
+tensorflow = [
+    "tensorflow>=2.14.0",
+]
