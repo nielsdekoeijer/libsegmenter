@@ -8,6 +8,18 @@ class SegmenterNumpy:
         """
         self.window_obj = window_obj
 
+    def segment(self, x):
+        return self._segment(x)
+
+    def unsegment(self, X):
+        return self._unsegment(X)
+
+    def spectrogram(self, x):
+        return self._segment(x, compute_spectrogram=True)
+
+    def unspectrogram(self, X):
+        return self._unsegment(X, compute_spectrogram=True)
+
     def _segment(self, x, compute_spectrogram=False):
         if x.ndim == 2:
             number_of_batch_elements = x.shape[0]
@@ -96,14 +108,3 @@ class SegmenterNumpy:
             x = x.squeeze(0)
         return x
 
-    def segment(self, x):
-        return self._segment(x)
-
-    def unsegment(self, X):
-        return self._unsegment(X)
-
-    def spectrogram(self, x):
-        return self._segment(x, compute_spectrogram=True)
-
-    def unspectrogram(self, X):
-        return self._unsegment(X, compute_spectrogram=True)
