@@ -5,22 +5,20 @@ author = ["Niels de Koeijer", "Martin Bo Moller"]
 description = "An opinionated segmentation library for (machine learning) audio"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-    "numpy>=2.2.2",
-]
+dependencies = [ "numpy==1.23.5" ]
 
 [project.optional-dependencies]
-torch = [
-    "torch>=2.6.0",
-]
-octave = [
-    "octave-kernel>=0.36.0",
-]
-tensorflow = [
-    "tensorflow>=2.14.0",
-]
-develop = [
-    "pyright>=1.1.393",
-    "pytest>=8.3.4",
-    "ruff>=0.9.5",
-]
+torch = [ "torch>=2.6.0" ]
+octave = [ "oct2py>=5.8.0" ]
+tensorflow = [ "tensorflow-cpu>=2.14.0" ]
+develop = [ "pyright>=1.1.393", "pytest>=8.3.4", "ruff>=0.9.5", "hypothesis>=6.125.3"]
+
+[tool.setuptools]
+packages = ["libsegmenter"]
+package-dir = {"" = "src"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["consistency.py"]
+pythonpath = ["src"]
+

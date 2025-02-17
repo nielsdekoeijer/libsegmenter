@@ -1,110 +1,128 @@
+import numpy as np
+from libsegmenter.backends.common import compute_num_segments, compute_num_samples
+from libsegmenter.Window import Window
+
+
 class SegmenterNumpy:
-    def __init__(self, window_obj: windowObjectNumpy):
+    """
+    A class for segmenting and reconstructing input data using windowing techniques.
+    Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
+
+    Attributes:
+        window (Window): A class containing hop size, segment size, and window functions.
+    """
+
+    def __init__(self, window: Window):
         """
-        A class for segmenting input data using windowing and hop size with
-        support for WOLA and OLA modes.
+        Initializes the SegmenterNumpy instance.
 
-        Attributes:
+        Args:
+            window (Window): A window object containing segmentation parameters.
         """
-        self.window_obj = window_obj
+        self.window = window
 
-    def segment(self, x):
-        return self._segment(x)
+    def segment(self, x: np.ndarray) -> np.ndarray:
+        """
+        Segments the input signal into overlapping windows using the provided window parameters.
 
-    def unsegment(self, X):
-        return self._unsegment(X)
+        Args:
+            x (np.ndarray): Input array, either 1D (single sequence) or 2D (batch of sequences).
 
-    def spectrogram(self, x):
-        return self._segment(x, compute_spectrogram=True)
+        Returns:
+            np.ndarray: Segmented data of shape (batch_size, num_segments, segment_size).
 
-    def unspectrogram(self, X):
-        return self._unsegment(X, compute_spectrogram=True)
+        Raises:
+            ValueError: If types are incorrect.
+            ValueError: If input dimensions are invalid.
+        """
+        if not isinstance(x, np.ndarray):
+            raise TypeError("Input x must be a NumPy array.")
 
-    def _segment(self, x, compute_spectrogram=False):
-        if x.ndim == 2:
-            number_of_batch_elements = x.shape[0]
-            number_of_samples = x.shape[1]
-            batched = True
-        elif x.ndim == 1:
-            number_of_batch_elements = 1
-            number_of_samples = x.shape[0]
+        if x.ndim not in {1, 2}:
+            raise ValueError(f"Only supports 1D or 2D inputs, provided {x.ndim}D.")
 
-            # convert to batched to simplify subsequent code
-            batched = False
-            x = x.reshape((1, x.size))
-        else:
-            raise ValueError(
-                f"only support for inputs with dimension 1 or 2, provided {x.ndim}"
-            )
+        batch_size = x.shape[0] if x.ndim == 2 else None
+        num_samples = x.shape[-1]
 
-        number_of_segments = (
-            (number_of_samples) // self.window_obj.hop_size
-            - self.window_obj.segment_size // self.window_obj.hop_size
-            + 1
+        if batch_size == None:
+            x = x.reshape(1, -1)  # Convert to batch format for consistency
+
+        num_segments = compute_num_segments(
+            num_samples, self.window.hop_size, self.window.segment_size
         )
 
+        if num_segments <= 0:
+            raise ValueError(
+                f"Input signal is too short for segmentation with the given hop size ({self.window.hop_size}) and segment size ({self.window.segment_size})."
+            )
+
+        # Pre-allocation
         X = np.zeros(
             (
-                number_of_batch_elements,
-                number_of_segments,
-                self.window_obj.segment_size,
+                batch_size if batch_size != None else 1,
+                num_segments,
+                self.window.segment_size,
             ),
+            dtype=x.dtype,
         )
 
-        for k in range(number_of_segments):
+        # Windowing
+        for k in range(num_segments):
+            start_idx = k * self.window.hop_size
             X[:, k, :] = (
-                x[
-                    :,
-                    k * self.window_obj.hop_size : k * self.window_obj.hop_size
-                    + self.window_obj.segment_size,
-                ]
-                * self.window_obj.analysis_window
+                x[:, start_idx : start_idx + self.window.segment_size]
+                * self.window.analysis_window
             )
 
-        if compute_spectrogram:
-            X = np.fft.rfft(X)
+        return (
+            X.squeeze(0) if batch_size == None else X
+        )  # Remove batch dimension if needed
 
-        if not batched:
-            # convert back to not-batched
-            X = X.squeeze(0)
+    def unsegment(self, X: np.ndarray) -> np.ndarray:
+        """
+        Reconstructs the original signal from segmented data using synthesis windowing.
 
-        return X
+        Args:
+            X (np.ndarray): Segmented data with shape (batch_size, num_segments, segment_size)
+                            or (num_segments, segment_size) for a single sequence.
 
-    def _unsegment(self, X, compute_spectrogram=False):
-        if X.ndim == 3:
-            number_of_batch_elements = X.shape[0]
-            number_of_segments = X.shape[1]
-            batched = True
+        Returns:
+            np.ndarray: Reconstructed signal.
+        """
+        if not isinstance(X, np.ndarray):
+            raise TypeError("Input X must be a NumPy array.")
 
-        elif X.ndim == 2:
-            number_of_batch_elements = 1
-            number_of_segments = X.shape[0]
+        if X.ndim not in {2, 3}:
+            raise ValueError(f"Only supports 2D or 3D inputs, provided {X.ndim}D.")
 
-            # convert to batched to simplify subsequent code
-            batched = False
-            X = X.reshape((1, X.shape[0], X.shape[1]))
-        else:
+        batch_size = X.shape[0] if X.ndim == 3 else None
+        num_segments = X.shape[-2]
+        segment_size = X.shape[-1]
+
+        if batch_size == None:
+            X = X.reshape(1, num_segments, -1)  # Convert to batch format
+
+        num_samples = compute_num_samples(
+            num_segments, self.window.hop_size, segment_size
+        )
+
+        if num_samples <= 0:
             raise ValueError(
-                f"only support for inputs with dimension 2 or 3,provided {X.dim()}"
+                "Invalid segment structure, possibly due to incorrect windowing parameters."
             )
 
-        if compute_spectrogram:
-            X = np.fft.irfft(X)
+        # Efficient NumPy array allocation
+        x = np.zeros(
+            (batch_size if batch_size != None else 1, num_samples), dtype=X.dtype
+        )
 
-        number_of_samples = (
-            number_of_segments - 1
-        ) * self.window_obj.hop_size + self.window_obj.segment_size
+        # Vectorized accumulation
+        for k in range(num_segments):
+            start_idx = k * self.window.hop_size
+            x[:, start_idx : start_idx + segment_size] += (
+                X[:, k, :] * self.window.synthesis_window
+            )
 
-        x = np.zeros((number_of_batch_elements, number_of_samples))
-        for k in range(number_of_segments):
-            x[
-                :,
-                k * self.window_obj.hop_size : k * self.window_obj.hop_size
-                + self.window_obj.segment_size,
-            ] += self.window_obj.synthesis_window * X[:, k, :]
-
-        if not batched:
-            # convert back to not-batched
-            x = x.squeeze(0)
-        return x
-
+        return (
+            x.squeeze(0) if batch_size == None else x
+        )  # Remove batch dimension if needed
