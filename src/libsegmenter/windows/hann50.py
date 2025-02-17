@@ -37,7 +37,7 @@ def hann50(segment_size: int) -> Window:
         A Window describing the Hann window values.
     """
 
-    assert (segment_size % 2 == 0, rf"segment_size must be even, got {segment_size}")
+    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
 
     M = float(segment_size)
     indices = np.arange(segment_size)
