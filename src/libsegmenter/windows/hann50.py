@@ -19,10 +19,28 @@
 
 import numpy as np
 
-class Window:
-    def __init__(
-        self, hop_size, analysis_window: np.ndarray, synthesis_window: np.ndarray
-    ):
-        self.hop_size = hop_size
-        self.analysis_window = analysis_window
-        self.synthesis_window = synthesis_window
+from libsegmenter.Window import Window
+
+
+def hann50(segment_size: int) -> Window:
+    """
+    Generates a Hann window of the given size.
+
+    Parameters:
+    -----------
+    window_size : int
+        The size of the window.
+
+    Returns:
+    --------
+    np.ndarray
+        A NumPy array containing the Hann window values.
+    """
+
+    assert (segment_size % 2 == 0, rf"segment_size must be even, got {segment_size}")
+
+    M = float(segment_size)
+    indices = np.arange(segment_size)
+    window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M))
+
+    return Window(segment_size // 2, window, window)
