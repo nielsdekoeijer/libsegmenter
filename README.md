@@ -37,3 +37,16 @@ pip install libsegmenter
 
 ## Example
 TODO
+
+## Development
+Install the development packages:
+```bash
+uv venv
+source .venv/bin/activate
+uv sync --extra torch --extra tensorflow --extra octave --extra develop
+```
+
+Add licenses:
+```bash
+addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2024 .
+```
