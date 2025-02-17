@@ -92,7 +92,8 @@ class SegmenterTorch(torch.nn.Module):
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
             X[:, k, :] = (
-                x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]] * analysis_window
+                x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]]
+                * analysis_window
             )
 
         return (

@@ -27,7 +27,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
     """
     A TensorFlow-based segmenter for input data using windowing techniques.
     Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
-    
+
     Attributes:
         window (Window): A class containing hop size, segment size, and window functions.
     """
@@ -57,7 +57,9 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             raise TypeError("Input x must be a TensorFlow tensor.")
 
         if len(x.shape) not in {1, 2}:
-            raise ValueError(f"Only supports 1D or 2D inputs, provided {len(x.shape)}D.")
+            raise ValueError(
+                f"Only supports 1D or 2D inputs, provided {len(x.shape)}D."
+            )
 
         batch_size = x.shape[0] if len(x.shape) == 2 else None
         num_samples = x.shape[-1]
@@ -70,21 +72,36 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         )
 
         if num_segments <= 0:
-            raise ValueError("Input signal is too short for segmentation with the given parameters.")
+            raise ValueError(
+                "Input signal is too short for segmentation with the given parameters."
+            )
 
         # Pre-allocation
-        X = tf.zeros((batch_size, num_segments, self.window.analysis_window.shape[-1]), dtype=x.dtype)
+        X = tf.zeros(
+            (batch_size, num_segments, self.window.analysis_window.shape[-1]),
+            dtype=x.dtype,
+        )
 
         # Windowing
-        analysis_window = tf.convert_to_tensor(self.window.analysis_window, dtype=x.dtype)
+        analysis_window = tf.convert_to_tensor(
+            self.window.analysis_window, dtype=x.dtype
+        )
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
             X = tf.tensor_scatter_nd_update(
                 X,
-                [[i, k, j] for i in range(batch_size) for j in range(self.window.analysis_window.shape[-1])],
-                tf.reshape(x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]] * analysis_window, [-1]),
+                [
+                    [i, k, j]
+                    for i in range(batch_size)
+                    for j in range(self.window.analysis_window.shape[-1])
+                ],
+                tf.reshape(
+                    x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]]
+                    * analysis_window,
+                    [-1],
+                ),
             )
-        
+
         return tf.squeeze(X, axis=0) if batch_size == None else X
 
     def unsegment(self, X: tf.Tensor) -> tf.Tensor:
@@ -101,7 +118,9 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             raise TypeError("Input X must be a TensorFlow tensor.")
 
         if len(X.shape) not in {2, 3}:
-            raise ValueError(f"Only supports 2D or 3D inputs, provided {len(X.shape)}D.")
+            raise ValueError(
+                f"Only supports 2D or 3D inputs, provided {len(X.shape)}D."
+            )
 
         batch_size = X.shape[0] if len(X.shape) == 3 else None
         num_segments = X.shape[-2]
@@ -115,13 +134,19 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         )
 
         if num_samples <= 0:
-            raise ValueError("Invalid segment structure, possibly due to incorrect windowing parameters.")
+            raise ValueError(
+                "Invalid segment structure, possibly due to incorrect windowing parameters."
+            )
 
         # Allocate memory for the reconstructed signal
-        x = tf.zeros((batch_size if batch_size is not None else 1, num_samples), dtype=X.dtype)
+        x = tf.zeros(
+            (batch_size if batch_size is not None else 1, num_samples), dtype=X.dtype
+        )
 
         # Overlap-add method for reconstructing the original signal
-        synthesis_window = tf.convert_to_tensor(self.window.synthesis_window, dtype=X.dtype)
+        synthesis_window = tf.convert_to_tensor(
+            self.window.synthesis_window, dtype=X.dtype
+        )
 
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
@@ -130,6 +155,5 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
                 [[i, j] for i in range(batch_size) for j in range(segment_size)],
                 tf.reshape(X[:, k, :] * synthesis_window, [-1]),
             )
-        
-        return tf.squeeze(x, axis=0) if batch_size == None else x
 
+        return tf.squeeze(x, axis=0) if batch_size == None else x

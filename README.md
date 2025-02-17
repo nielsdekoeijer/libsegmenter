@@ -48,5 +48,5 @@ uv sync --extra torch --extra tensorflow --extra octave --extra develop
 
 Add licenses:
 ```bash
-addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2024 .
+addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2025 .
 ```

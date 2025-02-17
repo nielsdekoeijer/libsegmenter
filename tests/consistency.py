@@ -31,6 +31,7 @@ from libsegmenter.Window import Window
 
 BACKENDS = ["numpy", "torch", "tensorflow"]
 
+
 # helper to convert whatever backend -> numpy
 def as_numpy(x, backend):
     if backend == "torch":
@@ -40,6 +41,7 @@ def as_numpy(x, backend):
 
     return x
 
+
 # helper to convert numpy -> whatever backend
 def as_backend(x, backend):
     if backend == "torch":
@@ -48,6 +50,7 @@ def as_backend(x, backend):
         return tensorflow.convert_to_tensor(x, dtype=tensorflow.float32)
 
     return x
+
 
 # runs randomized but reproduceably 100 times
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))

@@ -17,6 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 def compute_num_segments(num_samples, hop_size, segment_size):
     return (num_samples // hop_size) - (segment_size // hop_size) + 1
 
