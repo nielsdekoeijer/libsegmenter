@@ -1,3 +1,22 @@
+# Copyright (c) 2025 Niels de Koeijer, Martin Bo Møller
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import numpy as np
 from libsegmenter.backends.common import compute_num_segments, compute_num_samples
 from libsegmenter.Window import Window
@@ -48,12 +67,12 @@ class SegmenterNumpy:
             x = x.reshape(1, -1)  # Convert to batch format for consistency
 
         num_segments = compute_num_segments(
-            num_samples, self.window.hop_size, self.window.segment_size
+            num_samples, self.window.hop_size, self.window.analysis_window.shape[-1]
         )
 
         if num_segments <= 0:
             raise ValueError(
-                f"Input signal is too short for segmentation with the given hop size ({self.window.hop_size}) and segment size ({self.window.segment_size})."
+                f"Input signal is too short for segmentation with the given hop size ({self.window.hop_size}) and segment size ({self.window.analysis_window.shape[-1]})."
             )
 
         # Pre-allocation
@@ -61,7 +80,7 @@ class SegmenterNumpy:
             (
                 batch_size if batch_size != None else 1,
                 num_segments,
-                self.window.segment_size,
+                self.window.analysis_window.shape[-1],
             ),
             dtype=x.dtype,
         )
@@ -70,7 +89,7 @@ class SegmenterNumpy:
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
             X[:, k, :] = (
-                x[:, start_idx : start_idx + self.window.segment_size]
+                x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]]
                 * self.window.analysis_window
             )
 

@@ -1,3 +1,22 @@
+# Copyright (c) 2025 Niels de Koeijer, Martin Bo Møller
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import tensorflow as tf
 
 from libsegmenter.backends.common import compute_num_segments, compute_num_samples
@@ -47,14 +66,14 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             x = tf.reshape(x, (1, -1))  # Convert to batch format
 
         num_segments = compute_num_segments(
-            num_samples, self.window.hop_size, self.window.segment_size
+            num_samples, self.window.hop_size, self.window.analysis_window.shape[-1]
         )
 
         if num_segments <= 0:
             raise ValueError("Input signal is too short for segmentation with the given parameters.")
 
         # Pre-allocation
-        X = tf.zeros((batch_size, num_segments, self.window.segment_size), dtype=x.dtype)
+        X = tf.zeros((batch_size, num_segments, self.window.analysis_window.shape[-1]), dtype=x.dtype)
 
         # Windowing
         analysis_window = tf.convert_to_tensor(self.window.analysis_window, dtype=x.dtype)
@@ -62,8 +81,8 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             start_idx = k * self.window.hop_size
             X = tf.tensor_scatter_nd_update(
                 X,
-                [[i, k, j] for i in range(batch_size) for j in range(self.window.segment_size)],
-                tf.reshape(x[:, start_idx : start_idx + self.window.segment_size] * analysis_window, [-1]),
+                [[i, k, j] for i in range(batch_size) for j in range(self.window.analysis_window.shape[-1])],
+                tf.reshape(x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]] * analysis_window, [-1]),
             )
         
         return tf.squeeze(X, axis=0) if batch_size == None else X
