@@ -33,8 +33,8 @@ def hann50(segment_size: int) -> Window:
 
     Returns:
     --------
-    np.ndarray
-        A NumPy array containing the Hann window values.
+    Window
+        A Window describing the Hann window values.
     """
 
     assert (segment_size % 2 == 0, rf"segment_size must be even, got {segment_size}")
