@@ -114,6 +114,9 @@ class SegmenterTorch(torch.nn.Module):
             ValueError: If types are incorrect.
             ValueError: If input dimensions are invalid.
         """
+        if self.window.synthesis_window is None:
+            raise ValueError(f"Given windowing scheme does not support unsegmenting.")
+
         if not isinstance(X, torch.Tensor):
             raise TypeError("Input x must be a Torch tensor.")
 

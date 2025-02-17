@@ -114,6 +114,9 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         Returns:
             tf.Tensor: Reconstructed 1D or 2D signal.
         """
+        if self.window.synthesis_window is None:
+            raise ValueError(f"Given windowing scheme does not support unsegmenting.")
+
         if not isinstance(X, tf.Tensor):
             raise TypeError("Input X must be a TensorFlow tensor.")
 

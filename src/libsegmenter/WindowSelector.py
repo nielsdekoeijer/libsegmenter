@@ -17,62 +17,78 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import numpy as np
+
 from libsegmenter.Window import Window
 
-def WindowSelector(scheme: str, segment_size: int) -> Window:
-    if window_name == "bartlett50":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+def adapt_window(window: np.ndarray, hop_size: int, scheme: str) -> Window:
+    # TODO: windows ALWAYS normalized
+    # TODO: windows ALWAYS cola_checked
+
+    if scheme == "ola":
+        return Window(hop_size, np.ones(window.shape), window) 
+
+    if scheme == "wola":
+        window = np.sqrt(window)
+        return Window(hop_size, window, window)
+
+    if scheme == "analysis":
+        return Window(hop_size, window, None)
+
+    raise ValueError(f"The '{scheme}' scheme is not supported.")
+
+def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
+    if window == "bartlett50":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.bartlett50 import bartlett50
         return bartlett50(segment_size)
 
-    if window_name == "bartlett75":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "bartlett75":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.bartlett75 import bartlett75
         return bartlett75(segment_size)
 
-    if window_name == "blackman":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "blackman":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.blackman import blackman
         return blackman(segment_size)
 
-    if window_name == "kaiser82":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "kaiser82":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.kaiser82 import kaiser82
         return kaiser82(segment_size)
 
-    if window_name == "kaiser85":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "kaiser85":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.kaiser85 import kaiser85
         return kaiser85(segment_size)
 
-    if window_name == "hamming50":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "hamming50":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.hamming50 import hamming50
         return hamming50(segment_size)
 
-    if window_name == "hamming75":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "hamming75":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.hamming75 import hamming75
         return hamming75(segment_size)
 
-    if window_name == "hann50":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
-        from libsegmenter.window.hann50 import hann50
-        return hann50(segment_size)
+    if window == "hann50":
+        from libsegmenter.window.hann import hann50
+        return adapt_window(*hann50(segment_size))
 
-    if window_name == "hann75":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
-        from libsegmenter.window.hann75 import hann75
-        return hann75(segment_size)
+    if window == "hann75":
+        from libsegmenter.window.hann import hann75
+        return adapt_window(*hann75(segment_size))
 
-    if window_name == "rectangular0":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "rectangular0":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.rectangular0 import rectangular0
         return rectangular0(segment_size)
 
-    if window_name == "rectangular50":
-        raise NotImplementedError(f"The '{scheme}' windowing scheme is not implemented yet.")
+    if window == "rectangular50":
+        raise NotImplementedError(f"The '{window}' window is not implemented yet.")
         from libsegmenter.window.rectangular50 import rectangular50
         return rectangular50(segment_size)
 
-    raise ValueError(f"The '{scheme}' windowing scheme is not known.")
+    raise ValueError(f"The '{window}' window is not known.")

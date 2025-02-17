@@ -19,10 +19,12 @@
 
 import numpy as np
 
-from libsegmenter.Window import Window
+def hann(segment_size: int) -> np.ndarray:
+    M = float(segment_size)
+    indices = np.arange(segment_size)
+    window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M))
 
-
-def hann50(segment_size: int) -> Window:
+def hann50(segment_size: int) -> np.ndarray, int:
     """
     Generates a Hann window of the given size.
 
@@ -39,8 +41,23 @@ def hann50(segment_size: int) -> Window:
 
     assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
 
-    M = float(segment_size)
-    indices = np.arange(segment_size)
-    window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M))
+    return hann(segment_size), segment_size // 2 
 
-    return Window(segment_size // 2, window, window)
+def hann75(segment_size: int) -> np.ndarray, int:
+    """
+    Generates a Hann window of the given size.
+
+    Parameters:
+    -----------
+    window_size : int
+        The size of the window.
+
+    Returns:
+    --------
+    Window
+        A Window describing the Hann window values.
+    """
+
+    assert (segment_size % 4 == 0, f"segment_size must be modulus 4, got {segment_size}")
+
+    return hann(segment_size), segment_size // 4 

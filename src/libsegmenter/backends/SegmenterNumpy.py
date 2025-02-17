@@ -108,6 +108,9 @@ class SegmenterNumpy:
         Returns:
             np.ndarray: Reconstructed signal.
         """
+        if self.window.synthesis_window is None:
+            raise ValueError(f"Given windowing scheme does not support unsegmenting.")
+
         if not isinstance(X, np.ndarray):
             raise TypeError("Input X must be a NumPy array.")
 
@@ -130,7 +133,7 @@ class SegmenterNumpy:
                 "Invalid segment structure, possibly due to incorrect windowing parameters."
             )
 
-        # Efficient NumPy array allocation
+        # Efficient numpy array allocation
         x = np.zeros(
             (batch_size if batch_size != None else 1, num_samples), dtype=X.dtype
         )
