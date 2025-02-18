@@ -7,17 +7,19 @@ if the processing does not modify the blocks, the act of segmenting and
 un-segmenting the input audio data should be perfectly reconstructing 
 (with some potential latency introduced by the system).
 
-The library currently supports two different modes of operation
- - Overlap-Add (OLA), where a rectangular window is applied to the input 
+The library currently supports three  different modes of operation
+* Overlap-Add (`ola`), where a rectangular window is applied to the input 
     frames, and the specified window is applied to the output frames prior to 
     reconstruction. This mode is intended for block-based processing in the 
     time-domain, where the purposed of the overlapping windows is to 
     interpolate the discontinuities between adjacent frames prior to 
     reconstruction.
- - Weighted Overlap-Add (WOLA), where a square-root (COLA)-window is applied 
+* Weighted Overlap-Add (`wola`), where a square-root (COLA)-window is applied 
     to both the input frame and output frame. This mode is intended for 
     processing in the frequency domain along the lines of Short-time Fourier 
     Transform (STFT) processing.
+* Analysis (`analysis`), where a window is applied to the input frames and
+    disables computing output frames. Useful to obtain spectrograms.
 
 The primary use-case for the library is to support machine learning tasks, 
 which has led to a number of options which are designed to ease training tasks.
