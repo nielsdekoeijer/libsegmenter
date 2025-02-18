@@ -52,6 +52,7 @@ segmenter = seg.Segmenter(backend="torch", seg.WindowSelector("hann75"))
 ```
 
 ## Development
+### python
 Install uv (pip replacement):
 ```bash
 # install for linux / mac
@@ -68,12 +69,16 @@ source .venv/bin/activate
 uv sync --dev
 ```
 
-Add licenses:
+### licenses
+Add licenses using the `addlicense` tool found [here](https://github.com/google/addlicense):
 ```bash
 addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2025 .
 ```
 
-Serve docs locally:
+### licenses
+Docs are mainly automatically generated and described with docstrings.
+To host the docs locally run:
 ```bash
 mkdocs serve
 ```
+They are automatically rebuilt on push to main.
