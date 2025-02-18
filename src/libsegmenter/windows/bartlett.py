@@ -27,7 +27,7 @@ def bartlett(window_size: int) -> np.ndarray:
 
 def bartlett50(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Bartlett window of the given size with 75% overlap.
+    Generates a Bartlett window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
