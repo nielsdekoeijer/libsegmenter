@@ -32,7 +32,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         window (Window): A class containing hop size, segment size, and window functions.
     """
 
-    def __init__(self, window: Window):
+    def __init__(self, window: Window) -> None:
         """
         Initializes the SegmenterTensorFlow instance.
 
@@ -51,7 +51,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             x (tf.Tensor): Input tensor (1D or 2D).
 
         Returns:
-            tf.Tensor: Segmented tensor of shape (batch_size, num_segments, segment_size).
+            Segmented tensor of shape (batch_size, num_segments, segment_size).
         """
         if not isinstance(x, tf.Tensor):
             raise TypeError("Input x must be a TensorFlow tensor.")
@@ -64,7 +64,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         batch_size = x.shape[0] if len(x.shape) == 2 else None
         num_samples = x.shape[-1]
 
-        if batch_size == None:
+        if batch_size is None:
             x = tf.reshape(x, (1, -1))  # Convert to batch format
 
         num_segments = compute_num_segments(
@@ -102,7 +102,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
                 ),
             )
 
-        return tf.squeeze(X, axis=0) if batch_size == None else X
+        return tf.squeeze(X, axis=0) if batch_size is None else X
 
     def unsegment(self, X: tf.Tensor) -> tf.Tensor:
         """
@@ -112,7 +112,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             X (tf.Tensor): Segmented tensor (2D or 3D).
 
         Returns:
-            tf.Tensor: Reconstructed 1D or 2D signal.
+            Reconstructed 1D or 2D signal.
         """
         if self.window.synthesis_window is None:
             raise ValueError(f"Given windowing scheme does not support unsegmenting.")
@@ -129,7 +129,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         num_segments = X.shape[-2]
         segment_size = X.shape[-1]
 
-        if batch_size == None:
+        if batch_size is None:
             X = tf.reshape(X, (1, num_segments, -1))  # Convert to batch format
 
         num_samples = compute_num_samples(
@@ -159,4 +159,4 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
                 tf.reshape(X[:, k, :] * synthesis_window, [-1]),
             )
 
-        return tf.squeeze(x, axis=0) if batch_size == None else x
+        return tf.squeeze(x, axis=0) if batch_size is None else x

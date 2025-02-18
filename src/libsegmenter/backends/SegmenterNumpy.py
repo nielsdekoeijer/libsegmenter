@@ -16,7 +16,6 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 import numpy as np
 from libsegmenter.backends.common import compute_num_segments, compute_num_samples
 from libsegmenter.Window import Window
@@ -31,7 +30,7 @@ class SegmenterNumpy:
         window (Window): A class containing hop size, segment size, and window functions.
     """
 
-    def __init__(self, window: Window):
+    def __init__(self, window: Window) -> None:
         """
         Initializes the SegmenterNumpy instance.
 
@@ -48,7 +47,7 @@ class SegmenterNumpy:
             x (np.ndarray): Input array, either 1D (single sequence) or 2D (batch of sequences).
 
         Returns:
-            np.ndarray: Segmented data of shape (batch_size, num_segments, segment_size).
+            Segmented data of shape (batch_size, num_segments, segment_size).
 
         Raises:
             ValueError: If types are incorrect.
@@ -63,7 +62,7 @@ class SegmenterNumpy:
         batch_size = x.shape[0] if x.ndim == 2 else None
         num_samples = x.shape[-1]
 
-        if batch_size == None:
+        if batch_size is None:
             x = x.reshape(1, -1)  # Convert to batch format for consistency
 
         num_segments = compute_num_segments(
@@ -78,7 +77,7 @@ class SegmenterNumpy:
         # Pre-allocation
         X = np.zeros(
             (
-                batch_size if batch_size != None else 1,
+                batch_size if batch_size is not None else 1,
                 num_segments,
                 self.window.analysis_window.shape[-1],
             ),
@@ -94,7 +93,7 @@ class SegmenterNumpy:
             )
 
         return (
-            X.squeeze(0) if batch_size == None else X
+            X.squeeze(0) if batch_size is None else X
         )  # Remove batch dimension if needed
 
     def unsegment(self, X: np.ndarray) -> np.ndarray:
@@ -106,7 +105,7 @@ class SegmenterNumpy:
                             or (num_segments, segment_size) for a single sequence.
 
         Returns:
-            np.ndarray: Reconstructed signal.
+            Reconstructed signal.
         """
         if self.window.synthesis_window is None:
             raise ValueError(f"Given windowing scheme does not support unsegmenting.")
@@ -121,7 +120,7 @@ class SegmenterNumpy:
         num_segments = X.shape[-2]
         segment_size = X.shape[-1]
 
-        if batch_size == None:
+        if batch_size is None:
             X = X.reshape(1, num_segments, -1)  # Convert to batch format
 
         num_samples = compute_num_samples(
@@ -135,7 +134,7 @@ class SegmenterNumpy:
 
         # Efficient numpy array allocation
         x = np.zeros(
-            (batch_size if batch_size != None else 1, num_samples), dtype=X.dtype
+            (batch_size if batch_size is not None else 1, num_samples), dtype=X.dtype
         )
 
         # Vectorized accumulation
@@ -146,5 +145,5 @@ class SegmenterNumpy:
             )
 
         return (
-            x.squeeze(0) if batch_size == None else x
+            x.squeeze(0) if batch_size is None else x
         )  # Remove batch dimension if needed

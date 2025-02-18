@@ -32,7 +32,7 @@ class SegmenterTorch(torch.nn.Module):
         window (Window): A class containing hop size, segment size, and window functions.
     """
 
-    def __init__(self, window: Window):
+    def __init__(self, window: Window) -> None:
         """
         Initializes the SegmenterTorch instance.
 
@@ -51,7 +51,7 @@ class SegmenterTorch(torch.nn.Module):
             x (torch.Tensor): Input tensor (1D or 2D).
 
         Returns:
-            torch.Tensor: Segmented tensor of shape (batch_size, num_segments, segment_size).
+            Segmented tensor of shape (batch_size, num_segments, segment_size).
 
         Raises:
             ValueError: If types are incorrect.
@@ -66,7 +66,7 @@ class SegmenterTorch(torch.nn.Module):
         batch_size = x.shape[0] if x.ndim == 2 else None
         num_samples = x.shape[-1]
 
-        if batch_size == None:
+        if batch_size is None:
             x = x.reshape(1, -1)  # Convert to batch format for consistency
 
         num_segments = compute_num_segments(
@@ -97,7 +97,7 @@ class SegmenterTorch(torch.nn.Module):
             )
 
         return (
-            X.squeeze(0) if batch_size == None else X
+            X.squeeze(0) if batch_size is None else X
         )  # Remove batch dimension if needed
 
     def unsegment(self, X: torch.Tensor) -> torch.Tensor:
@@ -108,7 +108,7 @@ class SegmenterTorch(torch.nn.Module):
             X (torch.Tensor): Segmented tensor (2D or 3D).
 
         Returns:
-            torch.Tensor: Reconstructed 1D or 2D signal.
+            Reconstructed 1D or 2D signal.
 
         Raises:
             ValueError: If types are incorrect.
@@ -127,7 +127,7 @@ class SegmenterTorch(torch.nn.Module):
         num_segments = X.shape[-2]
         segment_size = X.shape[-1]
 
-        if batch_size == None:
+        if batch_size is None:
             X = X.reshape(1, num_segments, -1)  # Convert to batch format
 
         num_samples = compute_num_samples(
@@ -141,7 +141,7 @@ class SegmenterTorch(torch.nn.Module):
 
         # allocate memory for the reconstructed signal
         x = torch.zeros(
-            (batch_size if batch_size != None else 1, num_samples),
+            (batch_size if batch_size is not None else 1, num_samples),
             device=X.device,
             dtype=X.dtype,
         )
@@ -158,4 +158,4 @@ class SegmenterTorch(torch.nn.Module):
             start_idx = k * self.window.hop_size
             x[:, start_idx : start_idx + segment_size] += X[:, k, :] * synthesis_window
 
-        return x.squeeze(0) if batch_size == None else x
+        return x.squeeze(0) if batch_size is None else x

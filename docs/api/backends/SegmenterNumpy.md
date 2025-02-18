@@ -1,0 +1,4 @@
+# SegmenterNumpy
+
+::: libsegmenter.backends.SegmenterNumpy
+
