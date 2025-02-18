@@ -48,6 +48,11 @@ pip install libsegmenter
 TODO
 
 ## Development
+Install uv (pip replacement):
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
 Install the development packages:
 ```bash
 uv venv
