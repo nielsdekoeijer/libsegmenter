@@ -51,6 +51,7 @@ TODO
 Install uv (pip replacement):
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 Install the development packages:
