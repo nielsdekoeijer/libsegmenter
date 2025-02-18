@@ -19,23 +19,24 @@
 
 import numpy as np
 
-def blackman(segment_size: int) -> np.ndarray:
+def blackman(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
     M = window_size + 1
-    indices = np.arange(window_size)
+    indices = np.arange(window_size, dtype=dtype)
     
     return (
         7938.0 / 18608.0
-        - 9240.0 / 18608.0 * np.cos(2.0 * np.pi * indices / (M - 1))
-        + 1430.0 / 18608.0 * np.cos(4.0 * np.pi * indices / (M - 1))
+        - 9240.0 / 18608.0 * np.cos(2.0 * np.pi * indices / (M - 1), dtype=dtype)
+        + 1430.0 / 18608.0 * np.cos(4.0 * np.pi * indices / (M - 1), dtype=dtype)
     )
 
 
-def blackman67(segment_size: int) -> (np.ndarray, int):
+def blackman67(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Blackman window of the given size with a 2/3 overlap
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A blackman window with a 2/3 overlap
@@ -46,4 +47,4 @@ def blackman67(segment_size: int) -> (np.ndarray, int):
         f"segment_size must be modulus 3, got {segment_size}",
     )
 
-    return blackman(segment_size), segment_size // 3
+    return blackman(segment_size, dtype=dtype), segment_size // 3

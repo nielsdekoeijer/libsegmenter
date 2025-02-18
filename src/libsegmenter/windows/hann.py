@@ -20,18 +20,19 @@
 import numpy as np
 
 
-def hann(segment_size: int) -> np.ndarray:
-    M = float(segment_size)
-    indices = np.arange(segment_size)
-    window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M))
+def hann(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
+    M = dtype(segment_size)
+    indices = np.arange(segment_size, dtype=dtype)
+    window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M, dtype=dtype))
 
 
-def hann50(segment_size: int) -> (np.ndarray, int):
+def hann50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Hann window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A hann window with 50% overlap
@@ -39,15 +40,16 @@ def hann50(segment_size: int) -> (np.ndarray, int):
 
     assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
 
-    return hann(segment_size), segment_size // 2
+    return hann(segment_size, dtype=dtype), segment_size // 2
 
 
-def hann75(segment_size: int) -> (np.ndarray, int):
+def hann75(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Hann window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A hann window with 75% overlap
@@ -58,4 +60,4 @@ def hann75(segment_size: int) -> (np.ndarray, int):
         f"segment_size must be modulus 4, got {segment_size}",
     )
 
-    return hann(segment_size), segment_size // 4
+    return hann(segment_size, dtype=dtype), segment_size // 4

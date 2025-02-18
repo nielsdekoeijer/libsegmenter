@@ -20,20 +20,21 @@
 import numpy as np
 
 
-def hamming(segment_size: int) -> np.ndarray:
-    M = float(window_size)
+def hamming(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
+    M = dtype(window_size)
     alpha = 25.0 / 46.0
     beta = (1.0 - alpha) / 2.0
-    indices = np.arange(window_size)
-    return alpha - 2.0 * beta * np.cos(2.0 * np.pi * indices / M)
+    indices = np.arange(window_size, dtype=dtype)
+    return alpha - 2.0 * beta * np.cos(2.0 * np.pi * indices / M, dtype=dtype)
 
 
-def hamming50(segment_size: int) -> (np.ndarray, int):
+def hamming50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Hamming window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A hamming window with 50% overlap
@@ -41,15 +42,16 @@ def hamming50(segment_size: int) -> (np.ndarray, int):
 
     assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
 
-    return hamming(segment_size), segment_size // 2
+    return hamming(segment_size, dtype=dtype), segment_size // 2
 
 
-def hamming75(segment_size: int) -> (np.ndarray, int):
+def hamming75(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Hamming window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A hamming window with 75% overlap
@@ -60,4 +62,4 @@ def hamming75(segment_size: int) -> (np.ndarray, int):
         f"segment_size must be modulus 4, got {segment_size}",
     )
 
-    return hamming(segment_size), segment_size // 4
+    return hamming(segment_size, dtype=dtype), segment_size // 4

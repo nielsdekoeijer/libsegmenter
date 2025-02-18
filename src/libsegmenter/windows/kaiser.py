@@ -20,38 +20,43 @@
 import numpy as np
 
 
-def kaiser(segment_size: int) -> np.ndarray:
-    M = np.float(window_length + 1.0)
-    m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0)
-    window = np.i0(beta * np.sqrt(1 - (m / (M / 2)) ** 2.0)) / np.i0(beta)
+def kaiser(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
+    M = dtype(window_length + 1.0)
+    m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0, dtype=dtype)
+    window = np.i0(beta * np.sqrt(1 - (m / (M / 2)) ** 2.0, dtype=dtype), dtype=dtype) / \
+            np.i0(beta, dtype=dtype)
     return window
 
 
-def kaiser85(segment_size: int) -> (np.ndarray, int):
+def kaiser85(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Kaiser window of the given size with 85% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A kaiser window with 85% overlap
     """
 
     beta = 10.0
-    return kaiser(segment_size), int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    return kaiser(segment_size, dtype=dtype), \
+            int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
 
 
-def kaiser82(segment_size: int) -> (np.ndarray, int):
+def kaiser82(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a Kaiser window of the given size with 82% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A kaiser window with 82% overlap
     """
 
     beta = 8.0
-    return kaiser(segment_size), int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    return kaiser(segment_size, dtype=dtype), \
+            int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))

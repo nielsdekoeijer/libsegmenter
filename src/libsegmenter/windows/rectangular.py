@@ -20,33 +20,35 @@
 import numpy as np
 
 
-def rectangular(segment_size: int) -> np.ndarray:
-    return np.ones(segment_size)
+def rectangular(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
+    return np.ones(segment_size, dtype=dtype)
 
 
-def rectangular50(segment_size: int) -> (np.ndarray, int):
+def rectangular50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a rectangular window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A rectangular window with 50% overlap
     """
 
-    return rectangular(segment_size), segment_size // 2
+    return rectangular(segment_size, dtype=dtype), segment_size // 2
 
 
-def rectangular0(segment_size: int) -> (np.ndarray, int):
+def rectangular0(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
     """
     Generates a rectangular window of the given size with 0% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
+        dtype (np.dtype): The desired datatype of the window
 
     Returns:
         A rectangular window with 0% overlap
     """
 
-    return rectangular(segment_size), segment_size
+    return rectangular(segment_size, dtype=dtype), segment_size
