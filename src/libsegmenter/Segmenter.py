@@ -17,19 +17,22 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-BACKENDS = ["torch", "tensorflow", "numpy", "octave"]
+BACKENDS = ["torch", "tensorflow", "numpy"]
 
+from typing import Any, Union
 
-def make_segmenter(backend: str = "numpy", *args, **kwargs):
+def make_segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Union[SegmenterNumpy, SegmenterTorch, SegmenterTensorFlow]:
     """
-    Factory function to create a segmenter instance based on the backend.
+    Factory function to create a segmenter instance based on the specified backend.
 
     Args:
-        backend (str): The backend to use. Supported: ["numpy", "torch", "tensorflow", "octave"]
-        *args, **kwargs: Arguments to pass to the segmenter.
+        backend (str, optional): The backend to use. Supported options: ["numpy", "torch", "tensorflow"].
+            Defaults to "numpy".
+        *args (Any): Additional positional arguments to pass to the segmenter.
+        **kwargs (Any): Additional keyword arguments to pass to the segmenter.
 
     Returns:
-        Segmenter instance for the specified backend.
+        An instance of the segmenter corresponding to the chosen backend.
 
     Raises:
         ValueError: If an unsupported backend is specified.

@@ -11,7 +11,6 @@ dependencies = [ "numpy==1.23.5" ]
 torch = [ "torch>=2.6.0" ]
 octave = [ "oct2py>=5.8.0" ]
 tensorflow = [ "tensorflow-cpu>=2.14.0" ]
-develop = [ "pyright>=1.1.393", "pytest>=8.3.4", "ruff>=0.9.5", "hypothesis>=6.125.3"]
 
 [tool.setuptools]
 packages = ["libsegmenter"]
@@ -21,4 +20,19 @@ package-dir = {"" = "src"}
 testpaths = ["tests"]
 python_files = ["consistency.py"]
 pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.393",
+    "pytest>=8.3.4",
+    "ruff>=0.9.5",
+    "hypothesis>=6.125.3",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.4",
+    "mkdocstrings[python]>=0.28.1",
+    "torch>=2.6.0",
+    "oct2py>=5.8.0",
+    "tensorflow-cpu>=2.14.0",
+    "mkdocs-include-markdown-plugin>=7.1.4",
+]
 

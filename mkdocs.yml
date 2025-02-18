@@ -1,0 +1,22 @@
+site_name: Documentation libsegmenter
+repo_url: https://github.com/nielsdekoeijer/libsegmenter
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - API Reference:
+      - Segmenter: api/Segmenter.md
+      - Window: api/Window.md
+      - Backends:
+          - PyTorch: api/backends/SegmenterTorch.md
+          - TensorFlow: api/backends/SegmenterTensorFlow.md
+          - NumPy: api/backends/SegmenterNumpy.md
+
+plugins:
+  - search
+  - include-markdown
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
