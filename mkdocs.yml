@@ -8,9 +8,10 @@ nav:
   - API Reference:
       - Segmenter: api/Segmenter.md
       - Segmenter Backends:
-          - PyTorch: api/backends/SegmenterTorch.md
-          - TensorFlow: api/backends/SegmenterTensorFlow.md
-          - NumPy: api/backends/SegmenterNumpy.md
+          - SegmenterTorch: api/backends/SegmenterTorch.md
+          - SegmenterTensorFlow: api/backends/SegmenterTensorFlow.md
+          - SegmenterNumpy: api/backends/SegmenterNumpy.md
+          - SegmenterOctave: api/backends/SegmenterOctave.md
       - Window: api/Window.md
       - WindowSelector: api/WindowSelector.md
       - Window Implementations:
