@@ -96,7 +96,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
                 X,
                 [
                     [i, k, j]
-                    for i in range(batch_size)
+                    for i in range(batch_size if batch_size is not None else 1)
                     for j in range(self.window.analysis_window.shape[-1])
                 ],
                 tf.reshape(
@@ -159,7 +159,11 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             start_idx = k * self.window.hop_size
             x = tf.tensor_scatter_nd_add(
                 x,
-                [[i, j] for i in range(batch_size) for j in range(segment_size)],
+                [
+                    [i, j]
+                    for i in range(batch_size if batch_size is not None else 1)
+                    for j in range(segment_size)
+                ],
                 tf.reshape(X[:, k, :] * synthesis_window, [-1]),
             )
 
