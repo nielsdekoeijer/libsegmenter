@@ -33,7 +33,7 @@ def bartlett50(segment_size: int) -> (np.ndarray, int):
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A bartlett window with 75% overlap
+        A bartlett window with 50% overlap
     """
 
     assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")

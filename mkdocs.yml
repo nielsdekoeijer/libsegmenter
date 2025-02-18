@@ -15,7 +15,7 @@ nav:
       - Window Implementations:
           - bartlett50: api/windows/bartlett50.md
           - bartlett75: api/windows/bartlett75.md
-          - blackman: api/windows/blackman.md
+          - blackman: api/windows/blackman67.md
           - hamming50: api/windows/hamming50.md
           - hamming75: api/windows/hamming75.md
           - hann50: api/windows/hann50.md
