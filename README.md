@@ -1,4 +1,4 @@
-# Segmenter
+# The `libsegmenter` audio segmentation library
 A small library intended to provide helper functions for block-based processing 
 in Python. 
 
