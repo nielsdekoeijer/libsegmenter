@@ -19,6 +19,7 @@
 
 import numpy as np
 
+
 def bartlett(window_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
     M = dtype(window_size + 1.0)
     indices = np.arange(window_size, dtype=dtype)

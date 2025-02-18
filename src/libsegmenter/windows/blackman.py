@@ -19,10 +19,11 @@
 
 import numpy as np
 
+
 def blackman(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
     M = window_size + 1
     indices = np.arange(window_size, dtype=dtype)
-    
+
     return (
         7938.0 / 18608.0
         - 9240.0 / 18608.0 * np.cos(2.0 * np.pi * indices / (M - 1), dtype=dtype)

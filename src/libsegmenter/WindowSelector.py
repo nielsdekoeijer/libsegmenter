@@ -23,7 +23,6 @@ from libsegmenter.Window import Window
 
 
 def adapt_window(window: np.ndarray, hop_size: int, scheme: str) -> Window:
-
     # TODO: windows ALWAYS normalized
     # TODO: windows ALWAYS cola_checked
 
@@ -44,7 +43,7 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
     """
     Selects and returns a specific window function based on the given parameters.
 
-    This function retrieves a window function based on the `window` type, applies 
+    This function retrieves a window function based on the `window` type, applies
     an adaptation based on `scheme`, and returns the corresponding `Window` object.
 
     Args:
@@ -62,7 +61,7 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
         segment_size (int): The size of the segment/window.
 
     Returns:
-        Window: A `Window` object containing the selected window function and its 
+        Window: A `Window` object containing the selected window function and its
         corresponding hop size.
 
     Raises:

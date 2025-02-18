@@ -23,8 +23,9 @@ import numpy as np
 def kaiser(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
     M = dtype(window_length + 1.0)
     m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0, dtype=dtype)
-    window = np.i0(beta * np.sqrt(1 - (m / (M / 2)) ** 2.0, dtype=dtype), dtype=dtype) / \
-            np.i0(beta, dtype=dtype)
+    window = np.i0(
+        beta * np.sqrt(1 - (m / (M / 2)) ** 2.0, dtype=dtype), dtype=dtype
+    ) / np.i0(beta, dtype=dtype)
     return window
 
 
@@ -41,8 +42,9 @@ def kaiser85(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, in
     """
 
     beta = 10.0
-    return kaiser(segment_size, dtype=dtype), \
-            int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    return kaiser(segment_size, dtype=dtype), int(
+        np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0))
+    )
 
 
 def kaiser82(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
@@ -58,5 +60,6 @@ def kaiser82(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, in
     """
 
     beta = 8.0
-    return kaiser(segment_size, dtype=dtype), \
-            int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    return kaiser(segment_size, dtype=dtype), int(
+        np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0))
+    )
