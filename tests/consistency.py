@@ -26,7 +26,7 @@ import tensorflow
 import itertools
 import numpy as np
 
-from libsegmenter.Segmenter import make_segmenter
+from libsegmenter.Segmenter import Segmenter
 from libsegmenter.Window import Window
 
 BACKENDS = ["numpy", "torch", "tensorflow"]
@@ -73,8 +73,8 @@ def test_segmenter_consistency_batched(backendA, backendB, segment_size, hop_siz
     x = np.random.randn(2, segment_size)
 
     # use factory function to create segmenters
-    segA = make_segmenter(backendA, window)
-    segB = make_segmenter(backendB, window)
+    segA = Segmenter(backendA, window)
+    segB = Segmenter(backendB, window)
 
     # convert input to correct backend format
     xA = as_backend(x, backendA)
@@ -112,8 +112,8 @@ def test_segmenter_consistency(backendA, backendB, segment_size, hop_size, seed)
     x = np.random.randn(segment_size)
 
     # use factory function to create segmenters
-    segA = make_segmenter(backendA, window)
-    segB = make_segmenter(backendB, window)
+    segA = Segmenter(backendA, window)
+    segB = Segmenter(backendB, window)
 
     # convert input to correct backend format
     xA = as_backend(x, backendA)
