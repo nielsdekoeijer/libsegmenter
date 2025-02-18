@@ -1,6 +1,8 @@
 # Segmenter
 A small library intended to provide helper functions for block-based processing 
-in Python.
+in Python. Find out more by exploring the code or reading [the docs](https://nielsdekoeijer.github.io/libsegmenter/).
+
+## About
 The main idea is to help the user choose a combination of window function and 
 hop size, which satisfy the constant-overlap-add (COLA) condition, i.e., 
 if the processing does not modify the blocks, the act of segmenting and 
