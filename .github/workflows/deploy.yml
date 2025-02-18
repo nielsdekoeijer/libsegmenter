@@ -1,4 +1,4 @@
-name: Deploy MkDocs to GitHub Pages
+name: CI pipeline on main push
 
 on:
   push:
@@ -18,10 +18,10 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           uv venv
           source .venv/bin/activate
+          uv sync --dev
 
       - name: deploy
         run: |
-          uv sync --dev
           uv run mkdocs gh-deploy --force
 
       - name: test
