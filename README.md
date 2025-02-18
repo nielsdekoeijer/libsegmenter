@@ -50,7 +50,10 @@ TODO
 ## Development
 Install uv (pip replacement):
 ```bash
+# install for linux / mac
 curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# install for windows
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
