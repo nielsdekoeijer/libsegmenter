@@ -20,38 +20,44 @@
 import numpy as np
 
 
-def kaiser(segment_size: int) -> np.ndarray:
-    M = np.float(window_length + 1.0)
-    m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0)
-    window = np.i0(beta * np.sqrt(1 - (m / (M / 2)) ** 2.0)) / np.i0(beta)
-    return window
+def hamming(segment_size: int) -> np.ndarray:
+    M = float(window_size)
+    alpha = 25.0 / 46.0
+    beta = (1.0 - alpha) / 2.0
+    indices = np.arange(window_size)
+    return alpha - 2.0 * beta * np.cos(2.0 * np.pi * indices / M)
 
 
-def kaiser85(segment_size: int) -> (np.ndarray, int):
+def hamming50(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Kaiser window of the given size with 85% overlap.
+    Generates a Hamming window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A kaiser window with 85% overlap
+        A hamming window with 75% overlap
     """
 
-    beta = 10.0
-    return kaiser(segment_size), int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
+
+    return hamming(segment_size), segment_size // 2
 
 
-def kaiser82(segment_size: int) -> (np.ndarray, int):
+def hamming75(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Kaiser window of the given size with 82% overlap.
+    Generates a Hamming window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A kaiser window with 82% overlap
+        A hamming window with 75% overlap
     """
 
-    beta = 8.0
-    return kaiser(segment_size), int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    assert (
+        segment_size % 4 == 0,
+        f"segment_size must be modulus 4, got {segment_size}",
+    )
+
+    return hamming(segment_size), segment_size // 4

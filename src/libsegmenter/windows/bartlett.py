@@ -19,39 +19,51 @@
 
 import numpy as np
 
-
-def kaiser(segment_size: int) -> np.ndarray:
-    M = np.float(window_length + 1.0)
-    m = np.arange(-(M - 1) / 2.0, (M - 1) / 2.0)
-    window = np.i0(beta * np.sqrt(1 - (m / (M / 2)) ** 2.0)) / np.i0(beta)
-    return window
-
-
-def kaiser85(segment_size: int) -> (np.ndarray, int):
+def bartlett(window_size: int) -> np.ndarray:
     """
-    Generates a Kaiser window of the given size with 85% overlap.
+    Generates a Bartlett (triangular) window.
+
+    Args:
+        window_size (int): The size of the window.
+
+    Returns:
+        np.ndarray: The Bartlett window.
+    """
+    M = window_size + 1.0
+    indices = np.arange(window_size)
+    return 1.0 - np.abs(-1.0 * (M - 1) / 2.0 + indices) * 2.0 / (M - 1.0)
+
+
+def bartlett50(segment_size: int) -> (np.ndarray, int):
+    """
+    Generates a Bartlett window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A kaiser window with 85% overlap
+        A bartlett window with 75% overlap
     """
 
-    beta = 10.0
-    return kaiser(segment_size), int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
+
+    return bartlett(segment_size), segment_size // 2
 
 
-def kaiser82(segment_size: int) -> (np.ndarray, int):
+def bartlett75(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Kaiser window of the given size with 82% overlap.
+    Generates a Bartlett window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A kaiser window with 82% overlap
+        A bartlett window with 75% overlap
     """
 
-    beta = 8.0
-    return kaiser(segment_size), int(np.floor(1.7 * (np.float(segment_size) - 1.0) / (beta + 1.0)))
+    assert (
+        segment_size % 4 == 0,
+        f"segment_size must be modulus 4, got {segment_size}",
+    )
+
+    return bartlett(segment_size), segment_size // 4
