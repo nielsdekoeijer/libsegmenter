@@ -19,42 +19,34 @@
 
 import numpy as np
 
-def bartlett(window_size: int) -> np.ndarray:
-    M = window_size + 1.0
-    indices = np.arange(window_size)
-    return 1.0 - np.abs(-1.0 * (M - 1) / 2.0 + indices) * 2.0 / (M - 1.0)
+
+def rectangular(segment_size: int) -> np.ndarray:
+    return np.ones(segment_size)
 
 
-def bartlett50(segment_size: int) -> (np.ndarray, int):
+def rectangular50(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Bartlett window of the given size with 75% overlap.
+    Generates a rectangular window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A bartlett window with 75% overlap
+        A rectangular window with 50% overlap
     """
 
-    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
-
-    return bartlett(segment_size), segment_size // 2
+    return rectangular(segment_size), segment_size // 2
 
 
-def bartlett75(segment_size: int) -> (np.ndarray, int):
+def rectangular0(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Bartlett window of the given size with 75% overlap.
+    Generates a rectangular window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A bartlett window with 75% overlap
+        A rectangular window with 0% overlap
     """
 
-    assert (
-        segment_size % 4 == 0,
-        f"segment_size must be modulus 4, got {segment_size}",
-    )
-
-    return bartlett(segment_size), segment_size // 4
+    return rectangular(segment_size), segment_size

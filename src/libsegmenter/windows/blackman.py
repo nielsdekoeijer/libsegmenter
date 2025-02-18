@@ -19,42 +19,31 @@
 
 import numpy as np
 
-def bartlett(window_size: int) -> np.ndarray:
-    M = window_size + 1.0
+def blackman(segment_size: int) -> np.ndarray:
+    M = window_size + 1
     indices = np.arange(window_size)
-    return 1.0 - np.abs(-1.0 * (M - 1) / 2.0 + indices) * 2.0 / (M - 1.0)
+    
+    return (
+        7938.0 / 18608.0
+        - 9240.0 / 18608.0 * np.cos(2.0 * np.pi * indices / (M - 1))
+        + 1430.0 / 18608.0 * np.cos(4.0 * np.pi * indices / (M - 1))
+    )
 
 
-def bartlett50(segment_size: int) -> (np.ndarray, int):
+def blackman67(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Bartlett window of the given size with 75% overlap.
+    Generates a Blackman window of the given size with a 2/3 overlap
 
     Args:
         segment_size (int): Size of the window to be created.
 
     Returns:
-        A bartlett window with 75% overlap
-    """
-
-    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
-
-    return bartlett(segment_size), segment_size // 2
-
-
-def bartlett75(segment_size: int) -> (np.ndarray, int):
-    """
-    Generates a Bartlett window of the given size with 75% overlap.
-
-    Args:
-        segment_size (int): Size of the window to be created.
-
-    Returns:
-        A bartlett window with 75% overlap
+        A blackman window with a 2/3 overlap
     """
 
     assert (
-        segment_size % 4 == 0,
-        f"segment_size must be modulus 4, got {segment_size}",
+        segment_size % 3 == 0,
+        f"segment_size must be modulus 3, got {segment_size}",
     )
 
-    return bartlett(segment_size), segment_size // 4
+    return blackman(segment_size), segment_size // 3
