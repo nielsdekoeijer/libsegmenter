@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Dependencies with uv
         run: |
-          uv sync
+          uv sync --mkdocs
 
       - name: Deploy MkDocs
         run: |
