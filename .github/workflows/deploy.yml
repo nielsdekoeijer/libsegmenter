@@ -19,7 +19,11 @@ jobs:
           uv venv
           source .venv/bin/activate
 
-      - name: Deploy
+      - name: deploy
         run: |
           uv sync --dev
           uv run mkdocs gh-deploy --force
+
+      - name: test
+        run: |
+          pytest
