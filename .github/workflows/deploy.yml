@@ -24,11 +24,9 @@ jobs:
 
       - name: Install Dependencies with uv
         run: |
-          uv venv --system --dev  # Use your `--dev` environment
-          uv pip install mkdocs mkdocs-material mkdocs-include-markdown-plugin
+          uv sync
 
       - name: Deploy MkDocs
         run: |
-          source .venv/bin/activate  # Activate the uv virtual environment
           mkdocs gh-deploy --force
 
