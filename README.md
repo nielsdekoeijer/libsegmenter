@@ -1,6 +1,8 @@
 # Segmenter
 A small library intended to provide helper functions for block-based processing 
-in Python. Find out more by exploring the code or reading [the docs](https://nielsdekoeijer.github.io/libsegmenter/).
+in Python. 
+
+Find out more by exploring the code or reading [the docs](https://nielsdekoeijer.github.io/libsegmenter/).
 
 ## About
 The main idea is to help the user choose a combination of window function and 
