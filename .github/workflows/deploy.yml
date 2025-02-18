@@ -12,16 +12,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy
-        # env:
-        #   GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH  # Ensure `uv` is available
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           uv venv
           source .venv/bin/activate
+
+      - name: Deploy
+        run: |
           uv sync --dev
-          # git config --global user.email "github-actions@github.com"
-          # git config --global user.name "github-actions[bot]"
-          # git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/nielsdekoeijer/libsegmenter.git
           uv run mkdocs gh-deploy --force
