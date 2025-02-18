@@ -25,6 +25,32 @@ nav:
           - kaiser85: api/windows/kaiser85.md
           - rectangular0: api/windows/rectangular0.md
           - rectangular50: api/windows/rectangular50.md
+      - TransformSelector: api/TransformSelector.md
+      - Transform Implementations:
+          - Spectrogram: api/transforms/Spectrogram.md
+          - Spectrogram Backends: 
+              - SpectrogramNumpy: api/transforms/Spectrogram/SpectrogramNumpy.md
+              - SpectrogramTorch: api/transforms/Spectrogram/SpectrogramTorch.md
+              - SpectrogramTensorFlow: api/transforms/Spectrogram/SpectrogramTensorFlow.md
+              - SpectrogramOctave: api/transforms/Spectrogram/SpectrogramOctave.md
+          - Magnitude: api/transforms/Magnitude.md
+          - Magnitude Backends: 
+              - MagnitudeNumpy: api/transforms/Magnitude/MagnitudeNumpy.md
+              - MagnitudeTorch: api/transforms/Magnitude/MagnitudeTorch.md
+              - MagnitudeTensorFlow: api/transforms/Magnitude/MagnitudeTensorFlow.md
+              - MagnitudeOctave: api/transforms/Magnitude/MagnitudeOctave.md
+          - Phase: api/transforms/Phase.md
+          - Phase Backends: 
+              - PhaseNumpy: api/transforms/Phase/PhaseNumpy.md
+              - PhaseTorch: api/transforms/Phase/PhaseTorch.md
+              - PhaseTensorFlow: api/transforms/Phase/PhaseTensorFlow.md
+              - PhaseOctave: api/transforms/Phase/PhaseOctave.md
+          - BPD: api/transforms/BPD.md
+          - BPD Backends: 
+              - BPDNumpy: api/transforms/BPD/BPDNumpy.md
+              - BPDTorch: api/transforms/BPD/BPDTorch.md
+              - BPDTensorFlow: api/transforms/BPD/BPDTensorFlow.md
+              - BPDOctave: api/transforms/BPD/BPDOctave.md
 
 plugins:
   - search
