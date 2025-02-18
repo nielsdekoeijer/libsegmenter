@@ -60,7 +60,9 @@ def as_backend(x, backend):
     hop_size=st.integers(min_value=1, max_value=63),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
-def test_segmenter_consistency_batched(backendA, backendB, segment_size, hop_size, seed):
+def test_segmenter_consistency_batched(
+    backendA, backendB, segment_size, hop_size, seed
+):
     # reproducability
     np.random.seed(seed)
 
@@ -90,6 +92,7 @@ def test_segmenter_consistency_batched(backendA, backendB, segment_size, hop_siz
     # assertions with clearer error messages
     assert np.allclose(sA, sB, atol=1e-5)
     assert np.allclose(rA, rB, atol=1e-5)
+
 
 # runs randomized but reproduceably 100 times
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))

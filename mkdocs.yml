@@ -7,11 +7,23 @@ nav:
   - Home: index.md
   - API Reference:
       - Segmenter: api/Segmenter.md
-      - Window: api/Window.md
-      - Backends:
+      - Segmenter Implementations:
           - PyTorch: api/backends/SegmenterTorch.md
           - TensorFlow: api/backends/SegmenterTensorFlow.md
           - NumPy: api/backends/SegmenterNumpy.md
+      - Window: api/Window.md
+      - Window Implementations:
+          - bartlett50: api/backends/bartlett50.md
+          - bartlett75: api/backends/bartlett75.md
+          - blackman: api/backends/blackman.md
+          - hamming50: api/backends/hamming50.md
+          - hamming75: api/backends/hamming75.md
+          - hann50: api/backends/hann50.md
+          - hann75: api/backends/hann75.md
+          - kaiser82: api/backends/kaiser82.md
+          - kaiser85: api/backends/kaiser85.md
+          - rectangular0: api/backends/rectangular0.md
+          - rectangular50: api/backends/rectangular50.md
 
 plugins:
   - search

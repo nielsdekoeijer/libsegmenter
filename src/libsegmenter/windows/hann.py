@@ -19,12 +19,14 @@
 
 import numpy as np
 
+
 def hann(segment_size: int) -> np.ndarray:
     M = float(segment_size)
     indices = np.arange(segment_size)
     window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M))
 
-def hann50(segment_size: int) -> np.ndarray, int:
+
+def hann50(segment_size: int) -> (np.ndarray, int):
     """
     Generates a Hann window of the given size.
 
@@ -41,9 +43,10 @@ def hann50(segment_size: int) -> np.ndarray, int:
 
     assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
 
-    return hann(segment_size), segment_size // 2 
+    return hann(segment_size), segment_size // 2
 
-def hann75(segment_size: int) -> np.ndarray, int:
+
+def hann75(segment_size: int) -> (np.ndarray, int):
     """
     Generates a Hann window of the given size.
 
@@ -58,6 +61,9 @@ def hann75(segment_size: int) -> np.ndarray, int:
         A Window describing the Hann window values.
     """
 
-    assert (segment_size % 4 == 0, f"segment_size must be modulus 4, got {segment_size}")
+    assert (
+        segment_size % 4 == 0,
+        f"segment_size must be modulus 4, got {segment_size}",
+    )
 
-    return hann(segment_size), segment_size // 4 
+    return hann(segment_size), segment_size // 4

@@ -80,7 +80,11 @@ class SegmenterTorch(torch.nn.Module):
 
         # Pre-allocation
         X = torch.zeros(
-            (batch_size, num_segments, self.window.analysis_window.shape[-1]),
+            (
+                batch_size if batch_size is not None else 1,
+                num_segments,
+                self.window.analysis_window.shape[-1],
+            ),
             device=x.device,
             dtype=x.dtype,
         )

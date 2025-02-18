@@ -19,6 +19,7 @@
 
 import numpy as np
 
+
 class Window:
     """
     A class representing a windowing scheme used in signal segmentation.
@@ -29,7 +30,9 @@ class Window:
         synthesis_window (np.ndarray): The window function used during the synthesis phase.
     """
 
-    def __init__(self, hop_size: int, analysis_window: np.ndarray, synthesis_window: np.ndarray) -> None:
+    def __init__(
+        self, hop_size: int, analysis_window: np.ndarray, synthesis_window: np.ndarray
+    ) -> None:
         """
         Initializes the Window instance with the specified hop size and window functions.
 
@@ -41,4 +44,3 @@ class Window:
         self.hop_size = hop_size
         self.analysis_window = analysis_window
         self.synthesis_window = synthesis_window
-

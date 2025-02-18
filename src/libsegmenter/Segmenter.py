@@ -21,6 +21,7 @@ BACKENDS = ["torch", "tensorflow", "numpy"]
 
 from typing import Any
 
+
 def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
     """
     Factory function to create a segmenter instance based on the specified backend.

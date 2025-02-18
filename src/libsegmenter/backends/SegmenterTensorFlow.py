@@ -78,7 +78,11 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
 
         # Pre-allocation
         X = tf.zeros(
-            (batch_size, num_segments, self.window.analysis_window.shape[-1]),
+            (
+                batch_size if batch_size is not None else 1,
+                num_segments,
+                self.window.analysis_window.shape[-1],
+            ),
             dtype=x.dtype,
         )
 
