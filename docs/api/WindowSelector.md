@@ -1,0 +1,4 @@
+# WindowSelector
+
+::: libsegmenter.WindowSelector
+
