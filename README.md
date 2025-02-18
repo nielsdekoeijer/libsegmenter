@@ -45,7 +45,11 @@ pip install libsegmenter
 ```
 
 ## Example
-TODO
+To make a segmenter with a specific window:
+```bash
+import libsegmenter as seg
+segmenter = seg.Segmenter(backend="torch", seg.WindowSelector("hann75"))
+```
 
 ## Development
 Install uv (pip replacement):
