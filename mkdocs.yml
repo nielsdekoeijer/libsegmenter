@@ -7,7 +7,7 @@ nav:
   - Home: index.md
   - API Reference:
       - Segmenter: api/Segmenter.md
-      - Segmenter Implementations:
+      - Segmenter Backends:
           - PyTorch: api/backends/SegmenterTorch.md
           - TensorFlow: api/backends/SegmenterTensorFlow.md
           - NumPy: api/backends/SegmenterNumpy.md
