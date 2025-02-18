@@ -26,7 +26,7 @@ def rectangular(segment_size: int) -> np.ndarray:
 
 def rectangular50(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a rectangular window of the given size with 75% overlap.
+    Generates a rectangular window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -40,7 +40,7 @@ def rectangular50(segment_size: int) -> (np.ndarray, int):
 
 def rectangular0(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a rectangular window of the given size with 75% overlap.
+    Generates a rectangular window of the given size with 0% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
