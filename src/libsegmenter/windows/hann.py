@@ -28,17 +28,13 @@ def hann(segment_size: int) -> np.ndarray:
 
 def hann50(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Hann window of the given size.
+    Generates a Hann window of the given size with 75% overlap.
 
-    Parameters:
-    -----------
-    window_size : int
-        The size of the window.
+    Args:
+        segment_size (int): Size of the window to be created.
 
     Returns:
-    --------
-    Window
-        A Window describing the Hann window values.
+        A hann window with 75% overlap
     """
 
     assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
@@ -48,17 +44,13 @@ def hann50(segment_size: int) -> (np.ndarray, int):
 
 def hann75(segment_size: int) -> (np.ndarray, int):
     """
-    Generates a Hann window of the given size.
+    Generates a Hann window of the given size with 75% overlap.
 
-    Parameters:
-    -----------
-    window_size : int
-        The size of the window.
+    Args:
+        segment_size (int): Size of the window to be created.
 
     Returns:
-    --------
-    Window
-        A Window describing the Hann window values.
+        A hann window with 75% overlap
     """
 
     assert (
