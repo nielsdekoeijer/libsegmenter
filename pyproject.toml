@@ -11,13 +11,6 @@ dependencies = [ "numpy==1.23.5" ]
 torch = [ "torch>=2.6.0" ]
 octave = [ "oct2py>=5.8.0" ]
 tensorflow = [ "tensorflow-cpu>=2.14.0" ]
-mkdocs = [
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.6.4",
-    "mkdocstrings[python]>=0.28.1",
-    "mkdocs-include-markdown-plugin>=7.1.4",
-]
-
 
 [tool.setuptools]
 packages = ["libsegmenter"]
