@@ -24,28 +24,27 @@ from libsegmenter.Window import Window
 
 
 class SegmenterTorch(torch.nn.Module):
-    """
-    A PyTorch-based segmenter for input data using windowing techniques.
+    """A PyTorch-based segmenter for input data using windowing techniques.
     Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
 
     Attributes:
         window (Window): A class containing hop size, segment size, and window functions.
+
     """
 
     def __init__(self, window: Window) -> None:
-        """
-        Initializes the SegmenterTorch instance.
+        """Initializes the SegmenterTorch instance.
 
         Args:
             window (Window): A window object containing segmentation parameters.
+
         """
         super().__init__()  # type: ignore
 
         self.window = window
 
     def segment(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Segments the input tensor into overlapping windows.
+        """Segments the input tensor into overlapping windows.
 
         Args:
             x (torch.Tensor): Input tensor (1D or 2D).
@@ -56,6 +55,7 @@ class SegmenterTorch(torch.nn.Module):
         Raises:
             ValueError: If types are incorrect.
             ValueError: If input dimensions are invalid.
+
         """
         if x.ndim not in {1, 2}:
             raise ValueError(f"Only supports 1D or 2D inputs, provided {x.ndim}D.")
@@ -102,8 +102,7 @@ class SegmenterTorch(torch.nn.Module):
         )  # Remove batch dimension if needed
 
     def unsegment(self, y: torch.Tensor) -> torch.Tensor:
-        """
-        Reconstructs the original signal from segmented data.
+        """Reconstructs the original signal from segmented data.
 
         Args:
             y (torch.Tensor): Segmented tensor (2D or 3D).
@@ -114,6 +113,7 @@ class SegmenterTorch(torch.nn.Module):
         Raises:
             ValueError: If types are incorrect.
             ValueError: If input dimensions are invalid.
+
         """
         if self.window.synthesis_window is None:
             raise ValueError("Given windowing scheme does not support unsegmenting.")

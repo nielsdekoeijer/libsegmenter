@@ -24,34 +24,34 @@ from libsegmenter.Window import Window
 
 
 class SegmenterTensorFlow(tf.keras.layers.Layer):
-    """
-    A TensorFlow-based segmenter for input data using windowing techniques.
+    """A TensorFlow-based segmenter for input data using windowing techniques.
     Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
 
     Attributes:
         window (Window): A class containing hop size, segment size, and window functions.
+
     """
 
     def __init__(self, window: Window) -> None:
-        """
-        Initializes the SegmenterTensorFlow instance.
+        """Initializes the SegmenterTensorFlow instance.
 
         Args:
             window (Window): A window object containing segmentation parameters.
+
         """
         super(SegmenterTensorFlow, self).__init__()  # type: ignore
 
         self.window = window
 
     def segment(self, x: tf.Tensor) -> tf.Tensor:
-        """
-        Segments the input tensor into overlapping windows.
+        """Segments the input tensor into overlapping windows.
 
         Args:
             x (tf.Tensor): Input tensor (1D or 2D).
 
         Returns:
             Segmented tensor of shape (batch_size, num_segments, segment_size).
+
         """
         if len(x.shape) not in {1, 2}:
             raise ValueError(
@@ -106,14 +106,14 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         return tf.squeeze(X, axis=0) if batch_size is None else X
 
     def unsegment(self, X: tf.Tensor) -> tf.Tensor:
-        """
-        Reconstructs the original signal from segmented data.
+        """Reconstructs the original signal from segmented data.
 
         Args:
             X (tf.Tensor): Segmented tensor (2D or 3D).
 
         Returns:
             Reconstructed 1D or 2D signal.
+
         """
         if self.window.synthesis_window is None:
             raise ValueError("Given windowing scheme does not support unsegmenting.")

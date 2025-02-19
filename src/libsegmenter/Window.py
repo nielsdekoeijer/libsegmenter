@@ -25,13 +25,13 @@ T = TypeVar("T", bound=np.generic)
 
 
 class Window:
-    """
-    A class representing a windowing scheme used in signal segmentation.
+    """A class representing a windowing scheme used in signal segmentation.
 
     Attributes:
         hop_size (int): The step size for shifting the window in the segmentation process.
         analysis_window (NDArray[T]): The window function used during the analysis phase.
         synthesis_window (NDArray[T]): The window function used during the synthesis phase.
+
     """
 
     def __init__(
@@ -40,13 +40,13 @@ class Window:
         analysis_window: NDArray[T],
         synthesis_window: NDArray[T] | None,
     ) -> None:
-        """
-        Initializes the Window instance with the specified hop size and window functions.
+        """Initializes the Window instance with the specified hop size and window functions.
 
         Args:
             hop_size (int): The step size for shifting the window in the segmentation process.
             analysis_window (NDArray[T]: The window function applied during analysis.
             synthesis_window (NDArray[T]): The window function applied during synthesis.
+
         """
         self.hop_size = hop_size
         self.analysis_window = analysis_window

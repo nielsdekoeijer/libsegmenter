@@ -29,8 +29,7 @@ def rectangular(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]
 def rectangular50(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """
-    Generates a rectangular window of the given size with 50% overlap.
+    """Generates a rectangular window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -38,16 +37,15 @@ def rectangular50(
 
     Returns:
         A rectangular window with 50% overlap
-    """
 
+    """
     return rectangular(segment_size, dtype=dtype), segment_size // 2
 
 
 def rectangular0(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """
-    Generates a rectangular window of the given size with 0% overlap.
+    """Generates a rectangular window of the given size with 0% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -55,6 +53,6 @@ def rectangular0(
 
     Returns:
         A rectangular window with 0% overlap
-    """
 
+    """
     return rectangular(segment_size, dtype=dtype), segment_size

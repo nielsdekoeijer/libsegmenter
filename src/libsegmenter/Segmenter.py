@@ -23,8 +23,7 @@ BACKENDS = ["torch", "tensorflow", "numpy"]
 
 
 def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
-    """
-    Factory function to create a segmenter instance based on the specified backend.
+    """Factory function to create a segmenter instance based on the specified backend.
 
     Args:
         backend (str, optional): The backend to use. Supported options: ["numpy", "torch", "tensorflow"].
@@ -38,6 +37,7 @@ def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
     Raises:
         ValueError: If an unsupported backend is specified.
         NotImplementedError: If the backend is not implemented.
+
     """
     if backend not in BACKENDS:
         raise ValueError(f"Unsupported backend {backend}, availible: {BACKENDS}")

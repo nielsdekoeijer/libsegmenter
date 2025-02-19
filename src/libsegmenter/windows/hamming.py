@@ -33,8 +33,7 @@ def hamming(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
 def hamming50(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """
-    Generates a Hamming window of the given size with 50% overlap.
+    """Generates a Hamming window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -42,8 +41,8 @@ def hamming50(
 
     Returns:
         A hamming window with 50% overlap
-    """
 
+    """
     assert segment_size % 2 == 0, f"segment_size must be even, got {segment_size}"
 
     return hamming(segment_size, dtype=dtype), segment_size // 2
@@ -52,8 +51,7 @@ def hamming50(
 def hamming75(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """
-    Generates a Hamming window of the given size with 75% overlap.
+    """Generates a Hamming window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -61,8 +59,8 @@ def hamming75(
 
     Returns:
         A hamming window with 75% overlap
-    """
 
+    """
     assert segment_size % 4 == 0, f"segment_size must be modulus 4, got {segment_size}"
 
     return hamming(segment_size, dtype=dtype), segment_size // 4

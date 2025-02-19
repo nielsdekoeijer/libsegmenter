@@ -26,26 +26,25 @@ T = TypeVar("T", bound=np.generic)
 
 
 class SegmenterNumpy:
-    """
-    A class for segmenting and reconstructing input data using windowing techniques.
+    """A class for segmenting and reconstructing input data using windowing techniques.
     Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
 
     Attributes:
         window (Window): A class containing hop size, segment size, and window functions.
+
     """
 
     def __init__(self, window: Window) -> None:
-        """
-        Initializes the SegmenterNumpy instance.
+        """Initializes the SegmenterNumpy instance.
 
         Args:
             window (Window): A window object containing segmentation parameters.
+
         """
         self.window = window
 
     def segment(self, x: NDArray[T]) -> NDArray[T]:
-        """
-        Segments the input signal into overlapping windows using the provided window parameters.
+        """Segments the input signal into overlapping windows using the provided window parameters.
 
         Args:
             x (np.ndarray): Input array, either 1D (single sequence) or 2D (batch of sequences).
@@ -56,6 +55,7 @@ class SegmenterNumpy:
         Raises:
             ValueError: If types are incorrect.
             ValueError: If input dimensions are invalid.
+
         """
         if x.ndim not in {1, 2}:
             raise ValueError(f"Only supports 1D or 2D inputs, provided {x.ndim}D.")
@@ -96,8 +96,7 @@ class SegmenterNumpy:
         return y.squeeze(0) if batch_size is None else y
 
     def unsegment(self, y: NDArray[T]) -> NDArray[T]:
-        """
-        Reconstructs the original signal from segmented data using synthesis windowing.
+        """Reconstructs the original signal from segmented data using synthesis windowing.
 
         Args:
             y (np.ndarray): Segmented data with shape (batch_size, num_segments, segment_size)
@@ -105,6 +104,7 @@ class SegmenterNumpy:
 
         Returns:
             Reconstructed signal.
+
         """
         if self.window.synthesis_window is None:
             raise ValueError("Given windowing scheme does not support unsegmenting.")

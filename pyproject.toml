@@ -5,7 +5,9 @@ author = ["Niels de Koeijer", "Martin Bo Moller"]
 description = "An opinionated segmentation library for (machine learning) audio"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [ "numpy==1.26.4" ]
+dependencies = [
+ "numpy==1.26.4",
+]
 
 [project.optional-dependencies]
 torch = [ "torch>=2.6.0" ]
@@ -20,6 +22,9 @@ package-dir = {"" = "src"}
 testpaths = ["tests"]
 python_files = ["consistency.py"]
 pythonpath = ["src"]
+
+[tool.ruff]
+lint.select = ["E","F","B","D"]
 
 [dependency-groups]
 dev = [

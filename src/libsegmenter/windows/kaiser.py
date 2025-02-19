@@ -38,8 +38,7 @@ def kaiser_hop_size(segment_size: int, beta: float) -> int:
 def kaiser85(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """
-    Generates a Kaiser window of the given size with 85% overlap.
+    """Generates a Kaiser window of the given size with 85% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -47,8 +46,8 @@ def kaiser85(
 
     Returns:
         A kaiser window with 85% overlap
-    """
 
+    """
     beta = 10.0
     hop_size = kaiser_hop_size(segment_size, beta)
     return kaiser(segment_size, beta, dtype=dtype), hop_size
@@ -57,8 +56,7 @@ def kaiser85(
 def kaiser82(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """
-    Generates a Kaiser window of the given size with 82% overlap.
+    """Generates a Kaiser window of the given size with 82% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -66,8 +64,8 @@ def kaiser82(
 
     Returns:
         A kaiser window with 82% overlap
-    """
 
+    """
     beta = 8.0
     hop_size = kaiser_hop_size(segment_size, beta)
     return kaiser(segment_size, beta, dtype=dtype), hop_size

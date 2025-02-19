@@ -43,22 +43,21 @@ def adapt_window(window: NDArray[T], hop_size: int, scheme: str) -> Window:
 
 
 def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
-    """
-    Selects and returns a specific window function based on the given parameters.
+    """Selects and returns a specific window function based on the given parameters.
 
     This function retrieves a window function based on the `window` type, applies
     an adaptation based on `scheme`, and returns the corresponding `Window` object.
 
     Args:
         window (str): The type of window function to apply. Supported values include:
-            - `bartlett50` 
+            - `bartlett50`
             - `bartlett75`
             - `blackman67`
             - `kaiser82`
             - `kaiser85`
-            - `hamming50` 
+            - `hamming50`
             - `hamming75`
-            - `hann50` 
+            - `hann50`
             - `hann75`
             - `rectangular0`
         scheme (str): The adaptation scheme to use. Supported values:
@@ -73,8 +72,8 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
 
     Raises:
         ValueError: If an unknown window type or scheme is provided.
-    """
 
+    """
     if window == "bartlett50":
         from libsegmenter.windows.bartlett import bartlett50
 
