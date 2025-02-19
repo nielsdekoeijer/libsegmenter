@@ -1,0 +1,18 @@
+{
+  "include": ["src"],
+  "exclude": ["**/__pycache__"],
+  "ignore": ["docs", "tests/__pycache__"],
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "typeCheckingMode": "strict",
+  "executionEnvironments": [
+    {
+      "root": "src/libsegmenter",
+      "extraPaths": ["src"]
+    }
+  ],
+  "stubPath": "typings"
+}
+

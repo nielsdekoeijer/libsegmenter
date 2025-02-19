@@ -18,15 +18,19 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
+from numpy.typing import NDArray, DTypeLike
+from typing import Tuple, Any
 
 
-def hann(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
-    M = dtype(segment_size)
-    indices = np.arange(segment_size, dtype=dtype)
-    window = 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M, dtype=dtype))
+def hann(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
+    M = window_size
+    indices = np.arange(window_size, dtype=np.dtype(dtype).type)
+    return 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M, dtype=np.dtype(dtype).type))
 
 
-def hann50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
+def hann50(
+    segment_size: int, dtype: DTypeLike = np.float32
+) -> Tuple[NDArray[Any], int]:
     """
     Generates a Hann window of the given size with 50% overlap.
 
@@ -38,12 +42,14 @@ def hann50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int)
         A hann window with 50% overlap
     """
 
-    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
+    assert segment_size % 2 == 0, f"segment_size must be even, got {segment_size}"
 
     return hann(segment_size, dtype=dtype), segment_size // 2
 
 
-def hann75(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
+def hann75(
+    segment_size: int, dtype: DTypeLike = np.float32
+) -> Tuple[NDArray[Any], int]:
     """
     Generates a Hann window of the given size with 75% overlap.
 
@@ -55,9 +61,6 @@ def hann75(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int)
         A hann window with 75% overlap
     """
 
-    assert (
-        segment_size % 4 == 0,
-        f"segment_size must be modulus 4, got {segment_size}",
-    )
+    assert segment_size % 4 == 0, f"segment_size must be modulus 4, got {segment_size}"
 
     return hann(segment_size, dtype=dtype), segment_size // 4

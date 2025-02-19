@@ -18,11 +18,14 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
-
+from numpy.typing import NDArray
+from typing import TypeVar
 from libsegmenter.Window import Window
 
+T = TypeVar("T", bound=np.generic)
 
-def adapt_window(window: np.ndarray, hop_size: int, scheme: str) -> Window:
+
+def adapt_window(window: NDArray[T], hop_size: int, scheme: str) -> Window:
     # TODO: windows ALWAYS normalized
     # TODO: windows ALWAYS cola_checked
 
@@ -69,57 +72,57 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
     """
 
     if window == "bartlett50":
-        from libsegmenter.window.bartlett import bartlett50
+        from libsegmenter.windows.bartlett import bartlett50
 
         return bartlett50(segment_size)
 
     if window == "bartlett75":
-        from libsegmenter.window.bartlett import bartlett75
+        from libsegmenter.windows.bartlett import bartlett75
 
         return bartlett75(segment_size)
 
     if window == "blackman":
-        from libsegmenter.window.blackman import blackman67
+        from libsegmenter.windows.blackman import blackman67
 
         return blackman(segment_size)
 
     if window == "kaiser82":
-        from libsegmenter.window.kaiser import kaiser82
+        from libsegmenter.windows.kaiser import kaiser82
 
         return kaiser82(segment_size)
 
     if window == "kaiser85":
-        from libsegmenter.window.kaiser import kaiser85
+        from libsegmenter.windows.kaiser import kaiser85
 
         return kaiser85(segment_size)
 
     if window == "hamming50":
-        from libsegmenter.window.hamming import hamming50
+        from libsegmenter.windows.hamming import hamming50
 
         return hamming50(segment_size)
 
     if window == "hamming75":
-        from libsegmenter.window.hamming import hamming75
+        from libsegmenter.windows.hamming import hamming75
 
         return hamming75(segment_size)
 
     if window == "hann50":
-        from libsegmenter.window.hann import hann50
+        from libsegmenter.windows.hann import hann50
 
         return adapt_window(*hann50(segment_size))
 
     if window == "hann75":
-        from libsegmenter.window.hann import hann75
+        from libsegmenter.windows.hann import hann75
 
         return adapt_window(*hann75(segment_size))
 
     if window == "rectangular0":
-        from libsegmenter.window.rectangular import rectangular0
+        from libsegmenter.windows.rectangular import rectangular0
 
         return rectangular0(segment_size)
 
     if window == "rectangular50":
-        from libsegmenter.window.rectangular import rectangular50
+        from libsegmenter.windows.rectangular import rectangular50
 
         return rectangular50(segment_size)
 

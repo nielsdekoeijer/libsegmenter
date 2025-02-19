@@ -18,15 +18,21 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
+from numpy.typing import NDArray, DTypeLike
+from typing import Tuple, Any
 
 
-def bartlett(window_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
-    M = dtype(window_size + 1.0)
-    indices = np.arange(window_size, dtype=dtype)
-    return 1.0 - np.abs(-1.0 * (M - 1) / 2.0 + indices, dtype=dtype) * 2.0 / (M - 1.0)
+def bartlett(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
+    M = window_size + 1.0
+    indices = np.arange(window_size, dtype=np.dtype(dtype).type)
+    return 1.0 - np.abs(
+        -1.0 * (M - 1) / 2.0 + indices, dtype=np.dtype(dtype).type
+    ) * 2.0 / (M - 1.0)
 
 
-def bartlett50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
+def bartlett50(
+    segment_size: int, dtype: DTypeLike = np.float32
+) -> Tuple[NDArray[Any], int]:
     """
     Generates a Bartlett window of the given size with 50% overlap.
 
@@ -38,12 +44,14 @@ def bartlett50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, 
         A bartlett window with 50% overlap
     """
 
-    assert (segment_size % 2 == 0, f"segment_size must be even, got {segment_size}")
+    assert segment_size % 2 == 0, f"segment_size must be even, got {segment_size}"
 
     return bartlett(segment_size, dtype=dtype), segment_size // 2
 
 
-def bartlett75(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
+def bartlett75(
+    segment_size: int, dtype: DTypeLike = np.float32
+) -> Tuple[NDArray[Any], int]:
     """
     Generates a Bartlett window of the given size with 75% overlap.
 
@@ -55,9 +63,6 @@ def bartlett75(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, 
         A bartlett window with 75% overlap
     """
 
-    assert (
-        segment_size % 4 == 0,
-        f"segment_size must be modulus 4, got {segment_size}",
-    )
+    assert segment_size % 4 == 0, f"segment_size must be modulus 4, got {segment_size}"
 
     return bartlett(segment_size, dtype=dtype), segment_size // 4

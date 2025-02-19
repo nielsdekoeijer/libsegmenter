@@ -52,8 +52,8 @@ segmenter = seg.Segmenter(backend="torch", seg.WindowSelector("hann75"))
 ```
 
 ## Development
-### python
-Install uv (pip replacement):
+### Installing python
+Install `uv` (pip replacement):
 ```bash
 # install for linux / mac
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -69,13 +69,20 @@ source .venv/bin/activate
 uv sync --dev
 ```
 
-### licenses
+### Linting
+We require everything to be fully typed. We enforce that by having 100% clearance on pyright:
+```bash
+pyright
+```
+
+### Licenses
+The project is licensed under MIT.
 Add licenses using the `addlicense` tool found [here](https://github.com/google/addlicense):
 ```bash
 addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2025 .
 ```
 
-### licenses
+### Documentation
 Docs are mainly automatically generated and described with docstrings.
 To host the docs locally run:
 ```bash

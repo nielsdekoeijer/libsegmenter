@@ -18,13 +18,17 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
+from numpy.typing import NDArray, DTypeLike
+from typing import Tuple, Any
 
 
-def rectangular(segment_size: int, dtype: np.dtype = np.float32) -> np.ndarray:
-    return np.ones(segment_size, dtype=dtype)
+def rectangular(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
+    return np.ones(window_size, dtype=np.dtype(dtype).type)
 
 
-def rectangular50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
+def rectangular50(
+    segment_size: int, dtype: DTypeLike = np.float32
+) -> Tuple[NDArray[Any], int]:
     """
     Generates a rectangular window of the given size with 50% overlap.
 
@@ -39,7 +43,9 @@ def rectangular50(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarra
     return rectangular(segment_size, dtype=dtype), segment_size // 2
 
 
-def rectangular0(segment_size: int, dtype: np.dtype = np.float32) -> (np.ndarray, int):
+def rectangular0(
+    segment_size: int, dtype: DTypeLike = np.float32
+) -> Tuple[NDArray[Any], int]:
     """
     Generates a rectangular window of the given size with 0% overlap.
 

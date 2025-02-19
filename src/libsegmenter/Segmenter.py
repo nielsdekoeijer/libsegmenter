@@ -40,7 +40,7 @@ def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
         NotImplementedError: If the backend is not implemented.
     """
     if backend not in BACKENDS:
-        raise ValueError(f"Unsupported backend {backend}, availible: {backends}")
+        raise ValueError(f"Unsupported backend {backend}, availible: {BACKENDS}")
 
     if backend == "numpy":
         from libsegmenter.backends.SegmenterNumpy import SegmenterNumpy

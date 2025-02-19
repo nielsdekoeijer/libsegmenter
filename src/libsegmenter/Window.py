@@ -18,6 +18,10 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
+from numpy.typing import NDArray
+from typing import TypeVar
+
+T = TypeVar("T", bound=np.generic)
 
 
 class Window:
@@ -26,20 +30,23 @@ class Window:
 
     Attributes:
         hop_size (int): The step size for shifting the window in the segmentation process.
-        analysis_window (np.ndarray): The window function used during the analysis phase.
-        synthesis_window (np.ndarray): The window function used during the synthesis phase.
+        analysis_window (NDArray[T]): The window function used during the analysis phase.
+        synthesis_window (NDArray[T]): The window function used during the synthesis phase.
     """
 
     def __init__(
-        self, hop_size: int, analysis_window: np.ndarray, synthesis_window: np.ndarray
+        self,
+        hop_size: int,
+        analysis_window: NDArray[T],
+        synthesis_window: NDArray[T] | None,
     ) -> None:
         """
         Initializes the Window instance with the specified hop size and window functions.
 
         Args:
             hop_size (int): The step size for shifting the window in the segmentation process.
-            analysis_window (np.ndarray): The window function applied during analysis.
-            synthesis_window (np.ndarray): The window function applied during synthesis.
+            analysis_window (NDArray[T]: The window function applied during analysis.
+            synthesis_window (NDArray[T]): The window function applied during synthesis.
         """
         self.hop_size = hop_size
         self.analysis_window = analysis_window
