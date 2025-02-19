@@ -22,7 +22,7 @@ from numpy.typing import NDArray, DTypeLike
 from typing import Tuple, Any
 
 
-def blackman(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
+def _blackman(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
     M = window_size + 1
     indices = np.arange(window_size, dtype=dtype)
 
@@ -36,7 +36,8 @@ def blackman(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
 def blackman67(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """Generates a Blackman window of the given size with a 2/3 overlap.
+    """
+    Generates a Blackman window of the given size with a 2/3 overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -48,4 +49,4 @@ def blackman67(
     """
     assert segment_size % 3 == 0, f"segment_size must be modulus 3, got {segment_size}"
 
-    return blackman(segment_size, dtype=dtype), segment_size // 3
+    return _blackman(segment_size, dtype=dtype), segment_size // 3

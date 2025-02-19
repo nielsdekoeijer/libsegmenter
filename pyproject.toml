@@ -25,6 +25,10 @@ pythonpath = ["src"]
 
 [tool.ruff]
 lint.select = ["E","F","B","D"]
+lint.ignore = ["D100","D104","D401", "D203", "D212"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
 
 [dependency-groups]
 dev = [

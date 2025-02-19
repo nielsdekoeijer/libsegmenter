@@ -25,7 +25,7 @@ from libsegmenter.Window import Window
 T = TypeVar("T", bound=np.generic)
 
 
-def adapt_window(window: NDArray[T], hop_size: int, scheme: str) -> Window:
+def _adapt_window(window: NDArray[T], hop_size: int, scheme: str) -> Window:
     # TODO: windows ALWAYS normalized
     # TODO: windows ALWAYS cola_checked
 
@@ -43,7 +43,8 @@ def adapt_window(window: NDArray[T], hop_size: int, scheme: str) -> Window:
 
 
 def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
-    """Selects and returns a specific window function based on the given parameters.
+    """
+    Selects and returns a specific window function based on the given parameters.
 
     This function retrieves a window function based on the `window` type, applies
     an adaptation based on `scheme`, and returns the corresponding `Window` object.
@@ -77,56 +78,56 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
     if window == "bartlett50":
         from libsegmenter.windows.bartlett import bartlett50
 
-        return adapt_window(*bartlett50(segment_size), scheme)
+        return _adapt_window(*bartlett50(segment_size), scheme)
 
     if window == "bartlett75":
         from libsegmenter.windows.bartlett import bartlett75
 
-        return adapt_window(*bartlett75(segment_size), scheme)
+        return _adapt_window(*bartlett75(segment_size), scheme)
 
     if window == "blackman":
         from libsegmenter.windows.blackman import blackman67
 
-        return adapt_window(*blackman67(segment_size), scheme)
+        return _adapt_window(*blackman67(segment_size), scheme)
 
     if window == "kaiser82":
         from libsegmenter.windows.kaiser import kaiser82
 
-        return adapt_window(*kaiser82(segment_size), scheme)
+        return _adapt_window(*kaiser82(segment_size), scheme)
 
     if window == "kaiser85":
         from libsegmenter.windows.kaiser import kaiser85
 
-        return adapt_window(*kaiser85(segment_size), scheme)
+        return _adapt_window(*kaiser85(segment_size), scheme)
 
     if window == "hamming50":
         from libsegmenter.windows.hamming import hamming50
 
-        return adapt_window(*hamming50(segment_size), scheme)
+        return _adapt_window(*hamming50(segment_size), scheme)
 
     if window == "hamming75":
         from libsegmenter.windows.hamming import hamming75
 
-        return adapt_window(*hamming75(segment_size), scheme)
+        return _adapt_window(*hamming75(segment_size), scheme)
 
     if window == "hann50":
         from libsegmenter.windows.hann import hann50
 
-        return adapt_window(*hann50(segment_size), scheme)
+        return _adapt_window(*hann50(segment_size), scheme)
 
     if window == "hann75":
         from libsegmenter.windows.hann import hann75
 
-        return adapt_window(*hann75(segment_size), scheme)
+        return _adapt_window(*hann75(segment_size), scheme)
 
     if window == "rectangular0":
         from libsegmenter.windows.rectangular import rectangular0
 
-        return adapt_window(*rectangular0(segment_size), scheme)
+        return _adapt_window(*rectangular0(segment_size), scheme)
 
     if window == "rectangular50":
         from libsegmenter.windows.rectangular import rectangular50
 
-        return adapt_window(*rectangular50(segment_size), scheme)
+        return _adapt_window(*rectangular50(segment_size), scheme)
 
     raise ValueError(f"The '{window}' window is not known.")

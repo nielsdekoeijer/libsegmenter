@@ -26,16 +26,19 @@ T = TypeVar("T", bound=np.generic)
 
 
 class SegmenterNumpy:
-    """A class for segmenting and reconstructing input data using windowing techniques.
+    """
+    A class for segmenting and reconstructing input data using windowing techniques.
+
     Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
 
     Attributes:
-        window (Window): A class containing hop size, segment size, and window functions.
+        window (Window): A class containing hop size, segment size, and windows.
 
     """
 
     def __init__(self, window: Window) -> None:
-        """Initializes the SegmenterNumpy instance.
+        """
+        Initializes the SegmenterNumpy instance.
 
         Args:
             window (Window): A window object containing segmentation parameters.
@@ -44,10 +47,11 @@ class SegmenterNumpy:
         self.window = window
 
     def segment(self, x: NDArray[T]) -> NDArray[T]:
-        """Segments the input signal into overlapping windows using the provided window parameters.
+        """
+        Segments the input signal into overlapping windows using the window parameters.
 
         Args:
-            x (np.ndarray): Input array, either 1D (single sequence) or 2D (batch of sequences).
+            x (np.ndarray): Input array, either 1D (sequence) or 2D (batch).
 
         Returns:
             Segmented data of shape (batch_size, num_segments, segment_size).
@@ -72,7 +76,9 @@ class SegmenterNumpy:
 
         if num_segments <= 0:
             raise ValueError(
-                f"Input signal is too short for segmentation with the given hop size ({self.window.hop_size}) and segment size ({self.window.analysis_window.shape[-1]})."
+                "Input signal is too short for segmentation with the given hop size "
+                + f"({self.window.hop_size}) and segment size "
+                + f"({self.window.analysis_window.shape[-1]})."
             )
 
         # Pre-allocation
@@ -96,11 +102,13 @@ class SegmenterNumpy:
         return y.squeeze(0) if batch_size is None else y
 
     def unsegment(self, y: NDArray[T]) -> NDArray[T]:
-        """Reconstructs the original signal from segmented data using synthesis windowing.
+        """
+        Reconstructs the original signal from segmented data using synthesis windowing.
 
         Args:
-            y (np.ndarray): Segmented data with shape (batch_size, num_segments, segment_size)
-                            or (num_segments, segment_size) for a single sequence.
+            y (np.ndarray): Segmented data with shape (batch_size, num_segments,
+                            segment_size) or (num_segments, segment_size) for a single
+                            sequence.
 
         Returns:
             Reconstructed signal.
@@ -125,7 +133,8 @@ class SegmenterNumpy:
 
         if num_samples <= 0:
             raise ValueError(
-                "Invalid segment structure, possibly due to incorrect windowing parameters."
+                "Invalid segment structure, possibly due to incorrect windowing "
+                + "parameters."
             )
 
         # Efficient numpy array allocation

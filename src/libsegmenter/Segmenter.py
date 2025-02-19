@@ -23,11 +23,12 @@ BACKENDS = ["torch", "tensorflow", "numpy"]
 
 
 def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
-    """Factory function to create a segmenter instance based on the specified backend.
+    """
+    Factory function to create a segmenter instance based on the specified backend.
 
     Args:
-        backend (str, optional): The backend to use. Supported options: ["numpy", "torch", "tensorflow"].
-            Defaults to "numpy".
+        backend (str, optional): The backend to use. Supported options:
+            ["numpy", "torch", "tensorflow"]. Defaults to "numpy".
         *args (Any): Additional positional arguments to pass to the segmenter.
         **kwargs (Any): Additional keyword arguments to pass to the segmenter.
 

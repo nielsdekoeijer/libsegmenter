@@ -24,16 +24,19 @@ from libsegmenter.Window import Window
 
 
 class SegmenterTensorFlow(tf.keras.layers.Layer):
-    """A TensorFlow-based segmenter for input data using windowing techniques.
+    """
+    A TensorFlow-based segmenter for input data using windowing techniques.
+
     Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
 
     Attributes:
-        window (Window): A class containing hop size, segment size, and window functions.
+        window (Window): A class containing hop size, and windows.
 
     """
 
     def __init__(self, window: Window) -> None:
-        """Initializes the SegmenterTensorFlow instance.
+        """
+        Initializes the SegmenterTensorFlow instance.
 
         Args:
             window (Window): A window object containing segmentation parameters.
@@ -44,7 +47,8 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         self.window = window
 
     def segment(self, x: tf.Tensor) -> tf.Tensor:
-        """Segments the input tensor into overlapping windows.
+        """
+        Segments the input tensor into overlapping windows.
 
         Args:
             x (tf.Tensor): Input tensor (1D or 2D).
@@ -106,7 +110,8 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         return tf.squeeze(X, axis=0) if batch_size is None else X
 
     def unsegment(self, X: tf.Tensor) -> tf.Tensor:
-        """Reconstructs the original signal from segmented data.
+        """
+        Reconstructs the original signal from segmented data.
 
         Args:
             X (tf.Tensor): Segmented tensor (2D or 3D).
@@ -136,7 +141,8 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
 
         if num_samples <= 0:
             raise ValueError(
-                "Invalid segment structure, possibly due to incorrect windowing parameters."
+                "Invalid segment structure, possibly due to incorrect windowing "
+                + "parameters."
             )
 
         # Allocate memory for the reconstructed signal

@@ -22,7 +22,7 @@ from numpy.typing import NDArray, DTypeLike
 from typing import Tuple, Any
 
 
-def bartlett(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
+def _bartlett(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
     M = window_size + 1.0
     indices = np.arange(window_size, dtype=np.dtype(dtype).type)
     return 1.0 - np.abs(
@@ -33,7 +33,8 @@ def bartlett(window_size: int, dtype: DTypeLike = np.float32) -> NDArray[Any]:
 def bartlett50(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """Generates a Bartlett window of the given size with 50% overlap.
+    """
+    Generates a Bartlett window of the given size with 50% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -45,13 +46,14 @@ def bartlett50(
     """
     assert segment_size % 2 == 0, f"segment_size must be even, got {segment_size}"
 
-    return bartlett(segment_size, dtype=dtype), segment_size // 2
+    return _bartlett(segment_size, dtype=dtype), segment_size // 2
 
 
 def bartlett75(
     segment_size: int, dtype: DTypeLike = np.float32
 ) -> Tuple[NDArray[Any], int]:
-    """Generates a Bartlett window of the given size with 75% overlap.
+    """
+    Generates a Bartlett window of the given size with 75% overlap.
 
     Args:
         segment_size (int): Size of the window to be created.
@@ -63,4 +65,4 @@ def bartlett75(
     """
     assert segment_size % 4 == 0, f"segment_size must be modulus 4, got {segment_size}"
 
-    return bartlett(segment_size, dtype=dtype), segment_size // 4
+    return _bartlett(segment_size, dtype=dtype), segment_size // 4

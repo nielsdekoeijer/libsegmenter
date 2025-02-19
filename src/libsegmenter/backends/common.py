@@ -19,8 +19,32 @@
 
 
 def compute_num_segments(num_samples: int, hop_size: int, segment_size: int) -> int:
+    """
+    Compute how many segments can be derived.
+
+    Args:
+        num_samples (int): Total samples in the dataset.
+        hop_size (int): The step size for segment shifting.
+        segment_size (int): Number of samples in one segment.
+
+    Returns:
+        int: Total number of segments.
+
+    """
     return (num_samples // hop_size) - (segment_size // hop_size) + 1
 
 
 def compute_num_samples(num_segments: int, hop_size: int, segment_size: int) -> int:
+    """
+    Compute the total number of samples from the number of segments.
+
+    Args:
+        num_segments (int): Total segments.
+        hop_size (int): The step size for segment shifting.
+        segment_size (int): Number of samples in one segment.
+
+    Returns:
+        int: Total number of samples.
+
+    """
     return (num_segments - 1) * hop_size + segment_size
