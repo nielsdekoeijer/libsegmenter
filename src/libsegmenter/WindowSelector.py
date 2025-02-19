@@ -73,7 +73,7 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
 
     Returns:
         Window: A `Window` object containing the selected window function and its
-        corresponding hop size.
+            corresponding hop size.
 
     Raises:
         ValueError: If an unknown window type or scheme is provided.
