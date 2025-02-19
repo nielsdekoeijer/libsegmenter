@@ -39,7 +39,7 @@ class SegmenterTorch(torch.nn.Module):
         Args:
             window (Window): A window object containing segmentation parameters.
         """
-        super().__init__()
+        super().__init__()  # type: ignore
 
         self.window = window
 
@@ -57,9 +57,6 @@ class SegmenterTorch(torch.nn.Module):
             ValueError: If types are incorrect.
             ValueError: If input dimensions are invalid.
         """
-        if not isinstance(x, torch.Tensor):
-            raise TypeError("Input x must be a Torch tensor.")
-
         if x.ndim not in {1, 2}:
             raise ValueError(f"Only supports 1D or 2D inputs, provided {x.ndim}D.")
 
@@ -75,11 +72,11 @@ class SegmenterTorch(torch.nn.Module):
 
         if num_segments <= 0:
             raise ValueError(
-                f"Input signal is too short for segmentation with the given parameters."
+                "Input signal is too short for segmentation with the given parameters."
             )
 
         # Pre-allocation
-        X = torch.zeros(
+        y = torch.zeros(
             (
                 batch_size if batch_size is not None else 1,
                 num_segments,
@@ -95,21 +92,21 @@ class SegmenterTorch(torch.nn.Module):
         )
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
-            X[:, k, :] = (
+            y[:, k, :] = (
                 x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]]
                 * analysis_window
             )
 
         return (
-            X.squeeze(0) if batch_size is None else X
+            y.squeeze(0) if batch_size is None else y
         )  # Remove batch dimension if needed
 
-    def unsegment(self, X: torch.Tensor) -> torch.Tensor:
+    def unsegment(self, y: torch.Tensor) -> torch.Tensor:
         """
         Reconstructs the original signal from segmented data.
 
         Args:
-            X (torch.Tensor): Segmented tensor (2D or 3D).
+            y (torch.Tensor): Segmented tensor (2D or 3D).
 
         Returns:
             Reconstructed 1D or 2D signal.
@@ -119,20 +116,17 @@ class SegmenterTorch(torch.nn.Module):
             ValueError: If input dimensions are invalid.
         """
         if self.window.synthesis_window is None:
-            raise ValueError(f"Given windowing scheme does not support unsegmenting.")
+            raise ValueError("Given windowing scheme does not support unsegmenting.")
 
-        if not isinstance(X, torch.Tensor):
-            raise TypeError("Input x must be a Torch tensor.")
+        if y.ndim not in {2, 3}:
+            raise ValueError(f"Only supports 2D or 3D inputs, provided {y.ndim}D.")
 
-        if X.ndim not in {2, 3}:
-            raise ValueError(f"Only supports 2D or 3D inputs, provided {X.ndim}D.")
-
-        batch_size = X.shape[0] if X.ndim == 3 else None
-        num_segments = X.shape[-2]
-        segment_size = X.shape[-1]
+        batch_size = y.shape[0] if y.ndim == 3 else None
+        num_segments = y.shape[-2]
+        segment_size = y.shape[-1]
 
         if batch_size is None:
-            X = X.reshape(1, num_segments, -1)  # Convert to batch format
+            y = y.reshape(1, num_segments, -1)  # Convert to batch format
 
         num_samples = compute_num_samples(
             num_segments, self.window.hop_size, segment_size
@@ -146,8 +140,8 @@ class SegmenterTorch(torch.nn.Module):
         # allocate memory for the reconstructed signal
         x = torch.zeros(
             (batch_size if batch_size is not None else 1, num_samples),
-            device=X.device,
-            dtype=X.dtype,
+            device=y.device,
+            dtype=y.dtype,
         )
 
         # overlap-add method for reconstructing the original signal
@@ -155,11 +149,8 @@ class SegmenterTorch(torch.nn.Module):
             self.window.synthesis_window, device=x.device, dtype=x.dtype
         )
 
-        print(x.shape)
-        print(synthesis_window.shape)
-        print(X.shape)
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
-            x[:, start_idx : start_idx + segment_size] += X[:, k, :] * synthesis_window
+            x[:, start_idx : start_idx + segment_size] += y[:, k, :] * synthesis_window
 
         return x.squeeze(0) if batch_size is None else x

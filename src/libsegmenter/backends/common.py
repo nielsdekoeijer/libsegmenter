@@ -18,9 +18,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-def compute_num_segments(num_samples, hop_size, segment_size):
+def compute_num_segments(num_samples: int, hop_size: int, segment_size: int) -> int:
     return (num_samples // hop_size) - (segment_size // hop_size) + 1
 
 
-def compute_num_samples(num_segments, hop_size, segment_size):
+def compute_num_samples(num_segments: int, hop_size: int, segment_size: int) -> int:
     return (num_segments - 1) * hop_size + segment_size

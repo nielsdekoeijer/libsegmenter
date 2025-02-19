@@ -17,8 +17,12 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import numpy as np
+from numpy.typing import NDArray
+from typing import TypeVar
 from libsegmenter.backends.common import compute_num_segments, compute_num_samples
 from libsegmenter.Window import Window
+
+T = TypeVar("T", bound=np.generic)
 
 
 class SegmenterNumpy:
@@ -39,7 +43,7 @@ class SegmenterNumpy:
         """
         self.window = window
 
-    def segment(self, x: np.ndarray) -> np.ndarray:
+    def segment(self, x: NDArray[T]) -> NDArray[T]:
         """
         Segments the input signal into overlapping windows using the provided window parameters.
 
@@ -53,9 +57,6 @@ class SegmenterNumpy:
             ValueError: If types are incorrect.
             ValueError: If input dimensions are invalid.
         """
-        if not isinstance(x, np.ndarray):
-            raise TypeError("Input x must be a NumPy array.")
-
         if x.ndim not in {1, 2}:
             raise ValueError(f"Only supports 1D or 2D inputs, provided {x.ndim}D.")
 
@@ -75,7 +76,7 @@ class SegmenterNumpy:
             )
 
         # Pre-allocation
-        X = np.zeros(
+        y = np.zeros(
             (
                 batch_size if batch_size is not None else 1,
                 num_segments,
@@ -87,41 +88,36 @@ class SegmenterNumpy:
         # Windowing
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
-            X[:, k, :] = (
-                x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]]
-                * self.window.analysis_window
+            y[:, k, :] = np.multiply(
+                x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]],
+                self.window.analysis_window,
             )
 
-        return (
-            X.squeeze(0) if batch_size is None else X
-        )  # Remove batch dimension if needed
+        return y.squeeze(0) if batch_size is None else y
 
-    def unsegment(self, X: np.ndarray) -> np.ndarray:
+    def unsegment(self, y: NDArray[T]) -> NDArray[T]:
         """
         Reconstructs the original signal from segmented data using synthesis windowing.
 
         Args:
-            X (np.ndarray): Segmented data with shape (batch_size, num_segments, segment_size)
+            y (np.ndarray): Segmented data with shape (batch_size, num_segments, segment_size)
                             or (num_segments, segment_size) for a single sequence.
 
         Returns:
             Reconstructed signal.
         """
         if self.window.synthesis_window is None:
-            raise ValueError(f"Given windowing scheme does not support unsegmenting.")
+            raise ValueError("Given windowing scheme does not support unsegmenting.")
 
-        if not isinstance(X, np.ndarray):
-            raise TypeError("Input X must be a NumPy array.")
+        if y.ndim not in {2, 3}:
+            raise ValueError(f"Only supports 2D or 3D inputs, provided {y.ndim}D.")
 
-        if X.ndim not in {2, 3}:
-            raise ValueError(f"Only supports 2D or 3D inputs, provided {X.ndim}D.")
-
-        batch_size = X.shape[0] if X.ndim == 3 else None
-        num_segments = X.shape[-2]
-        segment_size = X.shape[-1]
+        batch_size = y.shape[0] if y.ndim == 3 else None
+        num_segments = y.shape[-2]
+        segment_size = y.shape[-1]
 
         if batch_size is None:
-            X = X.reshape(1, num_segments, -1)  # Convert to batch format
+            y = y.reshape(1, num_segments, -1)  # Convert to batch format
 
         num_samples = compute_num_samples(
             num_segments, self.window.hop_size, segment_size
@@ -134,16 +130,14 @@ class SegmenterNumpy:
 
         # Efficient numpy array allocation
         x = np.zeros(
-            (batch_size if batch_size is not None else 1, num_samples), dtype=X.dtype
+            (batch_size if batch_size is not None else 1, num_samples), dtype=y.dtype
         )
 
         # Vectorized accumulation
         for k in range(num_segments):
             start_idx = k * self.window.hop_size
-            x[:, start_idx : start_idx + segment_size] += (
-                X[:, k, :] * self.window.synthesis_window
+            x[:, start_idx : start_idx + segment_size] += np.multiply(
+                y[:, k, :], self.window.synthesis_window
             )
 
-        return (
-            x.squeeze(0) if batch_size is None else x
-        )  # Remove batch dimension if needed
+        return x.squeeze(0) if batch_size is None else x

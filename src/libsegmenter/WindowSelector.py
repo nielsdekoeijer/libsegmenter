@@ -74,56 +74,56 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
     if window == "bartlett50":
         from libsegmenter.windows.bartlett import bartlett50
 
-        return bartlett50(segment_size)
+        return adapt_window(*bartlett50(segment_size), scheme)
 
     if window == "bartlett75":
         from libsegmenter.windows.bartlett import bartlett75
 
-        return bartlett75(segment_size)
+        return adapt_window(*bartlett75(segment_size), scheme)
 
     if window == "blackman":
         from libsegmenter.windows.blackman import blackman67
 
-        return blackman(segment_size)
+        return adapt_window(*blackman67(segment_size), scheme)
 
     if window == "kaiser82":
         from libsegmenter.windows.kaiser import kaiser82
 
-        return kaiser82(segment_size)
+        return adapt_window(*kaiser82(segment_size), scheme)
 
     if window == "kaiser85":
         from libsegmenter.windows.kaiser import kaiser85
 
-        return kaiser85(segment_size)
+        return adapt_window(*kaiser85(segment_size), scheme)
 
     if window == "hamming50":
         from libsegmenter.windows.hamming import hamming50
 
-        return hamming50(segment_size)
+        return adapt_window(*hamming50(segment_size), scheme)
 
     if window == "hamming75":
         from libsegmenter.windows.hamming import hamming75
 
-        return hamming75(segment_size)
+        return adapt_window(*hamming75(segment_size), scheme)
 
     if window == "hann50":
         from libsegmenter.windows.hann import hann50
 
-        return adapt_window(*hann50(segment_size))
+        return adapt_window(*hann50(segment_size), scheme)
 
     if window == "hann75":
         from libsegmenter.windows.hann import hann75
 
-        return adapt_window(*hann75(segment_size))
+        return adapt_window(*hann75(segment_size), scheme)
 
     if window == "rectangular0":
         from libsegmenter.windows.rectangular import rectangular0
 
-        return rectangular0(segment_size)
+        return adapt_window(*rectangular0(segment_size), scheme)
 
     if window == "rectangular50":
         from libsegmenter.windows.rectangular import rectangular50
 
-        return rectangular50(segment_size)
+        return adapt_window(*rectangular50(segment_size), scheme)
 
     raise ValueError(f"The '{window}' window is not known.")

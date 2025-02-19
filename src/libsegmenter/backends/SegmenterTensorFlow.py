@@ -39,7 +39,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         Args:
             window (Window): A window object containing segmentation parameters.
         """
-        super(SegmenterTensorFlow, self).__init__()
+        super(SegmenterTensorFlow, self).__init__()  # type: ignore
 
         self.window = window
 
@@ -53,9 +53,6 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         Returns:
             Segmented tensor of shape (batch_size, num_segments, segment_size).
         """
-        if not isinstance(x, tf.Tensor):
-            raise TypeError("Input x must be a TensorFlow tensor.")
-
         if len(x.shape) not in {1, 2}:
             raise ValueError(
                 f"Only supports 1D or 2D inputs, provided {len(x.shape)}D."
@@ -119,10 +116,7 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
             Reconstructed 1D or 2D signal.
         """
         if self.window.synthesis_window is None:
-            raise ValueError(f"Given windowing scheme does not support unsegmenting.")
-
-        if not isinstance(X, tf.Tensor):
-            raise TypeError("Input X must be a TensorFlow tensor.")
+            raise ValueError("Given windowing scheme does not support unsegmenting.")
 
         if len(X.shape) not in {2, 3}:
             raise ValueError(
@@ -156,7 +150,6 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         )
 
         for k in range(num_segments):
-            start_idx = k * self.window.hop_size
             x = tf.tensor_scatter_nd_add(
                 x,
                 [
