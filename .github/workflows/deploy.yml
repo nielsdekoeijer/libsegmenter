@@ -32,3 +32,8 @@ jobs:
         run: |
           uv run pyright
 
+      - name: linting
+        run: |
+          uv run ruff
+
+
