@@ -34,6 +34,12 @@ jobs:
 
       - name: linting
         run: |
-          uv run ruff
+          uv run ruff check
+
+      - name: format
+        run: |
+          uv run ruff format --check
+
+
 
 
