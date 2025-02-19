@@ -27,3 +27,8 @@ jobs:
       - name: test
         run: |
           uv run pytest
+
+      - name: types
+        run: |
+          uv run pyright
+
