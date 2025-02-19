@@ -51,7 +51,8 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
 
     Args:
         window (str): The type of window function to apply. Supported values include:
-            [`bartlett50`,
+            [
+             `bartlett50`,
              `bartlett75`,
              `blackman67`,
              `kaiser82`,
@@ -60,11 +61,14 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
              `hamming75`,
              `hann50`,
              `hann75`,
-             `rectangular0`]
+             `rectangular0`
+            ]
         scheme (str): The adaptation scheme to use. Supported values:
-            - "ola" (Overlap-add normalization)
-            - "wola" (Weighted overlap-add normalization)
-            - "analysis" (Analysis)
+            [
+             `ola`,
+             `wola`,
+             `analysis`
+            ]
         segment_size (int): The size of the segment/window.
 
     Returns:
