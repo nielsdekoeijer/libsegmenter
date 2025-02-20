@@ -42,8 +42,9 @@ unit tests) should not be infeasible.
 ## A word of caution
 Note that segmentation is a **destructive operation** in the sense that we do not 
 provide any pre and post windows. This means that the first and last couple of samples
-of your audio post `segment`-ing and `unsegment`-ing are going to be different than 
-what you started out with. This is something to take into account when training.
+of your audio post subsequently `segment`-ing and `unsegment`-ing are going to be 
+windowed, thus different than what you started out with. 
+This is something to take into account when training.
 
 ## Installation
 Simply install from PyPi:
