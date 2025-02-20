@@ -65,7 +65,7 @@ jobs:
   publish:
     needs: deploy
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'  # Only run on releases
+    if: github.event_name == 'release'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
