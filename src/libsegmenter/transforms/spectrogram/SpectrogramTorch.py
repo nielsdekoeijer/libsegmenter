@@ -17,3 +17,41 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import torch
+
+
+class SpectrogramTorch:
+    """
+    A class for computing spectrograms using PyTorch.
+
+    The normalization for the Fourier transform is `backward` by default.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the SpectrogramTorch instance."""
+        return
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Converts segments into a spectrogram.
+
+        Args:
+            x (torch.Tensor): Input segments.
+
+        Returns:
+            torch.Tensor: Spectrogram representation.
+        """
+        return torch.fft.rfft(x, dim=-1, norm="backward") # pyright: ignore
+
+    def inverse(self, y: torch.Tensor) -> torch.Tensor:
+        """
+        Converts spectrogram into segments.
+
+        Args:
+            y (torch.Tensor): Spectrogram from a `forward` pass.
+
+        Returns:
+            torch.Tensor: Reconstructed segments.
+        """
+        return torch.fft.irfft(y, dim=-1, norm="backward") # pyright: ignore
+

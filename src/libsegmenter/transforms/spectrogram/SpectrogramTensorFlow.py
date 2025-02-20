@@ -17,3 +17,41 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import tensorflow as tf
+
+
+class SpectrogramTensorFlow:
+    """
+    A class for computing spectrograms using TensorFlow.
+
+    The normalization for the Fourier transform is `backward` by default.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the SpectrogramTensorFlow instance."""
+        return
+
+    def forward(self, x: tf.Tensor) -> tf.Tensor:
+        """
+        Converts segments into a spectrogram.
+
+        Args:
+            x (tf.Tensor): Input segments.
+
+        Returns:
+            tf.Tensor: Spectrogram representation.
+        """
+        return tf.signal.rfft(x) # pyright: ignore
+
+    def inverse(self, y: tf.Tensor) -> tf.Tensor:
+        """
+        Converts spectrogram into segments.
+
+        Args:
+            y (tf.Tensor): Spectrogram from a `forward` pass.
+
+        Returns:
+            tf.Tensor: Reconstructed segments.
+        """
+        return tf.signal.irfft(y) # pyright: ignore
+
