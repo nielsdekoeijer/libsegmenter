@@ -45,4 +45,24 @@ def TransformSelector(
         NotImplementedError: If the backend is not implemented.
 
     """
+    if transform == "spectrogram":
+        from libsegmenter.transforms.Spectrogram import Spectrogram
+
+        return Spectrogram(*args, **kwargs, backend=backend)
+
+    if transform == "phase":
+        from libsegmenter.transforms.Magnitude import Magnitude
+
+        return Magnitude(*args, **kwargs, backend=backend)
+
+    if transform == "magnitude":
+        from libsegmenter.transforms.Magnitude import Magnitude
+
+        return Magnitude(*args, **kwargs, backend=backend)
+
+    if transform == "bpd":
+        from libsegmenter.transforms.BPD import BPD
+
+        return BPD(*args, **kwargs, backend=backend)
+
     raise ValueError(f"The '{transform}' transform is not known.")

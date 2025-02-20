@@ -23,9 +23,7 @@ from typing import TypeVar, Any
 T = TypeVar("T", bound=np.generic)
 
 
-def Spectrogram(
-    backend: str = "numpy", *args: Any, **kwargs: Any
-) -> Any:
+def Spectrogram(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
     """
     Factory function to create a spectrogram instance based on the specified backend.
 
@@ -44,8 +42,10 @@ def Spectrogram(
 
     """
     if backend == "numpy":
-        from libsegmenter.transforms.spectrogram.SpectrogramNumpy import SpectrogramNumpy
+        from libsegmenter.transforms.spectrogram.SpectrogramNumpy import (
+            SpectrogramNumpy,
+        )
 
-        return _adapt_window(*bartlett50(segment_size), scheme)
+        return SpectrogramNumpy(*args, **kwargs)
 
     raise ValueError(f"The '{backend}' transform is not known.")
