@@ -40,8 +40,9 @@ class SpectrogramTorch:
 
         Returns:
             torch.Tensor: Spectrogram representation.
+
         """
-        return torch.fft.rfft(x, dim=-1, norm="backward") # pyright: ignore
+        return torch.fft.rfft(x, dim=-1, norm="backward")  # pyright: ignore
 
     def inverse(self, y: torch.Tensor) -> torch.Tensor:
         """
@@ -52,6 +53,6 @@ class SpectrogramTorch:
 
         Returns:
             torch.Tensor: Reconstructed segments.
-        """
-        return torch.fft.irfft(y, dim=-1, norm="backward") # pyright: ignore
 
+        """
+        return torch.fft.irfft(y, dim=-1, norm="backward")  # pyright: ignore

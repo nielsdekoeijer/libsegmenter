@@ -28,7 +28,7 @@ class SpectrogramNumpy:
     """
     A class for computing spectrograms.
 
-    Currently, the normalization for the fourier transform cannot be controlled and is 
+    Currently, the normalization for the fourier transform cannot be controlled and is
     thus `backward` by default.
 
     """

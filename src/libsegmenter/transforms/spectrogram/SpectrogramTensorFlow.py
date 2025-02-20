@@ -40,8 +40,9 @@ class SpectrogramTensorFlow:
 
         Returns:
             tf.Tensor: Spectrogram representation.
+
         """
-        return tf.signal.rfft(x) # pyright: ignore
+        return tf.signal.rfft(x)  # pyright: ignore
 
     def inverse(self, y: tf.Tensor) -> tf.Tensor:
         """
@@ -52,6 +53,6 @@ class SpectrogramTensorFlow:
 
         Returns:
             tf.Tensor: Reconstructed segments.
-        """
-        return tf.signal.irfft(y) # pyright: ignore
 
+        """
+        return tf.signal.irfft(y)  # pyright: ignore
