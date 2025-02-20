@@ -47,7 +47,9 @@ def Magnitude(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
         return MagnitudeNumpy(*args, **kwargs)
 
     if backend == "tensorflow":
-        from libsegmenter.transforms.magnitude.MagnitudeTensorFlow import MagnitudeTensorFlow
+        from libsegmenter.transforms.magnitude.MagnitudeTensorFlow import (
+            MagnitudeTensorFlow,
+        )
 
         return MagnitudeTensorFlow(*args, **kwargs)
 

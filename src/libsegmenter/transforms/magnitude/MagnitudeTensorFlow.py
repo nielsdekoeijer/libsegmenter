@@ -19,12 +19,13 @@
 
 import tensorflow as tf
 from typing import Any
-from libsegmenter.transforms.spectrogram.SpectrogramTensorFlow import SpectrogramTensorFlow
+from libsegmenter.transforms.spectrogram.SpectrogramTensorFlow import (
+    SpectrogramTensorFlow,
+)
+
 
 class MagnitudeTensorFlow:
-    """
-    A class for computing magnitudes using TensorFlow.
-    """
+    """A class for computing magnitudes using TensorFlow."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initializes the MagnitudeTensorFlow instance."""
@@ -39,6 +40,7 @@ class MagnitudeTensorFlow:
 
         Returns:
             tf.Tensor: Magnitude representation.
+
         """
         tensor = self._spectrogram.forward(x)
-        return tf.abs(tensor) # pyright: ignore
+        return tf.abs(tensor)  # pyright: ignore

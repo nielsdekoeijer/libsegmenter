@@ -21,10 +21,9 @@ import torch
 from typing import Any
 from libsegmenter.transforms.spectrogram.SpectrogramTorch import SpectrogramTorch
 
+
 class MagnitudeTorch:
-    """
-    A class for computing magnitudes using PyTorch.
-    """
+    """A class for computing magnitudes using PyTorch."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initializes the MagnitudeTorch instance."""
@@ -39,6 +38,7 @@ class MagnitudeTorch:
 
         Returns:
             Tensor: Magnitude representation.
+
         """
         tensor = self._spectrogram.forward(x)
         return torch.abs(tensor)

@@ -40,19 +40,23 @@ BACKENDS: list[BackendType] = ["numpy", "torch", "tensorflow"]
 TRANSFORMS: list[TransformType] = ["phase", "magnitude", "spectrogram"]
 
 
-def as_numpy(x: NDArray[T] | torch.Tensor | tf.Tensor, backend: BackendType) -> NDArray[T]:
+def as_numpy(
+    x: NDArray[T] | torch.Tensor | tf.Tensor, backend: BackendType
+) -> NDArray[T]:
     if backend == "torch":
-        return x.numpy() if isinstance(x, torch.Tensor) else np.array(x) # pyright: ignore
+        return x.numpy() if isinstance(x, torch.Tensor) else np.array(x)  # pyright: ignore
     if backend == "tensorflow":
-        return x.numpy() if isinstance(x, tf.Tensor) else np.array(x) # pyright: ignore
-    return x # pyright: ignore
+        return x.numpy() if isinstance(x, tf.Tensor) else np.array(x)  # pyright: ignore
+    return x  # pyright: ignore
 
 
-def as_backend(x: NDArray[T], backend: BackendType) -> NDArray[T] | torch.Tensor | tf.Tensor:
+def as_backend(
+    x: NDArray[T], backend: BackendType
+) -> NDArray[T] | torch.Tensor | tf.Tensor:
     if backend == "torch":
         return torch.tensor(x, dtype=torch.float32)
     elif backend == "tensorflow":
-        return tf.convert_to_tensor(x, dtype=tf.float32) # pyright: ignore
+        return tf.convert_to_tensor(x, dtype=tf.float32)  # pyright: ignore
     return x
 
 
@@ -65,7 +69,12 @@ def as_backend(x: NDArray[T], backend: BackendType) -> NDArray[T] | torch.Tensor
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_segmenter_consistency(
-        batched: bool, backendA: BackendType, backendB: BackendType, segment_size: int, hop_size: int, seed: int
+    batched: bool,
+    backendA: BackendType,
+    backendB: BackendType,
+    segment_size: int,
+    hop_size: int,
+    seed: int,
 ) -> None:
     np.random.seed(seed)
 
@@ -93,6 +102,7 @@ def test_segmenter_consistency(
     assert np.allclose(sA, sB, atol=1e-5)
     assert np.allclose(rA, rB, atol=1e-5)
 
+
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", TRANSFORMS)
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
@@ -103,7 +113,13 @@ def test_segmenter_consistency(
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_transform_forward_consistency(
-        batched: bool, transform: TransformType, backendA: BackendType, backendB: BackendType, segment_size: int, hop_size: int, seed: int
+    batched: bool,
+    transform: TransformType,
+    backendA: BackendType,
+    backendB: BackendType,
+    segment_size: int,
+    hop_size: int,
+    seed: int,
 ) -> None:
     np.random.seed(seed)
 
@@ -132,6 +148,7 @@ def test_transform_forward_consistency(
 
     assert np.allclose(tA, tB, atol=1e-5)
 
+
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", ["spectrogram"])
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
@@ -142,7 +159,13 @@ def test_transform_forward_consistency(
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_transform_roundtrip_consistency(
-        batched: bool, transform: TransformType, backendA: BackendType, backendB: BackendType, segment_size: int, hop_size: int, seed: int
+    batched: bool,
+    transform: TransformType,
+    backendA: BackendType,
+    backendB: BackendType,
+    segment_size: int,
+    hop_size: int,
+    seed: int,
 ) -> None:
     np.random.seed(seed)
 
@@ -172,4 +195,3 @@ def test_transform_roundtrip_consistency(
 
     rA, rB = traA.inverse(tA), traB.inverse(tB)
     assert np.allclose(rA, rB, atol=1e-5)
-
