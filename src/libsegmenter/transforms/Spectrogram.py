@@ -48,4 +48,18 @@ def Spectrogram(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
 
         return SpectrogramNumpy(*args, **kwargs)
 
-    raise ValueError(f"The '{backend}' transform is not known.")
+    if backend == "tensorflow":
+        from libsegmenter.transforms.spectrogram.SpectrogramTensorFlow import (
+            SpectrogramTensorFlow,
+        )
+
+        return SpectrogramTensorFlow(*args, **kwargs)
+
+    if backend == "torch":
+        from libsegmenter.transforms.spectrogram.SpectrogramTorch import (
+            SpectrogramTorch,
+        )
+
+        return SpectrogramTorch(*args, **kwargs)
+
+    raise ValueError(f"The '{backend}' backend is not known.")

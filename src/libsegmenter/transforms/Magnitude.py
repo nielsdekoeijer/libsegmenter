@@ -46,4 +46,14 @@ def Magnitude(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
 
         return MagnitudeNumpy(*args, **kwargs)
 
-    raise ValueError(f"The '{backend}' transform is not known.")
+    if backend == "tensorflow":
+        from libsegmenter.transforms.magnitude.MagnitudeTensorFlow import MagnitudeTensorFlow
+
+        return MagnitudeTensorFlow(*args, **kwargs)
+
+    if backend == "torch":
+        from libsegmenter.transforms.magnitude.MagnitudeTorch import MagnitudeTorch
+
+        return MagnitudeTorch(*args, **kwargs)
+
+    raise ValueError(f"The '{backend}' backend is not known.")

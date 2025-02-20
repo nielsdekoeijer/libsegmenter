@@ -46,4 +46,14 @@ def Phase(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
 
         return PhaseNumpy(*args, **kwargs)
 
-    raise ValueError(f"The '{backend}' transform is not known.")
+    if backend == "tensorflow":
+        from libsegmenter.transforms.phase.PhaseTensorFlow import PhaseTensorFlow
+
+        return PhaseTensorFlow(*args, **kwargs)
+
+    if backend == "torch":
+        from libsegmenter.transforms.phase.PhaseTorch import PhaseTorch
+
+        return PhaseTorch(*args, **kwargs)
+
+    raise ValueError(f"The '{backend}' backend is not known.")

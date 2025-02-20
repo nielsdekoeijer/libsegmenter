@@ -22,37 +22,41 @@ from hypothesis import given, settings, Phase
 from hypothesis import strategies as st
 
 import torch
-import tensorflow
+import tensorflow as tf
 import itertools
 import numpy as np
+from numpy.typing import NDArray
+from typing import TypeVar, Literal
 
 from libsegmenter.Segmenter import Segmenter
 from libsegmenter.Window import Window
+from libsegmenter.TransformSelector import TransformSelector
 
-BACKENDS = ["numpy", "torch", "tensorflow"]
+T = TypeVar("T", bound=np.generic)
+BackendType = Literal["numpy", "torch", "tensorflow"]
+TransformType = Literal["phase", "magnitude", "spectrogram"]
+
+BACKENDS: list[BackendType] = ["numpy", "torch", "tensorflow"]
+TRANSFORMS: list[TransformType] = ["phase", "magnitude", "spectrogram"]
 
 
-# helper to convert whatever backend -> numpy
-def as_numpy(x, backend):
+def as_numpy(x: NDArray[T] | torch.Tensor | tf.Tensor, backend: BackendType) -> NDArray[T]:
     if backend == "torch":
-        return x.numpy()
+        return x.numpy() if isinstance(x, torch.Tensor) else np.array(x) # pyright: ignore
     if backend == "tensorflow":
-        return x.numpy()
+        return x.numpy() if isinstance(x, tf.Tensor) else np.array(x) # pyright: ignore
+    return x # pyright: ignore
 
-    return x
 
-
-# helper to convert numpy -> whatever backend
-def as_backend(x, backend):
+def as_backend(x: NDArray[T], backend: BackendType) -> NDArray[T] | torch.Tensor | tf.Tensor:
     if backend == "torch":
-        return torch.tensor(x)
+        return torch.tensor(x, dtype=torch.float32)
     elif backend == "tensorflow":
-        return tensorflow.convert_to_tensor(x, dtype=tensorflow.float32)
-
+        return tf.convert_to_tensor(x, dtype=tf.float32) # pyright: ignore
     return x
 
 
-# runs randomized but reproduceably 100 times
+@pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
 @settings(max_examples=100, phases=[Phase.generate])
 @given(
@@ -60,41 +64,37 @@ def as_backend(x, backend):
     hop_size=st.integers(min_value=1, max_value=63),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
-def test_segmenter_consistency_batched(
-    backendA, backendB, segment_size, hop_size, seed
-):
-    # reproducability
+def test_segmenter_consistency(
+        batched: bool, backendA: BackendType, backendB: BackendType, segment_size: int, hop_size: int, seed: int
+) -> None:
     np.random.seed(seed)
 
-    # use random windows
-    analysis_window = np.random.randn(segment_size)
-    synthesis_window = np.random.randn(segment_size)
+    analysis_window: NDArray[np.float64] = np.random.randn(segment_size)
+    synthesis_window: NDArray[np.float64] = np.random.randn(segment_size)
     window = Window(hop_size, analysis_window, synthesis_window)
 
-    # generate consistent input data
-    x = np.random.randn(2, segment_size)
+    if batched:
+        x: NDArray[np.float64] = np.random.randn(2, segment_size)
+    else:
+        x: NDArray[np.float64] = np.random.randn(segment_size)
 
-    # use factory function to create segmenters
     segA = Segmenter(backendA, window)
     segB = Segmenter(backendB, window)
 
-    # convert input to correct backend format
     xA = as_backend(x, backendA)
     xB = as_backend(x, backendB)
 
-    # segmentation and reconstruction
     sA, sB = segA.segment(xA), segB.segment(xB)
     rA, rB = segA.unsegment(sA), segB.unsegment(sB)
 
     sA, rA = as_numpy(sA, backendA), as_numpy(rA, backendA)
     sB, rB = as_numpy(sB, backendB), as_numpy(rB, backendB)
 
-    # assertions with clearer error messages
     assert np.allclose(sA, sB, atol=1e-5)
     assert np.allclose(rA, rB, atol=1e-5)
 
-
-# runs randomized but reproduceably 100 times
+@pytest.mark.parametrize("batched", [True, False])
+@pytest.mark.parametrize("transform", TRANSFORMS)
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
 @settings(max_examples=100, phases=[Phase.generate])
 @given(
@@ -102,33 +102,74 @@ def test_segmenter_consistency_batched(
     hop_size=st.integers(min_value=1, max_value=63),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
-def test_segmenter_consistency(backendA, backendB, segment_size, hop_size, seed):
-    # reproducability
+def test_transform_forward_consistency(
+        batched: bool, transform: TransformType, backendA: BackendType, backendB: BackendType, segment_size: int, hop_size: int, seed: int
+) -> None:
     np.random.seed(seed)
 
-    # use random windows
-    analysis_window = np.random.randn(segment_size)
-    synthesis_window = np.random.randn(segment_size)
+    analysis_window: NDArray[np.float64] = np.random.randn(segment_size)
+    synthesis_window: NDArray[np.float64] = np.random.randn(segment_size)
     window = Window(hop_size, analysis_window, synthesis_window)
 
-    # generate consistent input data
-    x = np.random.randn(segment_size)
+    if batched:
+        x: NDArray[np.float64] = np.random.randn(2, segment_size)
+    else:
+        x: NDArray[np.float64] = np.random.randn(segment_size)
 
-    # use factory function to create segmenters
+    x: NDArray[np.float64] = np.random.randn(segment_size)
+
     segA = Segmenter(backendA, window)
     segB = Segmenter(backendB, window)
 
-    # convert input to correct backend format
+    traA = TransformSelector(transform=transform, backend=backendA)
+    traB = TransformSelector(transform=transform, backend=backendB)
+
     xA = as_backend(x, backendA)
     xB = as_backend(x, backendB)
 
-    # segmentation and reconstruction
     sA, sB = segA.segment(xA), segB.segment(xB)
-    rA, rB = segA.unsegment(sA), segB.unsegment(sB)
+    tA, tB = traA.forward(sA), traB.forward(sB)
 
-    sA, rA = as_numpy(sA, backendA), as_numpy(rA, backendA)
-    sB, rB = as_numpy(sB, backendB), as_numpy(rB, backendB)
+    assert np.allclose(tA, tB, atol=1e-5)
 
-    # assertions with clearer error messages
-    assert np.allclose(sA, sB, atol=1e-5)
+@pytest.mark.parametrize("batched", [True, False])
+@pytest.mark.parametrize("transform", ["spectrogram"])
+@pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
+@settings(max_examples=100, phases=[Phase.generate])
+@given(
+    segment_size=st.integers(min_value=8, max_value=64),
+    hop_size=st.integers(min_value=1, max_value=63),
+    seed=st.integers(min_value=0, max_value=2**32 - 1),
+)
+def test_transform_roundtrip_consistency(
+        batched: bool, transform: TransformType, backendA: BackendType, backendB: BackendType, segment_size: int, hop_size: int, seed: int
+) -> None:
+    np.random.seed(seed)
+
+    analysis_window: NDArray[np.float64] = np.random.randn(segment_size)
+    synthesis_window: NDArray[np.float64] = np.random.randn(segment_size)
+    window = Window(hop_size, analysis_window, synthesis_window)
+
+    if batched:
+        x: NDArray[np.float64] = np.random.randn(2, segment_size)
+    else:
+        x: NDArray[np.float64] = np.random.randn(segment_size)
+
+    x: NDArray[np.float64] = np.random.randn(segment_size)
+
+    segA = Segmenter(backendA, window)
+    segB = Segmenter(backendB, window)
+
+    traA = TransformSelector(transform=transform, backend=backendA)
+    traB = TransformSelector(transform=transform, backend=backendB)
+
+    xA = as_backend(x, backendA)
+    xB = as_backend(x, backendB)
+
+    sA, sB = segA.segment(xA), segB.segment(xB)
+    tA, tB = traA.forward(sA), traB.forward(sB)
+    assert np.allclose(tA, tB, atol=1e-5)
+
+    rA, rB = traA.inverse(tA), traB.inverse(tB)
     assert np.allclose(rA, rB, atol=1e-5)
+
