@@ -42,5 +42,6 @@ dev = [
     "oct2py>=5.8.0",
     "tensorflow-cpu>=2.14.0",
     "mkdocs-include-markdown-plugin>=7.1.4",
+    "twine>=6.1.0",
 ]
 
