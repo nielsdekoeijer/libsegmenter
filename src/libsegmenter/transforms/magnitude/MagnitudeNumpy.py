@@ -29,7 +29,8 @@ class MagnitudeNumpy:
     """
     A class for computing magnitudes.
 
-    Currently, the normalization cannot be controlled and is thus `backward` by default.
+    Currently, the normalization for the fourier transform cannot be controlled and is 
+    thus `backward` by default.
 
     """
 
