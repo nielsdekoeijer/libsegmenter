@@ -20,7 +20,7 @@
 import numpy as np
 from numpy.typing import NDArray
 from typing import TypeVar, Any
-from libsegmenter.transforms.spectrogram.SpectrogramNumpy import SpectrogramNumpy 
+from libsegmenter.transforms.spectrogram.SpectrogramNumpy import SpectrogramNumpy
 
 T = TypeVar("T", bound=np.generic)
 
