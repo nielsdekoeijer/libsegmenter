@@ -19,5 +19,6 @@
 
 from libsegmenter.Segmenter import Segmenter
 from libsegmenter.WindowSelector import WindowSelector
+from libsegmenter.TransformSelector import TransformSelector
 
-__all__ = ["Segmenter", "WindowSelector"]
+__all__ = ["Segmenter", "WindowSelector", "TransformSelector"]
