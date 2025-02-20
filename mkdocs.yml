@@ -33,6 +33,7 @@ nav:
           - SegmenterOctave: api/backends/SegmenterOctave.md
       - Window: api/Window.md
       - WindowSelector: api/WindowSelector.md
+      - is_cola: api/util/is_cola.md
       - Window Implementations:
           - bartlett50: api/windows/bartlett50.md
           - bartlett75: api/windows/bartlett75.md
