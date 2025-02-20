@@ -17,3 +17,33 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import numpy as np
+from typing import TypeVar, Any
+
+T = TypeVar("T", bound=np.generic)
+
+
+def TransformSelector(
+    transform: str, backend: str = "numpy", *args: Any, **kwargs: Any
+) -> Any:
+    """
+    Factory function to create a transform instance based on the specified backend.
+
+    Args:
+        transform (str): The transform to use. Supported options:
+            ["bpd", "phase", "magnitude", "spectrogram"].
+        backend (str, optional): The backend to use. Supported options:
+            ["numpy", "torch", "tensorflow"]. Defaults to "numpy".
+        *args (Any): Additional positional arguments to pass to the segmenter.
+        **kwargs (Any): Additional keyword arguments to pass to the segmenter.
+
+    Returns:
+        An instance of the transform corresponding to the chosen backend.
+
+    Raises:
+        ValueError: If an unsupported backend is specified.
+        NotImplementedError: If the backend is not implemented.
+
+    """
+
+    raise ValueError(f"The '{transform}' transform is not known.")

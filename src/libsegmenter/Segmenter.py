@@ -36,8 +36,8 @@ def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
         An instance of the segmenter corresponding to the chosen backend.
 
     Raises:
-        ValueError: If an unsupported backend is specified.
-        NotImplementedError: If the backend is not implemented.
+        ValueError: If an unsupported backend or scheme is specified.
+        NotImplementedError: If the backend or scheme is not implemented.
 
     """
     if backend not in BACKENDS:

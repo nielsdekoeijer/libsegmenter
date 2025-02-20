@@ -22,7 +22,10 @@ name: CI pipeline on main push
 on:
   push:
     branches:
-      - main  # Change this if your default branch is different
+      - main 
+  release:
+    types:
+      - created
 
 jobs:
   deploy:
@@ -31,7 +34,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: uv
+      - name: Set up Python and uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
@@ -39,26 +42,50 @@ jobs:
           source .venv/bin/activate
           uv sync --dev
 
-      - name: deploy
+      - name: Deploy Documentation
         run: |
           uv run mkdocs gh-deploy --force
 
-      - name: test
+      - name: Run Tests
         run: |
           uv run pytest
 
-      - name: types
+      - name: Run Type Checking
         run: |
           uv run pyright
 
-      - name: linting
+      - name: Run Linting
         run: |
           uv run ruff check
 
-      - name: format
+      - name: Check Formatting
         run: |
           uv run ruff format --check
 
+  publish:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'  # Only run on releases
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
+      - name: Set up Python and uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          uv venv
+          source .venv/bin/activate
+          uv sync --dev
 
+      - name: Build Package
+        run: |
+          uv run python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          uv run twine upload dist/*
 
