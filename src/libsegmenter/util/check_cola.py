@@ -58,7 +58,7 @@ def check_cola(
         csin = np.exp(1j * 2.0 * np.pi * f * np.arange(N))
 
         # frequency domain representation of window
-        Wf = np.sum(window[:window.size] * np.conjugate(csin[:window.size]))
+        Wf = np.sum(window[: window.size] * np.conjugate(csin[: window.size]))
         sp += (Wf * csin) / hop_size
         Wfb = abs(Wf)
         ubound += Wfb / hop_size
