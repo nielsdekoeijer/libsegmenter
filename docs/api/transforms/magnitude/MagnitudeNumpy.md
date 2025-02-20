@@ -1,5 +1,5 @@
 # MagnitudeNumpy
 
-::: libsegmenter.transforms.bpd.MagnitudeNumpy
+::: libsegmenter.transforms.magnitude.MagnitudeNumpy
 
 
