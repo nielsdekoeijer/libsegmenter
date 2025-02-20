@@ -41,9 +41,12 @@ def BPD(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
         NotImplementedError: If the backend is not implemented.
 
     """
-    if backend == "numpy":
-        from libsegmenter.transforms.bpd.BPDNumpy import BPDNumpy
+    # if backend == "numpy":
+    #     from libsegmenter.transforms.bpd.BPDNumpy import BPDNumpy
+    #
+    #     return BPDNumpy(*args, **kwargs)
 
-        return BPDNumpy(*args, **kwargs)
+    _ = args
+    _ = kwargs
 
     raise ValueError(f"The '{backend}' transform is not known.")
