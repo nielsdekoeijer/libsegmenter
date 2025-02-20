@@ -21,6 +21,7 @@ import numpy as np
 from numpy.typing import NDArray
 from typing import TypeVar
 from libsegmenter.Window import Window
+from libsegmenter.util.check_cola import check_cola
 
 T = TypeVar("T", bound=np.generic)
 
@@ -28,6 +29,10 @@ T = TypeVar("T", bound=np.generic)
 def _adapt_window(window: NDArray[T], hop_size: int, scheme: str) -> Window:
     # TODO: windows ALWAYS normalized
     # TODO: windows ALWAYS cola_checked
+    is_cola, normalization, e = check_cola(window, hop_size)
+    assert is_cola, f"specified window failed cola check with error {e}"
+
+    window = np.divide(window, normalization)
 
     if scheme == "ola":
         return Window(hop_size, np.ones(window.shape), window)
