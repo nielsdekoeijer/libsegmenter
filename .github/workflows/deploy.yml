@@ -80,7 +80,7 @@ jobs:
 
       - name: Build Package
         run: |
-          uv run python -m build
+          uv build
 
       - name: Publish to PyPI
         env:
