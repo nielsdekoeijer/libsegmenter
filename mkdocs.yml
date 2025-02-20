@@ -49,28 +49,28 @@ nav:
       - Transform Implementations:
           - Spectrogram: api/transforms/Spectrogram.md
           - Spectrogram Backends: 
-              - SpectrogramNumpy: api/transforms/Spectrogram/SpectrogramNumpy.md
-              - SpectrogramTorch: api/transforms/Spectrogram/SpectrogramTorch.md
-              - SpectrogramTensorFlow: api/transforms/Spectrogram/SpectrogramTensorFlow.md
-              - SpectrogramOctave: api/transforms/Spectrogram/SpectrogramOctave.md
+              - SpectrogramNumpy: api/transforms/spectrogram/SpectrogramNumpy.md
+              - SpectrogramTorch: api/transforms/spectrogram/SpectrogramTorch.md
+              - SpectrogramTensorFlow: api/transforms/spectrogram/SpectrogramTensorFlow.md
+              - SpectrogramOctave: api/transforms/spectrogram/SpectrogramOctave.md
           - Magnitude: api/transforms/Magnitude.md
           - Magnitude Backends: 
-              - MagnitudeNumpy: api/transforms/Magnitude/MagnitudeNumpy.md
-              - MagnitudeTorch: api/transforms/Magnitude/MagnitudeTorch.md
-              - MagnitudeTensorFlow: api/transforms/Magnitude/MagnitudeTensorFlow.md
-              - MagnitudeOctave: api/transforms/Magnitude/MagnitudeOctave.md
+              - MagnitudeNumpy: api/transforms/magnitude/MagnitudeNumpy.md
+              - MagnitudeTorch: api/transforms/magnitude/MagnitudeTorch.md
+              - MagnitudeTensorFlow: api/transforms/magnitude/MagnitudeTensorFlow.md
+              - MagnitudeOctave: api/transforms/magnitude/MagnitudeOctave.md
           - Phase: api/transforms/Phase.md
           - Phase Backends: 
-              - PhaseNumpy: api/transforms/Phase/PhaseNumpy.md
-              - PhaseTorch: api/transforms/Phase/PhaseTorch.md
-              - PhaseTensorFlow: api/transforms/Phase/PhaseTensorFlow.md
-              - PhaseOctave: api/transforms/Phase/PhaseOctave.md
+              - PhaseNumpy: api/transforms/phase/PhaseNumpy.md
+              - PhaseTorch: api/transforms/phase/PhaseTorch.md
+              - PhaseTensorFlow: api/transforms/phase/PhaseTensorFlow.md
+              - PhaseOctave: api/transforms/phase/PhaseOctave.md
           - BPD: api/transforms/BPD.md
           - BPD Backends: 
-              - BPDNumpy: api/transforms/BPD/BPDNumpy.md
-              - BPDTorch: api/transforms/BPD/BPDTorch.md
-              - BPDTensorFlow: api/transforms/BPD/BPDTensorFlow.md
-              - BPDOctave: api/transforms/BPD/BPDOctave.md
+              - BPDNumpy: api/transforms/bpd/BPDNumpy.md
+              - BPDTorch: api/transforms/bpd/BPDTorch.md
+              - BPDTensorFlow: api/transforms/bpd/BPDTensorFlow.md
+              - BPDOctave: api/transforms/bpd/BPDOctave.md
 
 plugins:
   - search
