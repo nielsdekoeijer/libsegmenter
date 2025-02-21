@@ -96,7 +96,7 @@ pyright
 The project is licensed under MIT.
 Add licenses using the `addlicense` tool found [here](https://github.com/google/addlicense):
 ```bash
-addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2025 .
+addlicense -c "Niels de Koeijer, Martin Bo Møller" -l mit -y 2025 -ignore *.m
 ```
 
 ### Documentation
