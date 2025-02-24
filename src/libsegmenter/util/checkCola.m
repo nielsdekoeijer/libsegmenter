@@ -68,6 +68,7 @@ if 20*log10(abs((ubound-lbound))) < colaLimitDb
     colaConditionSatisfied = true;
 else
     colaConditionSatisfied = false;
+    warning(['COLA check failed with 20*log10(ubound-lbound) = ' num2str(20*log10(abs((ubound-lbound))), '%.2f') ' dB']);
 end
 normalization = mean([lbound, ubound]);
 
