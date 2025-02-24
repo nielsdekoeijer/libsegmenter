@@ -42,19 +42,26 @@ function windowObj = WindowSelector(windowType, scheme, segmentSize)
     end
     switch windowType
         case 'bartlett50'
-            t
+            [window, hopSize] = bartlett50(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'bartlett75'
-            tt
+            [window, hopSize] = bartlett75(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'blackman67'
-            tt
+            [window, hopSize] = blackman67(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'kaiser82'
-            tt
+            [window, hopSize] = kaiser82(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'kaiser85'
-            tt
+            [window, hopSize] = kaiser85(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'hamming50'
-            tt
+            [window, hopSize] = hamming50(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'hamming75'
-            tt
+            [window, hopSize] = hamming75(segmentSize);
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'hann50'
             [window, hopSize] = hann50(segmentSize);
             windowObj = adaptWindow(window, hopSize, scheme);
@@ -62,9 +69,13 @@ function windowObj = WindowSelector(windowType, scheme, segmentSize)
             [window, hopSize] = hann75(segmentSize);
             windowObj = adaptWindow(window, hopSize, scheme);
         case 'rectangular0'
-            tt
+            window = ones(segmentSize, 1);
+            hopSize = segmentSize;
+            windowObj = adaptWindow(window, hopSize, scheme);
         case 'rectangular50'
-            tt
+            window = ones(segmentSize,1);
+            hopSize = segmentSize/2;
+            windowObj = adaptWindow(window, hopSize, scheme);
         otherwise
             error(['The windowType (' windowType ') is not know']);
     end
