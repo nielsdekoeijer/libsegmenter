@@ -18,7 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import torch
-from typing import Any
+from typing import Tuple, Any
 from libsegmenter.transforms.spectrogram.SpectrogramTorch import SpectrogramTorch
 
 
@@ -29,7 +29,7 @@ class MagnitudeTorch:
         """Initializes the MagnitudeTorch instance."""
         self._spectrogram = SpectrogramTorch(*args, **kwargs)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Converts segments into a magnitude.
 
@@ -41,4 +41,15 @@ class MagnitudeTorch:
 
         """
         tensor = self._spectrogram.forward(x)
-        return torch.abs(tensor)
+        return torch.abs(tensor), torch.angle(tensor)
+    
+    def inverse(self, magnitude: torch.Tensor, phase: torch.Tensor) -> torch.Tensor:
+        """
+        Converts magnitude / phase spectrogram into segments.
+
+        Args:
+            magnitude (Tensor): Magnitude spectrogram resulting from a `forward` pass.
+            phase (Tensor): Phase spectrogram resulting from a `forward` pass.
+
+        """
+        return self._spectrogram.inverse(torch.multiply(magnitude, torch.exp(1j*phase)))
