@@ -1,25 +1,25 @@
-classdef Segmenter < handle
-    %SEGMENTER 
+classdef SegmenterOctave < handle
+    %SEGMENTEROCTAVE
     % A class for segmenting and reconstructing input data using windowing techniques.
-    % 
+    %
     % Supports Weighted Overlap-Add (WOLA) and Overlap-Add (OLA) methods.
     %
     % Attributes:
     %   window (Window): A class containing hop size, analysis and synthesis windows.
-    
+
     properties
         window = {};
     end
-    
+
     methods
-        function obj = Segmenter(window)
+        function obj = SegmenterOctave(window)
             % Initializes the Segmenter instance.
             %
             % Args:
             %   window (Window): A window object containing segmentation parameters.
             obj.window = window;
         end
-        
+
         function output = segment(obj, input)
             % Segments the input signal into overlapping windows using the window parameters.
             %
@@ -34,7 +34,7 @@ classdef Segmenter < handle
             if length(size(input)) > 2
                 error(['The input dimensions cannot be larger than 2. Received length(size(input)) = ' int2str(length(size(input))) ]);
             end
-            if isscalar(size(input))
+            if prod(size(input)) == length(input)
                 batchSize = 1;
                 numSamples = length(input);
             else
@@ -49,7 +49,7 @@ classdef Segmenter < handle
             for bIdx = 0:batchSize-1
                 for sIdx = 0:numSegments-1
                     output(bIdx+1,sIdx+1,:) = input(bIdx+1,sIdx*obj.window.hopSize + 1 : sIdx*obj.window.hopSize + obj.window.segmentSize) .* obj.window.analysisWindow';
-                end 
+                end
             end
         end
 
@@ -88,14 +88,14 @@ classdef Segmenter < handle
                     output(sIdx*obj.window.hopSize + 1 : sIdx*obj.window.hopSize + obj.window.segmentSize) = ...
                         output(sIdx*obj.window.hopSize + 1 : sIdx*obj.window.hopSize + obj.window.segmentSize) + ...
                         input(sIdx+1, :) .* obj.window.synthesisWindow';
-                end 
+                end
             else
-                for bIdx = 0:batchSize
+                for bIdx = 0:batchSize-1
                     for sIdx = 0:numSegments-1
                         output(bIdx+1, sIdx*obj.window.hopSize + 1 : sIdx*obj.window.hopSize + obj.window.segmentSize) = ...
                             output(bIdx+1, sIdx*obj.window.hopSize + 1 : sIdx*obj.window.hopSize + obj.window.segmentSize) + ...
-                            input(bIdx+1, sIdx+1, :) .* obj.window.synthesisWindow';
-                    end 
+                            reshape(input(bIdx+1, sIdx+1, :), 1, obj.window.segmentSize) .* obj.window.synthesisWindow';
+                    end
                 end
             end
         end
