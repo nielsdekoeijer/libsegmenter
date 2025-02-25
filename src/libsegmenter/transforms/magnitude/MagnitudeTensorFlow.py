@@ -18,7 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import tensorflow as tf
-from typing import Any
+from typing import Any, Tuple
 from libsegmenter.transforms.spectrogram.SpectrogramTensorFlow import (
     SpectrogramTensorFlow,
 )
@@ -31,7 +31,7 @@ class MagnitudeTensorFlow:
         """Initializes the MagnitudeTensorFlow instance."""
         self._spectrogram = SpectrogramTensorFlow(*args, **kwargs)
 
-    def forward(self, x: tf.Tensor) -> tf.Tensor:
+    def forward(self, x: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Converts segments into a magnitude.
 
@@ -43,4 +43,15 @@ class MagnitudeTensorFlow:
 
         """
         tensor = self._spectrogram.forward(x)
-        return tf.abs(tensor)  # pyright: ignore
+        return tf.abs(tensor), tf.math.angle(tensor)  # pyright: ignore
+    
+    def inverse(self, magnitude: tf.Tensor, phase: tf.Tensor) -> tf.Tensor:
+        """
+        Converts magnitude / phase spectrogram into segments.
+
+        Args:
+            magnitude (Tensor): Magnitude spectrogram resulting from a `forward` pass.
+            phase (Tensor): Phase spectrogram resulting from a `forward` pass.
+
+        """
+        return self._spectrogram.inverse(tf.math.multiply(magnitude, tf.math.exp(1j*phase)))

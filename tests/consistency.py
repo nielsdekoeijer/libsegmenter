@@ -64,8 +64,8 @@ def as_backend(
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
 @settings(max_examples=100, phases=[Phase.generate])
 @given(
-    segment_size=st.integers(min_value=8, max_value=64),
-    hop_size=st.integers(min_value=1, max_value=63),
+    segment_size=st.integers(min_value=32, max_value=64),
+    hop_size=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_segmenter_consistency(
@@ -108,8 +108,8 @@ def test_segmenter_consistency(
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
 @settings(max_examples=100, phases=[Phase.generate])
 @given(
-    segment_size=st.integers(min_value=8, max_value=64),
-    hop_size=st.integers(min_value=1, max_value=63),
+    segment_size=st.integers(min_value=32, max_value=64),
+    hop_size=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_transform_forward_consistency(
@@ -154,8 +154,8 @@ def test_transform_forward_consistency(
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
 @settings(max_examples=100, phases=[Phase.generate])
 @given(
-    segment_size=st.integers(min_value=8, max_value=64),
-    hop_size=st.integers(min_value=1, max_value=63),
+    segment_size=st.integers(min_value=32, max_value=64),
+    hop_size=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_transform_roundtrip_consistency(

@@ -19,7 +19,7 @@
 
 import numpy as np
 from numpy.typing import NDArray
-from typing import TypeVar, Any
+from typing import TypeVar, Tuple, Any
 from libsegmenter.transforms.spectrogram.SpectrogramNumpy import SpectrogramNumpy
 
 T = TypeVar("T", bound=np.generic)
@@ -38,7 +38,7 @@ class MagnitudeNumpy:
         """Initializes the MagnitudeNumpy instance."""
         self._spectrogram = SpectrogramNumpy(*args, **kwargs)
 
-    def forward(self, x: NDArray[T]) -> NDArray[np.complex128]:
+    def forward(self, x: NDArray[T]) -> Tuple[NDArray[Any], NDArray[Any]]:
         """
         Converts segments into a magnitude and phase spectrogram.
 
