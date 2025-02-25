@@ -51,6 +51,9 @@ classdef SegmenterOctave < handle
                     output(bIdx+1,sIdx+1,:) = input(bIdx+1,sIdx*obj.window.hopSize + 1 : sIdx*obj.window.hopSize + obj.window.segmentSize) .* obj.window.analysisWindow';
                 end
             end
+            if batchSize == 1
+              output = squeeze(output);
+            end
         end
 
         function output = unsegment(obj, input)

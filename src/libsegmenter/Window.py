@@ -55,6 +55,15 @@ class Window:
                 synthesis.
 
         """
+        if hop_size <= 0 or hop_size > analysis_window.shape[-1]:
+            raise ValueError(
+                "Hop size argument must be between 1 and the length of the window. Received hop size = " + f"({hop_size}) while the window size is " + f"({analysis_window.shape[-1]})."
+            )
+        if not(synthesis_window is None):
+            if analysis_window.shape[-1] != synthesis_window.shape[-1]:
+                raise ValueError(
+                    "The analysis and synthesis windows must be of equal lengths. Received analysis window length = " + f"({analysis_window.shape[-1]}) and synthesis window length = " + f"({synthesis_window.shape[-1]})."
+                )
         self.hop_size = hop_size
         self.analysis_window = analysis_window
         self.synthesis_window = synthesis_window
