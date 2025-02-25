@@ -1,5 +1,4 @@
 classdef MagPhaseTransformOctave < handle
-    addpath('../spectrogram/');
     %MagnitudeOctave
     % A class for computing magnitude / phase spectra.
     %
