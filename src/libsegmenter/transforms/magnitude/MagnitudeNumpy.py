@@ -49,13 +49,17 @@ class MagnitudeNumpy:
         tensor = self._spectrogram.forward(x)
         return np.abs(tensor), np.angle(tensor)
 
-    def inverse(self, magnitude: NDArray[np.complex128], phase: NDArray[np.complex128]) -> NDArray[np.float64]:
+    def inverse(
+        self, magnitude: NDArray[np.complex128], phase: NDArray[np.complex128]
+    ) -> NDArray[np.float64]:
         """
         Converts magnitude / phase spectrogram into segments.
 
         Args:
-            magnitude (NDArray[np.complex128]): Magnitude spectrogram resulting from a `forward` pass.
-            phase (NDArray[np.complex128]): Phase spectrogram resulting from a `forward` pass.
+            magnitude (NDArray[np.complex128]): Magnitude spectrogram resulting from a
+                `forward` pass.
+            phase (NDArray[np.complex128]): Phase spectrogram resulting from a
+                `forward` pass.
 
         """
-        return self._spectrogram.inverse(np.multiply(magnitude, np.exp(1j*phase)))
+        return self._spectrogram.inverse(np.multiply(magnitude, np.exp(1j * phase)))

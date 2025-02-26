@@ -22,7 +22,9 @@ from numpy.typing import NDArray, DTypeLike
 from typing import Tuple, Any
 
 
-def _hann(window_size: int, indices: NDArray[Any], dtype: DTypeLike = np.float32) -> NDArray[Any]:
+def _hann(
+    window_size: int, indices: NDArray[Any], dtype: DTypeLike = np.float32
+) -> NDArray[Any]:
     M = window_size
     return 0.5 * (1.0 - np.cos(2.0 * np.pi * indices / M, dtype=np.dtype(dtype).type))
 
@@ -68,22 +70,27 @@ def hann75(
 
 
 def asymmetricHannOla(
-    segment_size: int, hop_size: int, synthesis_segment_size: int, dtype: DTypeLike = np.float32
+    segment_size: int,
+    hop_size: int,
+    synthesis_segment_size: int,
+    dtype: DTypeLike = np.float32,
 ) -> Tuple[NDArray[Any], NDArray[Any]]:
     """
     Generates an asymmetric Hann window pair with overlap-add reconstruction.
 
     Args:
         segment_size (int): Size of the window to be created.
-        hop_size (int): 
-        synthesis_segment_size (int):
+        hop_size (int): DESCRIPTION PLACEHOLDER
+        synthesis_segment_size (int): DESCRIPTION PLACEHOLDER
         dtype (np.dtype): The desired datatype of the window
 
     Returns:
         analysis_window, synthesis_window
 
     """
-    assert synthesis_segment_size % 2 == 0, f"synthesis_segment_size must be even, got {synthesis_segment_size}"
+    assert synthesis_segment_size % 2 == 0, (
+        f"synthesis_segment_size must be even, got {synthesis_segment_size}"
+    )
 
     analysis_window = np.ones(segment_size, dtype=np.dtype(dtype).type)
 
@@ -93,34 +100,72 @@ def asymmetricHannOla(
     synthesis_window = np.concatenate((f1, f2))
     return analysis_window, synthesis_window
 
+
 def asymmetricHannWola(
-    segment_size: int, hop_size: int, synthesis_segment_size: int, dtype: DTypeLike = np.float32
+    segment_size: int,
+    hop_size: int,
+    synthesis_segment_size: int,
+    dtype: DTypeLike = np.float32,
 ) -> Tuple[NDArray[Any], NDArray[Any]]:
     """
     Generates an asymmetric Hann window pair with weighted overlap-add reconstruction.
 
     Args:
         segment_size (int): Size of the window to be created.
-        hop_size (int): 
-        synthesis_segment_size (int):
+        hop_size (int): DESCRIPTION PLACEHOLDER
+        synthesis_segment_size (int): DESCRIPTION PLACEHOLDER
         dtype (np.dtype): The desired datatype of the window
 
     Returns:
         analysis_window, synthesis_window
 
     """
-    assert synthesis_segment_size % 2 == 0, f"synthesis_segment_size must be even, got {synthesis_segment_size}"
-    M = synthesis_segment_size//2
+    assert synthesis_segment_size % 2 == 0, (
+        f"synthesis_segment_size must be even, got {synthesis_segment_size}"
+    )
+    M = synthesis_segment_size // 2
     KM = segment_size - M
-    h1 = np.sqrt(_hann(2*KM, np.arange(KM-M, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type))
-    h2 = np.sqrt(_hann(2*KM, np.arange(KM-M, KM, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type))
-    h3 = np.sqrt(_hann(2*M, np.arange(M, 2*M, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type))
+    h1 = np.sqrt(
+        _hann(
+            2 * KM,
+            np.arange(KM - M, dtype=np.dtype(dtype).type),
+            dtype=np.dtype(dtype).type,
+        )
+    )
+    h2 = np.sqrt(
+        _hann(
+            2 * KM,
+            np.arange(KM - M, KM, dtype=np.dtype(dtype).type),
+            dtype=np.dtype(dtype).type,
+        )
+    )
+    h3 = np.sqrt(
+        _hann(
+            2 * M,
+            np.arange(M, 2 * M, dtype=np.dtype(dtype).type),
+            dtype=np.dtype(dtype).type,
+        )
+    )
     analysis_window = np.concatenate((h1, h2, h3))
 
-    f1 = np.zeros(KM-M, dtype=np.dtype(dtype).type)
-    f2a = _hann(2*M, np.arange(M, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type)
-    f2b = np.sqrt(_hann(2*KM, np.arange(KM-M, KM, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type))
+    f1 = np.zeros(KM - M, dtype=np.dtype(dtype).type)
+    f2a = _hann(
+        2 * M, np.arange(M, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type
+    )
+    f2b = np.sqrt(
+        _hann(
+            2 * KM,
+            np.arange(KM - M, KM, dtype=np.dtype(dtype).type),
+            dtype=np.dtype(dtype).type,
+        )
+    )
     f2 = np.divide(f2a, f2b)
-    f3 = np.sqrt(_hann(2*M, np.arange(M, 2*M, dtype=np.dtype(dtype).type), dtype=np.dtype(dtype).type))
+    f3 = np.sqrt(
+        _hann(
+            2 * M,
+            np.arange(M, 2 * M, dtype=np.dtype(dtype).type),
+            dtype=np.dtype(dtype).type,
+        )
+    )
     synthesis_window = np.concatenate((f1, f2, f3))
     return analysis_window, synthesis_window

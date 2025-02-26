@@ -42,7 +42,7 @@ class MagnitudeTorch:
         """
         tensor = self._spectrogram.forward(x)
         return torch.abs(tensor), torch.angle(tensor)
-    
+
     def inverse(self, magnitude: torch.Tensor, phase: torch.Tensor) -> torch.Tensor:
         """
         Converts magnitude / phase spectrogram into segments.
@@ -52,4 +52,6 @@ class MagnitudeTorch:
             phase (Tensor): Phase spectrogram resulting from a `forward` pass.
 
         """
-        return self._spectrogram.inverse(torch.multiply(magnitude, torch.exp(1j*phase)))
+        return self._spectrogram.inverse(
+            torch.multiply(magnitude, torch.exp(1j * phase))
+        )

@@ -44,7 +44,7 @@ class MagnitudeTensorFlow:
         """
         tensor = self._spectrogram.forward(x)
         return tf.abs(tensor), tf.math.angle(tensor)  # pyright: ignore
-    
+
     def inverse(self, magnitude: tf.Tensor, phase: tf.Tensor) -> tf.Tensor:
         """
         Converts magnitude / phase spectrogram into segments.
@@ -54,4 +54,6 @@ class MagnitudeTensorFlow:
             phase (Tensor): Phase spectrogram resulting from a `forward` pass.
 
         """
-        return self._spectrogram.inverse(tf.math.multiply(magnitude, tf.math.exp(1j*phase))) # pyright: ignore
+        return self._spectrogram.inverse(
+            tf.math.multiply(magnitude, tf.math.exp(1j * phase))
+        )  # pyright: ignore
