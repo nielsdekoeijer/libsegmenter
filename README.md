@@ -89,7 +89,9 @@ uv sync --dev
 ### Linting
 We require everything to be fully typed. We enforce that by having 100% clearance on pyright:
 ```bash
-pyright
+uv run pyright
+uv run ruff check
+uv run ruff format
 ```
 
 ### Licenses
