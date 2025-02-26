@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Bo M\oller"
+  given-names: "Martin"
+  orcid: "https://orcid.org/0000-0002-7323-7266"
+- family-names: "de Koeijer"
+  given-names: "Niels"
+  orcid: "https://orcid.org/0009-0001-6931-8952"
+title: "libsegmenter: A python library for segmentation of audio"
+version: 1.0.0
+date-released: 2025-02-18
+url: "https://github.com/nielsdekoeijer/libsegmenter"
