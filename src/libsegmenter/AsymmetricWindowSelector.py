@@ -52,11 +52,11 @@ def AsymmetricWindowSelector(scheme: str, segment_size: int, hop_size: int, synt
     if scheme != "ola" and scheme != "wola":
         raise ValueError(f"The '{scheme}' scheme is not supported.")
 
-    if scheme == "ola":
+    elif scheme == "ola":
         from libsegmenter.windows.hann import asymmetricHannOla
         windows = asymmetricHannOla(segment_size, hop_size, synthesis_segment_size)
 
-    if scheme == "wola":
+    else: # WOLA
         from libsegmenter.windows.hann import asymmetricHannWola
         windows = asymmetricHannWola(segment_size, hop_size, synthesis_segment_size)
 
