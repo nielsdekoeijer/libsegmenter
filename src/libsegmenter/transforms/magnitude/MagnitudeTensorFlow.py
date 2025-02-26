@@ -54,4 +54,4 @@ class MagnitudeTensorFlow:
             phase (Tensor): Phase spectrogram resulting from a `forward` pass.
 
         """
-        return self._spectrogram.inverse(tf.math.multiply(magnitude, tf.math.exp(1j*phase)))
+        return self._spectrogram.inverse(tf.math.multiply(magnitude, tf.math.exp(1j*phase))) # pyright: ignore
