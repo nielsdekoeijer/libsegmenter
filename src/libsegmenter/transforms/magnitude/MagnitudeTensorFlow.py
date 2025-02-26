@@ -55,5 +55,5 @@ class MagnitudeTensorFlow:
 
         """
         return self._spectrogram.inverse(
-            tf.math.multiply(magnitude, tf.math.exp(1j * phase)) # pyright: ignore
+            tf.math.multiply(magnitude, tf.math.exp(1j * phase))  # pyright: ignore
         )  # pyright: ignore
