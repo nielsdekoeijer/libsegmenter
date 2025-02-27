@@ -31,7 +31,7 @@ def TransformSelector(
 
     Args:
         transform (str): The transform to use. Supported options:
-            ["bpd", "phase", "magnitude", "spectrogram"].
+            ["bpd", "magnitude", "spectrogram"].
         backend (str, optional): The backend to use. Supported options:
             ["numpy", "torch", "tensorflow"]. Defaults to "numpy".
         *args (Any): Additional positional arguments to pass to the segmenter.
@@ -49,11 +49,6 @@ def TransformSelector(
         from libsegmenter.transforms.Spectrogram import Spectrogram
 
         return Spectrogram(*args, **kwargs, backend=backend)
-
-    if transform == "phase":
-        from libsegmenter.transforms.Magnitude import Magnitude
-
-        return Magnitude(*args, **kwargs, backend=backend)
 
     if transform == "magnitude":
         from libsegmenter.transforms.Magnitude import Magnitude
