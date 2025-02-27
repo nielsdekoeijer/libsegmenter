@@ -23,9 +23,9 @@ from typing import TypeVar, Any
 T = TypeVar("T", bound=np.generic)
 
 
-def Magnitude(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
+def MagnitudePhase(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
     """
-    Factory function to create a magnitude instance based on the specified backend.
+    Factory function to create a magnitude_phase instance based on the backend.
 
     Args:
         backend (str, optional): The backend to use. Supported options:
@@ -42,20 +42,24 @@ def Magnitude(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
 
     """
     if backend == "numpy":
-        from libsegmenter.transforms.magnitude.MagnitudeNumpy import MagnitudeNumpy
-
-        return MagnitudeNumpy(*args, **kwargs)
-
-    if backend == "tensorflow":
-        from libsegmenter.transforms.magnitude.MagnitudeTensorFlow import (
-            MagnitudeTensorFlow,
+        from libsegmenter.transforms.magnitude_phase.MagnitudePhaseNumpy import (
+            MagnitudePhaseNumpy,
         )
 
-        return MagnitudeTensorFlow(*args, **kwargs)
+        return MagnitudePhaseNumpy(*args, **kwargs)
+
+    if backend == "tensorflow":
+        from libsegmenter.transforms.magnitude_phase.MagnitudePhaseTensorFlow import (
+            MagnitudePhaseTensorFlow,
+        )
+
+        return MagnitudePhaseTensorFlow(*args, **kwargs)
 
     if backend == "torch":
-        from libsegmenter.transforms.magnitude.MagnitudeTorch import MagnitudeTorch
+        from libsegmenter.transforms.magnitude_phase.MagnitudePhaseTorch import (
+            MagnitudePhaseTorch,
+        )
 
-        return MagnitudeTorch(*args, **kwargs)
+        return MagnitudePhaseTorch(*args, **kwargs)
 
     raise ValueError(f"The '{backend}' backend is not known.")

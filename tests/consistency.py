@@ -34,10 +34,10 @@ from libsegmenter.TransformSelector import TransformSelector
 
 T = TypeVar("T", bound=np.generic)
 BackendType = Literal["numpy", "torch", "tensorflow"]
-TransformType = Literal["magnitude", "spectrogram"]
+TransformType = Literal["magnitude_phase", "spectrogram"]
 
 BACKENDS: list[BackendType] = ["numpy", "torch", "tensorflow"]
-TRANSFORMS: list[TransformType] = ["magnitude", "spectrogram"]
+TRANSFORMS: list[TransformType] = ["magnitude_phase", "spectrogram"]
 
 
 def as_numpy(
