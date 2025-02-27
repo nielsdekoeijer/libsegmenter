@@ -102,6 +102,7 @@ def test_segmenter_consistency(
     assert np.allclose(sA, sB, atol=1e-5)
     assert np.allclose(rA, rB, atol=1e-5)
 
+
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", TRANSFORMS)
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
@@ -144,18 +145,29 @@ def test_transform_roundtrip_consistency(
 
     sA, sB = segA.segment(xA), segB.segment(xB)
 
-    tA = traA.forward(sA) 
+    tA = traA.forward(sA)
     tB = traB.forward(sB)
 
     if transform == "magnitude_phase":
-        assert len(tA) == 2 # pyright: ignore
-        assert len(tB) == 2 # pyright: ignore
-        assert np.allclose(tA[0], tB[0], atol=1e-4) # pyright: ignore
-        assert np.allclose(np.cos(as_numpy(tA[1], backend=backendA)), np.cos(as_numpy(tB[1], backend=backendB)), atol=1e-4) # pyright: ignore
+        assert len(tA) == 2  # pyright: ignore
+        assert len(tB) == 2  # pyright: ignore
+        assert np.allclose(tA[0], tB[0], atol=1e-4)  # pyright: ignore
+        assert np.allclose(
+            np.cos(as_numpy(tA[1], backend=backendA)),
+            np.cos(as_numpy(tB[1], backend=backendB)),
+            atol=1e-4,
+        )  # pyright: ignore
         rA, rB = traA.inverse(*tA), traB.inverse(*tB)
         assert np.allclose(rA, rB, atol=1e-4)
     else:
-        print(np.max(np.abs(as_numpy(tA, backend=backendA) - as_numpy(tB, backend=backendB))))
+        print(
+            np.max(
+                np.abs(as_numpy(tA, backend=backendA) - as_numpy(tB, backend=backendB))
+            )
+        )
         rA, rB = traA.inverse(tA), traB.inverse(tB)
-        print(np.max(np.abs(as_numpy(rA, backend=backendA) - as_numpy(rB, backend=backendB))))
-
+        print(
+            np.max(
+                np.abs(as_numpy(rA, backend=backendA) - as_numpy(rB, backend=backendB))
+            )
+        )

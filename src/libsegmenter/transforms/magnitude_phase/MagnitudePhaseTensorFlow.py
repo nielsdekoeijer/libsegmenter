@@ -55,11 +55,11 @@ class MagnitudePhaseTensorFlow:
             phase (Tensor): Phase spectrogram resulting from a `forward` pass.
 
         """
-        magnitude_complex = tf.cast(magnitude, dtype=tf.complex64) # pyright: ignore
-        phase_complex = tf.cast(phase, dtype=tf.complex64) # pyright: ignore
-        j = tf.complex(0.0, 1.0) # pyright: ignore
-        complex_exp = tf.exp(j * phase_complex) # pyright: ignore
+        magnitude_complex = tf.cast(magnitude, dtype=tf.complex64)  # pyright: ignore
+        phase_complex = tf.cast(phase, dtype=tf.complex64)  # pyright: ignore
+        j = tf.complex(0.0, 1.0)  # pyright: ignore
+        complex_exp = tf.exp(j * phase_complex)  # pyright: ignore
 
         return self._spectrogram.inverse(
-            magnitude_complex * complex_exp # pyright: ignore
+            magnitude_complex * complex_exp  # pyright: ignore
         )
