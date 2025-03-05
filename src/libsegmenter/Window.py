@@ -32,9 +32,9 @@ class Window:
         hop_size (int): The step size for shifting the window in the segmentation
             process.
         analysis_window (NDArray[T]): The window function used during the analysis
-           phase.
+            phase.
         synthesis_window (NDArray[T]): The window function used during the synthesis
-           phase.
+            phase.
 
     """
 

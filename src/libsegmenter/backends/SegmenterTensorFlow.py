@@ -151,19 +151,20 @@ class SegmenterTensorFlow(tf.keras.layers.Layer):
         )
 
         # Overlap-add method for reconstructing the original signal
-        synthesis_window = tf.convert_to_tensor(
-            self.window.synthesis_window, dtype=X.dtype
-        )
+        tf.convert_to_tensor(self.window.synthesis_window, dtype=X.dtype)
 
         for k in range(num_segments):
-            x = tf.tensor_scatter_nd_add(
-                x,
-                [
-                    [i, j]
-                    for i in range(batch_size if batch_size is not None else 1)
-                    for j in range(segment_size)
-                ],
-                tf.reshape(X[:, k, :] * synthesis_window, [-1]),
+            tmpIdx = tf.reshape(
+                tf.range(
+                    k * self.window.hop_size, k * self.window.hop_size + segment_size
+                ),
+                shape=(segment_size, 1),
             )
+
+            for b in range(batch_size if batch_size is not None else 1):
+                idx = tf.concat([tf.fill((segment_size, 1), b), tmpIdx], axis=1)
+                x = tf.tensor_scatter_nd_add(
+                    x, idx, self.window.synthesis_window * X[b, k, :]
+                )
 
         return tf.squeeze(x, axis=0) if batch_size is None else x

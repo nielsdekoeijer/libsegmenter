@@ -30,7 +30,6 @@ nav:
           - SegmenterTorch: api/backends/SegmenterTorch.md
           - SegmenterTensorFlow: api/backends/SegmenterTensorFlow.md
           - SegmenterNumpy: api/backends/SegmenterNumpy.md
-          - SegmenterOctave: api/backends/SegmenterOctave.md
       - Window: api/Window.md
       - WindowSelector: api/WindowSelector.md
       - check_cola: api/util/check_cola.md
@@ -53,25 +52,16 @@ nav:
               - SpectrogramNumpy: api/transforms/spectrogram/SpectrogramNumpy.md
               - SpectrogramTorch: api/transforms/spectrogram/SpectrogramTorch.md
               - SpectrogramTensorFlow: api/transforms/spectrogram/SpectrogramTensorFlow.md
-              - SpectrogramOctave: api/transforms/spectrogram/SpectrogramOctave.md
-          - Magnitude: api/transforms/Magnitude.md
-          - Magnitude Backends: 
-              - MagnitudeNumpy: api/transforms/magnitude/MagnitudeNumpy.md
-              - MagnitudeTorch: api/transforms/magnitude/MagnitudeTorch.md
-              - MagnitudeTensorFlow: api/transforms/magnitude/MagnitudeTensorFlow.md
-              - MagnitudeOctave: api/transforms/magnitude/MagnitudeOctave.md
-          - Phase: api/transforms/Phase.md
-          - Phase Backends: 
-              - PhaseNumpy: api/transforms/phase/PhaseNumpy.md
-              - PhaseTorch: api/transforms/phase/PhaseTorch.md
-              - PhaseTensorFlow: api/transforms/phase/PhaseTensorFlow.md
-              - PhaseOctave: api/transforms/phase/PhaseOctave.md
+          - MagnitudePhase: api/transforms/MagnitudePhase.md
+          - MagnitudePhase Backends: 
+              - MagnitudePhaseNumpy: api/transforms/magnitude_phase/MagnitudePhaseNumpy.md
+              - MagnitudePhaseTorch: api/transforms/magnitude_phase/MagnitudePhaseTorch.md
+              - MagnitudePhaseTensorFlow: api/transforms/magnitude_phase/MagnitudePhaseTensorFlow.md
           - BPD: api/transforms/BPD.md
           - BPD Backends: 
               - BPDNumpy: api/transforms/bpd/BPDNumpy.md
               - BPDTorch: api/transforms/bpd/BPDTorch.md
               - BPDTensorFlow: api/transforms/bpd/BPDTensorFlow.md
-              - BPDOctave: api/transforms/bpd/BPDOctave.md
 
 plugins:
   - search

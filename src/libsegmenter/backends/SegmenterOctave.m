@@ -36,6 +36,9 @@ classdef SegmenterOctave < handle
             end
             if prod(size(input)) == length(input)
                 batchSize = 1;
+                if size(input,1) ~= 1
+                    error('Expected size 1 x NumberOfSamples');
+                end
                 numSamples = length(input);
             else
                 batchSize = size(input, 1);

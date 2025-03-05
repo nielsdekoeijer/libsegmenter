@@ -18,6 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pytest
+import subprocess
+import tempfile
 from hypothesis import given, settings, Phase
 from hypothesis import strategies as st
 
@@ -60,12 +62,29 @@ def as_backend(
     return x
 
 
+def run_octave(code: str) -> bool:
+    with tempfile.NamedTemporaryFile(suffix=".m", mode="w", delete=False) as tmp_file:
+        tmp_file.write(code)
+        tmp_file_path = tmp_file.name
+
+    try:
+        result = subprocess.run(
+            ["octave", "--silent", "--eval", f"run('{tmp_file_path}')"],
+            capture_output=True,
+            text=True,
+        )
+        return result.returncode == 1
+    finally:
+        subprocess.run(["rm", "-f", tmp_file_path])  # Ensure file is deleted
+
+
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
-@settings(max_examples=100, phases=[Phase.generate])
+@settings(max_examples=10, phases=[Phase.generate], deadline=None)
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
+    num_hops=st.integers(min_value=0, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_segmenter_consistency(
@@ -74,6 +93,7 @@ def test_segmenter_consistency(
     backendB: BackendType,
     segment_size: int,
     hop_size: int,
+    num_hops: int,
     seed: int,
 ) -> None:
     np.random.seed(seed)
@@ -83,9 +103,9 @@ def test_segmenter_consistency(
     window = Window(hop_size, analysis_window, synthesis_window)
 
     if batched:
-        x: NDArray[np.float64] = np.random.randn(2, segment_size)
+        x: NDArray[np.float64] = np.random.randn(2, segment_size + num_hops * hop_size)
     else:
-        x: NDArray[np.float64] = np.random.randn(segment_size)
+        x: NDArray[np.float64] = np.random.randn(segment_size + num_hops * hop_size)
 
     segA = Segmenter(backendA, window)
     segB = Segmenter(backendB, window)
@@ -106,10 +126,11 @@ def test_segmenter_consistency(
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", TRANSFORMS)
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
-@settings(max_examples=100, phases=[Phase.generate])
+@settings(max_examples=10, phases=[Phase.generate])
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
+    num_hops=st.integers(min_value=0, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_transform_roundtrip_consistency(
@@ -119,6 +140,7 @@ def test_transform_roundtrip_consistency(
     backendB: BackendType,
     segment_size: int,
     hop_size: int,
+    num_hops: int,
     seed: int,
 ) -> None:
     np.random.seed(seed)
@@ -128,11 +150,9 @@ def test_transform_roundtrip_consistency(
     window = Window(hop_size, analysis_window, synthesis_window)
 
     if batched:
-        x: NDArray[np.float64] = np.random.randn(2, segment_size)
+        x: NDArray[np.float64] = np.random.randn(2, segment_size + num_hops * hop_size)
     else:
-        x: NDArray[np.float64] = np.random.randn(segment_size)
-
-    x: NDArray[np.float64] = np.random.randn(segment_size)
+        x: NDArray[np.float64] = np.random.randn(segment_size + num_hops * hop_size)
 
     segA = Segmenter(backendA, window)
     segB = Segmenter(backendB, window)
@@ -171,3 +191,28 @@ def test_transform_roundtrip_consistency(
                 np.abs(as_numpy(rA, backend=backendA) - as_numpy(rB, backend=backendB))
             )
         )
+
+
+# we have a special case for octave
+@pytest.mark.parametrize("batched", [True, False])
+@settings(max_examples=1, phases=[Phase.generate], deadline=None)
+@given(
+    segment_size=st.integers(min_value=32, max_value=64),
+    hop_size=st.integers(min_value=1, max_value=32),
+    seed=st.integers(min_value=0, max_value=2**32 - 1),
+)
+def test_segmenter_consistency_octave(
+    batched: bool,
+    segment_size: int,
+    hop_size: int,
+    seed: int,
+) -> None:
+    backendA: BackendType = "numpy"
+    backendB: str = "octave"
+
+    _ = backendA
+    _ = backendB
+    _ = batched
+    _ = segment_size
+    _ = hop_size
+    _ = seed

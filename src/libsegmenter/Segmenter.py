@@ -19,7 +19,7 @@
 
 from typing import Any
 
-BACKENDS = ["torch", "tensorflow", "numpy"]
+BACKENDS = ["torch", "tensorflow", "numpy", "octave"]
 
 
 def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
@@ -57,10 +57,5 @@ def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
         from libsegmenter.backends.SegmenterTensorFlow import SegmenterTensorFlow
 
         return SegmenterTensorFlow(*args, **kwargs)
-
-    # if backend == "octave":
-    #     from libsegmenter.backends.SegmenterOctave import SegmenterOctave
-    #
-    #     return SegmenterOctave(*args, **kwargs)
 
     raise NotImplementedError(f"The '{backend}' backend is not implemented yet.")

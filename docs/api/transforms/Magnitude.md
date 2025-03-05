@@ -1,5 +1,0 @@
-# Magnitude
-
-::: libsegmenter.transforms.Magnitude
-
-
