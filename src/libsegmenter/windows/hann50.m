@@ -13,6 +13,6 @@ function [window, hopSize] = hann50(segmentSize)
         error(['Segment size must be even, got ' int2str(segmentSize) ]);
     end
     indices = (0:segmentSize-1)';
-    window = _hann(segmentSize, indices);
+    window = hannWindow(segmentSize, indices);
     hopSize = segmentSize/2;
 end

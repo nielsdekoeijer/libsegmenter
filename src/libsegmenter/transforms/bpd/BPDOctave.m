@@ -1,6 +1,10 @@
 classdef BPDOctave < handle
     %BPDOctave
-    % A class for computing the baseband phase difference transform
+    % A class for computing the baseband phase difference transform as
+    % described in M. Krawczyk and T. Gerkmann, "STFT Phase Reconstruction
+    % in Voiced Speech for an Improved Single-Channel Speech Enhancement",
+    % IEEE Transactions on Audio, Speech, and Language Processing, Vol. 22,
+    % No. 12, pp. 1931-1940, 2014, DOI:10.1109/TASLP.2014.2354236.
     properties
 	magPhaseTransform = [];
     end
@@ -8,7 +12,7 @@ classdef BPDOctave < handle
     methods
 	function obj = BPDOctave()
 	    % Initialize the BPD object.
-	    obj.magPhaseTransform = MagPhaseTransformOctave();
+	    obj.magPhaseTransform = MagnitudePhaseTransformOctave();
 	end
 
 	function [magnitude, bpd] = forward(obj, input, hopSize)

@@ -11,6 +11,6 @@ function [window, hopSize] = kaiser85(segmentSize)
     end
     indices = (0:segmentSize-1)';
     beta = 10;
-    window = _kaiser(segmentSize, beta, indices);
+    window = kaiserWindow(segmentSize, beta, indices);
     hopSize = floor(1.7*segmentSize/(beta+1));
 end
