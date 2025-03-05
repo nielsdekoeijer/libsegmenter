@@ -34,7 +34,10 @@ classdef SegmenterOctave < handle
             if length(size(input)) > 2
                 error(['The input dimensions cannot be larger than 2. Received length(size(input)) = ' int2str(length(size(input))) ]);
             end
-            if prod(size(input)) == length(input)
+            if numel(input) == length(input)
+                if size(input,1) ~= 1
+                    error(['The expected input dimension is 1 x numberOfSamples, received size(input) = ' int2str(size(input))]);
+                end
                 batchSize = 1;
                 if size(input,1) ~= 1
                     error('Expected size 1 x NumberOfSamples');
@@ -44,7 +47,7 @@ classdef SegmenterOctave < handle
                 batchSize = size(input, 1);
                 numSamples = size(input, 2);
             end
-            numSegments = floor(numSamples / obj.window.hopSize) - floor(obj.window.segmentSize / obj.window.hopSize) + 1;
+            numSegments = floor(numSamples / obj.window.hopSize) - ceil(obj.window.segmentSize / obj.window.hopSize) + 1;
             if numSegments <= 0
                 error(['Input signal is too short for segmentation with the given hop size (' int2str(obj.window.hopSize) ') and segmentSize (' int2str(obj.window.segmentSize) ')']);
             end

@@ -1,4 +1,4 @@
-function window = _bartlett(windowSize, indices)
+function window = bartlettWindow(windowSize, indices)
     if min(indices) < 0
         error(['The smallest index cannot be lower than 0. Received min(indices) = ' int2str(min(indices))] );
     end

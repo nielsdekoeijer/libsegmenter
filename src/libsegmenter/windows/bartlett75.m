@@ -13,6 +13,6 @@ function [window, hopSize] = bartlett75(segmentSize)
         error(['Segment size must be integer divisible by 4, got ' int2str(segmentSize) ]);
     end
     indices = (0:segmentSize-1)';
-    window = _bartlett(segmentSize, indices);
+    window = bartlettWindow(segmentSize, indices);
     hopSize = segmentSize/4;
 end

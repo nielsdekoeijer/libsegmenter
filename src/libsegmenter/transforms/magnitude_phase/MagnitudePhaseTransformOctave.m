@@ -1,4 +1,4 @@
-classdef MagPhaseTransformOctave < handle
+classdef MagnitudePhaseTransformOctave < handle
     %MagnitudeOctave
     % A class for computing magnitude / phase spectra.
     %
@@ -7,7 +7,7 @@ classdef MagPhaseTransformOctave < handle
 	spectrogram = [];
     end
     methods
-	function obj = MagPhaseTransformOctave()
+    	function obj = MagnitudePhaseTransformOctave()
 	    % Initialize MagPhaseTransform object.
 	    obj.spectrogram = SpectrogramOctave();
 	end
