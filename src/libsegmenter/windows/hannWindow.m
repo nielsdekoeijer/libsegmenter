@@ -1,4 +1,4 @@
-function window = _hann(windowSize, indices)
+function window = hannWindow(windowSize, indices)
     if min(indices) < 0
         error(['The smallest index cannot be lower than 0. Received min(indices) = ' int2str(min(indices))] );
     end

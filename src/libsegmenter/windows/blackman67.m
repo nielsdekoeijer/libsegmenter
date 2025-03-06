@@ -13,6 +13,6 @@ function [window, hopSize] = blackman67(segmentSize)
         error(['Segment size must be integer divisible by 3, got ' int2str(segmentSize) ]);
     end
     indices = (0:segmentSize-1)';
-    window = _blackman(segmentSize, indices);
+    window = blackmanWindow(segmentSize, indices);
     hopSize = segmentSize/3;
 end
