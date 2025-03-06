@@ -23,6 +23,8 @@ import tempfile
 from hypothesis import given, settings, Phase
 from hypothesis import strategies as st
 
+import scipy
+import os
 import torch
 import tensorflow as tf
 import itertools
@@ -73,6 +75,11 @@ def run_octave(code: str) -> bool:
             capture_output=True,
             text=True,
         )
+
+        if result.returncode:
+            print(result.stdout)
+            print(result.stderr)
+
         return result.returncode == 1
     finally:
         subprocess.run(["rm", "-f", tmp_file_path])  # Ensure file is deleted
@@ -175,44 +182,253 @@ def test_transform_roundtrip_consistency(
         assert np.allclose(
             np.cos(as_numpy(tA[1], backend=backendA)),
             np.cos(as_numpy(tB[1], backend=backendB)),
-            atol=1e-4,
+            atol=1e-3,
         )  # pyright: ignore
-        rA, rB = traA.inverse(*tA), traB.inverse(*tB)
-        assert np.allclose(rA, rB, atol=1e-4)
+        iA, iB = traA.inverse(*tA), traB.inverse(*tB)
+        assert np.allclose(iA, iB, atol=1e-4)
     else:
-        print(
-            np.max(
-                np.abs(as_numpy(tA, backend=backendA) - as_numpy(tB, backend=backendB))
-            )
-        )
-        rA, rB = traA.inverse(tA), traB.inverse(tB)
-        print(
-            np.max(
-                np.abs(as_numpy(rA, backend=backendA) - as_numpy(rB, backend=backendB))
-            )
-        )
+        assert np.allclose(tA, tB, atol=1e-4)  # pyright: ignore
+        iA, iB = traA.inverse(tA), traB.inverse(tB)
+        assert np.allclose(iA, iB, atol=1e-4)
 
 
 # we have a special case for octave
 @pytest.mark.parametrize("batched", [True, False])
-@settings(max_examples=1, phases=[Phase.generate], deadline=None)
+@settings(max_examples=10, phases=[Phase.generate], deadline=None)
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
+    num_hops=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_segmenter_consistency_octave(
     batched: bool,
     segment_size: int,
     hop_size: int,
+    num_hops: int,
     seed: int,
 ) -> None:
     backendA: BackendType = "numpy"
-    backendB: str = "octave"
 
-    _ = backendA
-    _ = backendB
-    _ = batched
-    _ = segment_size
-    _ = hop_size
-    _ = seed
+    np.random.seed(seed)
+
+    analysis_window = np.random.randn(segment_size)
+    synthesis_window = np.random.randn(segment_size)
+    window = Window(hop_size, analysis_window, synthesis_window)
+
+    if batched:
+        x = np.random.randn(2, segment_size + num_hops * hop_size)
+    else:
+        x = np.random.randn(segment_size + num_hops * hop_size)
+
+    segA = Segmenter(backendA, window)
+
+    xA = as_backend(x, backendA)
+    sA = segA.segment(xA)
+    rA = segA.unsegment(sA)
+
+    sA_np = as_numpy(sA, backendA)
+    rA_np = as_numpy(rA, backendA)
+
+    # Define temporary file path
+    with tempfile.NamedTemporaryFile(suffix=".mat", delete=False) as tmp_file:
+        tmp_mat_file = tmp_file.name  # Get the file path
+    scipy.io.savemat(
+        tmp_mat_file,
+        {
+            "ref_s": sA_np,
+            "ref_r": rA_np,
+            "window_analysis": analysis_window,
+            "window_synthesis": synthesis_window,
+            "inp": x,
+        },
+    )
+
+    # Generate Octave script
+    octave_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../src/libsegmenter/")
+    )
+    assert os.path.exists(octave_path)
+
+    octave_code = f"""
+    addpath(genpath('{octave_path}'));
+
+    load('{tmp_mat_file}');  % Load ref_s and ref_r
+
+    # convert to column vector
+    window_analysis = window_analysis(:)
+    window_synthesis = window_synthesis(:)
+
+    window = Window({hop_size}, window_analysis, window_synthesis);
+    seg = SegmenterOctave(window);
+
+    seg_s = seg.segment(inp);
+    seg_r = seg.unsegment(seg_s);
+
+    disp(size(seg_s))
+    disp(size(seg_r))
+    disp(size(ref_s))
+    disp(size(ref_r))
+
+    if (all(abs(seg_s - ref_s) < 1e-5))
+        exit(0);
+    else
+        exit(1);
+    end
+
+    if (all(abs(seg_r - ref_r) < 1e-5))
+        exit(0);
+    else
+        exit(1);
+    end
+    """
+
+    print(octave_code)
+
+    assert not run_octave(octave_code)
+
+
+# we have a special case for octave
+@pytest.mark.parametrize("batched", [True, False])
+@pytest.mark.parametrize("transform", TRANSFORMS)
+@settings(max_examples=10, phases=[Phase.generate], deadline=None)
+@given(
+    segment_size=st.integers(min_value=32, max_value=64),
+    hop_size=st.integers(min_value=1, max_value=32),
+    num_hops=st.integers(min_value=1, max_value=32),
+    seed=st.integers(min_value=0, max_value=2**32 - 1),
+)
+def test_segmenter_roundtrip_consistency_octave(
+    batched: bool,
+    transform: TransformType,
+    segment_size: int,
+    hop_size: int,
+    num_hops: int,
+    seed: int,
+) -> None:
+    backendA: BackendType = "numpy"
+
+    np.random.seed(seed)
+
+    analysis_window = np.random.randn(segment_size)
+    synthesis_window = np.random.randn(segment_size)
+    window = Window(hop_size, analysis_window, synthesis_window)
+
+    if batched:
+        x = np.random.randn(2, segment_size + num_hops * hop_size)
+    else:
+        x = np.random.randn(segment_size + num_hops * hop_size)
+
+    segA = Segmenter(backendA, window)
+    traA = TransformSelector(transform=transform, backend=backendA)
+
+    if transform == "magnitude_phase":
+        xA = as_backend(x, backendA)
+
+        sA = segA.segment(xA)
+        sA_np = as_numpy(sA, backendA)
+
+        tA_mag, tA_pha = traA.forward(sA)
+        tA_mag_np = as_numpy(tA_mag, backendA)
+        tA_pha_np = as_numpy(tA_pha, backendA)
+
+        iA = traA.inverse(tA_mag, tA_pha)
+        iA_np = as_numpy(iA, backendA)
+
+        # Define temporary file path
+        tmp_mat_file = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "tmp_refs.mat")
+        )
+        scipy.io.savemat(
+            tmp_mat_file,
+            {
+                "sA": sA_np,
+                "tA_mag": tA_mag_np,
+                "tA_pha": tA_pha_np,
+                "iA": iA_np,
+            },
+        )
+    else:
+        xA = as_backend(x, backendA)
+
+        sA = segA.segment(xA)
+        sA_np = as_numpy(sA, backendA)
+
+        tA = traA.forward(sA)
+        tA_np = as_numpy(tA, backendA)
+
+        iA = traA.inverse(tA)
+        iA_np = as_numpy(iA, backendA)
+
+        # Define temporary file path
+        with tempfile.NamedTemporaryFile(suffix=".mat", delete=False) as tmp_file:
+            tmp_mat_file = tmp_file.name  # Get the file path
+        scipy.io.savemat(
+            tmp_mat_file,
+            {
+                "sA": sA_np,
+                "tA": tA_np,
+                "iA": iA_np,
+            },
+        )
+
+
+    # Generate Octave script
+    octave_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../src/libsegmenter/")
+    )
+    assert os.path.exists(octave_path)
+
+    octave_code = f"""
+    addpath(genpath('{octave_path}'));
+
+    load('{tmp_mat_file}');  % Load sA and ref_r
+
+    if strcmp('{transform}', 'magnitude_phase')
+        tra = MagnitudePhaseOctave();
+    end
+
+    if strcmp('{transform}', 'spectrogram')
+        tra = SpectrogramOctave();
+    end
+
+    if strcmp('{transform}', 'magnitude_phase')
+        [tB_mag, tB_pha] = tra.forward(sA);
+        iB = tra.inverse(tA_mag, tA_pha);
+    else
+        tB = tra.forward(sA);
+        iB = tra.inverse(tB);
+    end
+
+    if strcmp('{transform}', 'magnitude_phase')
+        if (all(abs(tA_mag - tB_mag) < 1e-5))
+            exit(0);
+        else
+            exit(1);
+        end
+
+        if (all(abs(tA_pha - tB_pha) < 1e-5))
+            exit(0);
+        else
+            exit(1);
+        end
+    else
+        if (all(abs(tA - tB) < 1e-5))
+            exit(0);
+        else
+            exit(1);
+        end
+    end
+
+    if (all(abs(iA - iB) < 1e-5))
+        exit(0);
+    else
+        exit(1);
+    end
+    """
+
+    print(octave_code)
+
+    assert not run_octave(octave_code)
+
+

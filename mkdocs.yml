@@ -57,11 +57,11 @@ nav:
               - MagnitudePhaseNumpy: api/transforms/magnitude_phase/MagnitudePhaseNumpy.md
               - MagnitudePhaseTorch: api/transforms/magnitude_phase/MagnitudePhaseTorch.md
               - MagnitudePhaseTensorFlow: api/transforms/magnitude_phase/MagnitudePhaseTensorFlow.md
-          - BPD: api/transforms/BPD.md
-          - BPD Backends: 
-              - BPDNumpy: api/transforms/bpd/BPDNumpy.md
-              - BPDTorch: api/transforms/bpd/BPDTorch.md
-              - BPDTensorFlow: api/transforms/bpd/BPDTensorFlow.md
+          # - BPD: api/transforms/BPD.md
+          # - BPD Backends: 
+          #     - BPDNumpy: api/transforms/bpd/BPDNumpy.md
+          #     - BPDTorch: api/transforms/bpd/BPDTorch.md
+          #     - BPDTensorFlow: api/transforms/bpd/BPDTensorFlow.md
 
 plugins:
   - search
