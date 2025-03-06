@@ -94,7 +94,7 @@ def WindowSelector(window: str, scheme: str, segment_size: int) -> Window:
 
         return _adapt_window(*bartlett75(segment_size), scheme)
 
-    if window == "blackman":
+    if window == "blackman67":
         from libsegmenter.windows.blackman import blackman67
 
         return _adapt_window(*blackman67(segment_size), scheme)

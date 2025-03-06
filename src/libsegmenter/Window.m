@@ -31,8 +31,10 @@ classdef Window < handle
             if size(synthesisWindow,1) ~= prod(size(synthesisWindow))
                 error(['Synthesis window must be a column vector. Received size(synthesisWindow) = ' int2str(size(synthesisWindow)) ]);
             end
-            if length(synthesisWindow) ~= length(analysisWindow)
-                error(['The analysis window length (' int2str(length(analysisWindow)) ') is not equal the the length of the synthesis window (' int2str(length(synthesisWindow)) ')' ]);
+            if ~isempty(synthesisWindow)
+                if length(synthesisWindow) ~= length(analysisWindow)
+                    error(['The analysis window length (' int2str(length(analysisWindow)) ') is not equal the the length of the synthesis window (' int2str(length(synthesisWindow)) ')' ]);
+                end
             end
             segmentSize = length(analysisWindow);
             if hopSize > segmentSize || hopSize <= 0

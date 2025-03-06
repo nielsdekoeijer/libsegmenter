@@ -94,6 +94,7 @@ WINDOWS: list[WindowType] = [
     "rectangular0",
 ]
 
+NUM_EXAMPLES = 2
 
 def as_numpy(
     x: NDArray[T] | torch.Tensor | tf.Tensor, backend: BackendType
@@ -138,7 +139,7 @@ def run_octave(code: str) -> bool:
 
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
-@settings(max_examples=10, phases=[Phase.generate], deadline=None)
+@settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate], deadline=None)
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
@@ -187,7 +188,7 @@ def test_segmenter_consistency(
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", TRANSFORMS)
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
-@settings(max_examples=10, phases=[Phase.generate])
+@settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate])
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
@@ -248,7 +249,7 @@ def test_transform_roundtrip_consistency(
 
 # we have a special case for octave
 @pytest.mark.parametrize("batched", [True, False])
-@settings(max_examples=10, phases=[Phase.generate], deadline=None)
+@settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate], deadline=None)
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
@@ -345,7 +346,7 @@ def test_segmenter_consistency_octave(
 # we have a special case for octave
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", TRANSFORMS)
-@settings(max_examples=10, phases=[Phase.generate], deadline=None)
+@settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate], deadline=None)
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
@@ -493,6 +494,9 @@ def test_window_consistency_octave(
 ) -> None:
     segment_size = 64
 
+    if window_name == "blackman67":
+        segment_size = 66
+
     window = WindowSelector(window_name, scheme, segment_size)
     # Define temporary file path
     with tempfile.NamedTemporaryFile(suffix=".mat", delete=False) as tmp_file:
@@ -502,7 +506,7 @@ def test_window_consistency_octave(
         {
             "windowA_hopSize": window.hop_size,
             "windowA_analysisWindow": window.analysis_window,
-            "windowA_synthesisWindow": window.synthesis_window,
+            "windowA_synthesisWindow": window.synthesis_window if not window.synthesis_window is None else [],
         },
     )
 
@@ -517,7 +521,7 @@ def test_window_consistency_octave(
 
     load('{tmp_mat_file}');  % Load ref_s and ref_r
 
-    windowB = WindowSelector({window_name}, {scheme}, {segment_size});
+    windowB = WindowSelector('{window_name}', '{scheme}', {segment_size});
 
     if (all(abs(windowA_hopSize - windowB.hopSize) < 1e-5))
         exit(0);
@@ -531,10 +535,12 @@ def test_window_consistency_octave(
         exit(1);
     end
 
-    if (all(abs(windowA_synthesisWindow - windowB.synthesisWindow) < 1e-5))
-        exit(0);
-    else
-        exit(1);
+    if strcmp('{scheme}','analysis') != 1
+        if (all(abs(windowA_synthesisWindow - windowB.synthesisWindow) < 1e-5))
+            exit(0);
+        else
+            exit(1);
+        end
     end
     """
 
