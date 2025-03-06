@@ -174,6 +174,9 @@ def test_segmenter_consistency(
     sA, sB = segA.segment(xA), segB.segment(xB)
     rA, rB = segA.unsegment(sA), segB.unsegment(sB)
 
+    assert as_numpy(sA, backendA).shape[-2] == 1 + num_hops
+    assert as_numpy(sB, backendB).shape[-2] == 1 + num_hops
+
     sA, rA = as_numpy(sA, backendA), as_numpy(rA, backendA)
     sB, rB = as_numpy(sB, backendB), as_numpy(rB, backendB)
 
@@ -434,7 +437,7 @@ def test_segmenter_roundtrip_consistency_octave(
     load('{tmp_mat_file}');  % Load sA and ref_r
 
     if strcmp('{transform}', 'magnitude_phase')
-        tra = MagnitudePhaseOctave();
+        tra = MagnitudePhaseTransformOctave();
     end
 
     if strcmp('{transform}', 'spectrogram')
