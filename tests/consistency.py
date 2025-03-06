@@ -34,14 +34,65 @@ from typing import TypeVar, Literal
 
 from libsegmenter.Segmenter import Segmenter
 from libsegmenter.Window import Window
+from libsegmenter.WindowSelector import WindowSelector
 from libsegmenter.TransformSelector import TransformSelector
 
 T = TypeVar("T", bound=np.generic)
-BackendType = Literal["numpy", "torch", "tensorflow"]
-TransformType = Literal["magnitude_phase", "spectrogram"]
+BackendType = Literal[
+    "numpy",
+    "torch",
+    "tensorflow",
+]
+BACKENDS: list[BackendType] = [
+    "numpy",
+    "torch",
+    "tensorflow",
+]
 
-BACKENDS: list[BackendType] = ["numpy", "torch", "tensorflow"]
-TRANSFORMS: list[TransformType] = ["magnitude_phase", "spectrogram"]
+TransformType = Literal[
+    "magnitude_phase",
+    "spectrogram",
+]
+TRANSFORMS: list[TransformType] = [
+    "magnitude_phase",
+    "spectrogram",
+]
+
+SchemeType = Literal[
+    "wola",
+    "ola",
+    "analysis",
+]
+SCHEMES: list[SchemeType] = [
+    "wola",
+    "ola",
+    "analysis",
+]
+
+WindowType = Literal[
+    "bartlett50",
+    "bartlett75",
+    "blackman67",
+    "kaiser82",
+    "kaiser85",
+    "hamming50",
+    "hamming75",
+    "hann50",
+    "hann75",
+    "rectangular0",
+]
+WINDOWS: list[WindowType] = [
+    "bartlett50",
+    "bartlett75",
+    "blackman67",
+    "kaiser82",
+    "kaiser85",
+    "hamming50",
+    "hamming75",
+    "hann50",
+    "hann75",
+    "rectangular0",
+]
 
 
 def as_numpy(
@@ -372,7 +423,6 @@ def test_segmenter_roundtrip_consistency_octave(
             },
         )
 
-
     # Generate Octave script
     octave_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../src/libsegmenter/")
@@ -432,3 +482,60 @@ def test_segmenter_roundtrip_consistency_octave(
     assert not run_octave(octave_code)
 
 
+# we have a special case for octave
+@pytest.mark.parametrize("window_name", WINDOWS)
+@pytest.mark.parametrize("scheme", SCHEMES)
+def test_window_consistency_octave(
+    window_name: WindowType,
+    scheme: SchemeType,
+) -> None:
+    segment_size = 64
+
+    window = WindowSelector(window_name, scheme, segment_size)
+    # Define temporary file path
+    with tempfile.NamedTemporaryFile(suffix=".mat", delete=False) as tmp_file:
+        tmp_mat_file = tmp_file.name  # Get the file path
+    scipy.io.savemat(
+        tmp_mat_file,
+        {
+            "windowA_hopSize": window.hop_size,
+            "windowA_analysisWindow": window.analysis_window,
+            "windowA_synthesisWindow": window.synthesis_window,
+        },
+    )
+
+    # Generate Octave script
+    octave_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../src/libsegmenter/")
+    )
+    assert os.path.exists(octave_path)
+
+    octave_code = f"""
+    addpath(genpath('{octave_path}'));
+
+    load('{tmp_mat_file}');  % Load ref_s and ref_r
+
+    windowB = WindowSelector({window_name}, {scheme}, {segment_size});
+
+    if (all(abs(windowA_hopSize - windowB.hopSize) < 1e-5))
+        exit(0);
+    else
+        exit(1);
+    end
+
+    if (all(abs(windowA_analysisWindow - windowB.analysisWindow) < 1e-5))
+        exit(0);
+    else
+        exit(1);
+    end
+
+    if (all(abs(windowA_synthesisWindow - windowB.synthesisWindow) < 1e-5))
+        exit(0);
+    else
+        exit(1);
+    end
+    """
+
+    print(octave_code)
+
+    assert not run_octave(octave_code)
