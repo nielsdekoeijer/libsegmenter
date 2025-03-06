@@ -387,9 +387,8 @@ def test_segmenter_roundtrip_consistency_octave(
         iA_np = as_numpy(iA, backendA)
 
         # Define temporary file path
-        tmp_mat_file = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "tmp_refs.mat")
-        )
+        with tempfile.NamedTemporaryFile(suffix=".mat", delete=False) as tmp_file:
+            tmp_mat_file = tmp_file.name  # Get the file path
         scipy.io.savemat(
             tmp_mat_file,
             {
