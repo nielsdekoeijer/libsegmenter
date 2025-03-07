@@ -96,6 +96,7 @@ WINDOWS: list[WindowType] = [
 
 NUM_EXAMPLES = 2
 
+
 def as_numpy(
     x: NDArray[T] | torch.Tensor | tf.Tensor, backend: BackendType
 ) -> NDArray[T]:
@@ -506,7 +507,9 @@ def test_window_consistency_octave(
         {
             "windowA_hopSize": window.hop_size,
             "windowA_analysisWindow": window.analysis_window,
-            "windowA_synthesisWindow": window.synthesis_window if not window.synthesis_window is None else [],
+            "windowA_synthesisWindow": window.synthesis_window
+            if window.synthesis_window is not None
+            else [],
         },
     )
 

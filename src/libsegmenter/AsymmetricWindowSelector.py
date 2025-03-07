@@ -52,6 +52,18 @@ def AsymmetricWindowSelector(
         ValueError: If an unknown window type or scheme is provided.
 
     """
+    if segment_size // hop_size != 0:
+        raise ValueError(
+            "The segment_size must be integer divisible by hop_size."
+            + f" Received segment_size = '{segment_size}' "
+            + f" and hop_size = '{hop_size}'."
+        )
+    if synthesis_segment_size // hop_size != 0:
+        raise ValueError(
+            "The synthesis_segment_size must be integer divisible by hop_size."
+            + f" Received synthesis_segment_size = '{synthesis_segment_size}' "
+            + f" and hop_size = '{hop_size}'."
+        )
     if scheme != "ola" and scheme != "wola":
         raise ValueError(f"The '{scheme}' scheme is not supported.")
 

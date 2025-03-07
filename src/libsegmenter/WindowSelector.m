@@ -9,7 +9,6 @@ function windowObj = WindowSelector(windowType, scheme, segmentSize)
     %        `bartlett50`,
     %        `bartlett75`,
     %        `blackman67`,
-    %        `kaiser82`,
     %        `kaiser85`,
     %        `hamming50`,
     %        `hamming75`,
@@ -49,9 +48,6 @@ function windowObj = WindowSelector(windowType, scheme, segmentSize)
             windowObj = adaptWindow(window, hopSize, scheme);
         case 'blackman67'
             [window, hopSize] = blackman67(segmentSize);
-            windowObj = adaptWindow(window, hopSize, scheme);
-        case 'kaiser82'
-            [window, hopSize] = kaiser82(segmentSize);
             windowObj = adaptWindow(window, hopSize, scheme);
         case 'kaiser85'
             [window, hopSize] = kaiser85(segmentSize);
