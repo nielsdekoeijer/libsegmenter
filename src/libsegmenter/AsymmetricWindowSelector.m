@@ -19,9 +19,6 @@ function windowObj = AsymmetricWindowSelector(scheme, segmentSize, hopSize, synt
     %
     % Throws:
     %   error: If an unknown window type or scheme is provided.
-##    if ~ischar(windowType)
-##        error('The windowType argument must be a string.');
-##    end
     if ~ischar(scheme)
         error('The desired scheme argument must be a string.');
     end
