@@ -41,28 +41,22 @@ def check_cola(
             (is_cola, normalization_value, epsilon)
 
     """
-    factor = float(np.sum(window, dtype=np.float32)) / hop_size
-    N = 6 * window.size
-
-    # initialize accumulator
-    sp = np.full(N, factor, dtype=np.complex128)
-    ubound = sp[0].real
-    lbound = sp[0].real
+    dc_value = float(np.sum(window, dtype=np.float32)) / hop_size
+    upper_bound = dc_value
+    lower_bound = dc_value
 
     # loop over partial shifts
-    frame_rate = 1.0 / hop_size
+    fundamental_freq = 1.0 / hop_size
     for k in range(1, hop_size):
-        f = frame_rate * k
+        harmonic_freq = fundamental_freq * k
 
         # complex sinusoids
-        csin = np.exp(1j * 2.0 * np.pi * f * np.arange(N))
+        csin = np.exp(1j * 2.0 * np.pi * harmonic_freq * np.arange(window.size))
 
         # frequency domain representation of window
-        Wf = np.sum(window[: window.size] * np.conjugate(csin[: window.size]))
-        sp += (Wf * csin) / hop_size
-        Wfb = abs(Wf)
-        ubound += Wfb / hop_size
-        lbound -= Wfb / hop_size
+        dft_coeff = np.sum(window * np.conjugate(csin))
+        upper_bound += np.abs(dft_coeff) / hop_size
+        lower_bound -= np.abs(dft_coeff) / hop_size
 
-    e = ubound - lbound
-    return (e < eps, (ubound + lbound) / 2.0, e)
+    e = upper_bound - lower_bound
+    return (e < eps, (upper_bound + lower_bound) / 2.0, e)

@@ -1,5 +1,7 @@
 function [colaConditionSatisfied, normalization] = checkCola(window, hopSize, varargin)
-%COLA Summary of this function goes here
+%CHECKCOLA Script for validating COLA condition is satisfied
+% This check seeks to validate whether the window function is zero at the frequency 2*pi / hopSize and all its harmonics.
+% The implementation follows the example by Julius O. Smith: https://ccrma.stanford.edu/~jos/sasp/Periodic_Hamming_OLA_Poisson_Summation.html
 if nargin == 2
     plotFlag = false;
     colaLimitDb = -40;
@@ -17,14 +19,13 @@ else
     error('Unsupported number of input argements');
 end
 
-%   Detailed explanation goes here
 windowLength = length(window);
-ff = 1/hopSize; % frame rate (fs=1)
-N = 6*windowLength;  % no. samples to look at OLA
-sp = ones(N,1)*sum(window)/hopSize; % dc term (COLA term)
-ubound = sp(1);  % try easy-to-compute upper bound
-lbound = ubound; % and lower bound
-n = (0:N-1)';
+% Frequency of the fundamental frequency (in normalized frequency, i.e., fs=1)
+fundamentalFrequency = 1/hopSize; % frame rate (fs=1)
+numSamples = windowLength;
+upperBound = sum(window)/hopSize;  % try easy-to-compute upper bound
+lowerBound = upperBound; % and lower bound
+timeIdx = (0:numSamples-1)';
 
 if plotFlag
     plotLength = 12*windowLength;
@@ -40,22 +41,20 @@ if plotFlag
     xlabel('Normalized frequency'); ylabel('Magnitude [dB]')
     plot(1/(2*hopSize)*[1,1], [minMag, maxMag],'--');
 
-    % Find idx corresponding to the folding frequencyM
+    % Find idx corresponding to the folding frequency
     idx = find(normFrequency>1/(2*hopSize),1);
     stopBandRejectionRatio = 20*log10(max(abs(windowSpectrum(idx:round(plotLength/2)))));
     signalToAliasRatio = 20*log10(sum(abs(windowSpectrum(1:idx-1)))) - 20*log10(sum(abs(windowSpectrum(idx:round(plotLength/2)))));
 end
 for k = 1:hopSize-1 % traverse frame-rate harmonics
-  f=ff*k;
-  csin = exp(1j*2*pi*f*n); % frame-rate harmonic
+  harmonicFrequency = fundamentalFrequency*k;
+  modulationFactor = exp(1j*2*pi*harmonicFrequency*timeIdx); % frame-rate harmonic
+
   % find exact window transform at frequency f
-  Wf = window' * conj(csin(1:windowLength));
-  hum = Wf*csin;   % contribution to OLA "hum"
-  sp = sp + hum/hopSize; % "Poisson summation" into OLA
+  dftCoefficient = window' * conj(modulationFactor(1:windowLength));
   % Update lower and upper bounds:
-  Wfb = abs(Wf);
-  ubound = ubound + Wfb/hopSize; % build upper bound
-  lbound = lbound - Wfb/hopSize; % build lower bound
+  upperBound = upperBound + abs(dftCoefficient)/hopSize; % build upper bound
+  lowerBound = lowerBound - abs(dftCoefficient)/hopSize; % build lower bound
   if plotFlag
       plot([1,1]*k/hopSize, [minMag, maxMag], '--k')
   end
@@ -64,12 +63,12 @@ if plotFlag
     legend('Window spectrum','Folding frequency','Sampling rate harmonics')
     title([plotName '  Ripple = ' num2str(20*log10(ubound-lbound), '%.0f') ' dB | SAR = ' num2str(signalToAliasRatio, '%.0f') ' dB | SBR = ' num2str(stopBandRejectionRatio, '%.0f') ' dB'])
 end
-if 20*log10(abs((ubound-lbound))) < colaLimitDb
+if 20*log10(abs((upperBound-lowerBound))) < colaLimitDb
     colaConditionSatisfied = true;
 else
     colaConditionSatisfied = false;
     warning(['COLA check failed with 20*log10(ubound-lbound) = ' num2str(20*log10(abs((ubound-lbound))), '%.2f') ' dB']);
 end
-normalization = mean([lbound, ubound]);
+normalization = mean([lowerBound, upperBound]);
 
 end
