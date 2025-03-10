@@ -42,6 +42,12 @@ class SpectrogramTensorFlow:
             tf.Tensor: Spectrogram representation.
 
         """
+        s = tf.shape(x).numpy()  # pyright: ignore
+        if s[-1] % 2 != 0:  # pyright: ignore
+            raise ValueError(
+                "Input segment size is expected to be even for a consistent definition "
+                + "of the inverse real-valued FFT."
+            )
         return tf.signal.rfft(x)  # pyright: ignore
 
     def inverse(self, y: tf.Tensor) -> tf.Tensor:
