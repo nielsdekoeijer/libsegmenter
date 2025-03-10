@@ -42,26 +42,18 @@ classdef SpectrogramOctave < handle
 	    %    input (2D / 3D complex array): Spectrogram resulting from a `forward` pass.
 	    if length(size(input)) == 2
 		rfftSize = size(input,2);
-		if mod(rfftSize, 2) == 0
-		    error(['The real-valued spectrum is expected to be odd length. Received rfftSize = ' int2str(rfftSize) ' and size(input) = [' int2str(size(input)) '].']);
-	        else
-		    % Even length time sequence
-		    tmp = [real(input(:,1)), input(:,2:rfftSize-1), real(input(:,rfftSize)), conj(fliplr(input(:,2:rfftSize-1)))];
-		    sequence = ifft(tmp, [], 2);
-		end
+		% Even length time sequence
+		tmp = [real(input(:,1)), input(:,2:rfftSize-1), real(input(:,rfftSize)), conj(fliplr(input(:,2:rfftSize-1)))];
+		sequence = ifft(tmp, [], 2);
 	    elseif length(size(input)) == 3
 		batchSize = size(input,1);
 		numSegments = size(input,2);
 		rfftSize = size(input,3);
-		if mod(rfftSize, 2) == 0
-		    error(['The rfftSize is expected to be odd. Received rfftSize = ' int2str(rfftSize) ' and size(input) = [' int2str(size(input)) '].']);
-	        else
-		    sequence = zeros(batchSize, numSegments, 2*(rfftSize-1));
-		    for bIdx = 1:batchSize
-			tmp = squeeze(input(bIdx, :,:));
-			tmpSpectrum = [real(tmp(:,1)), tmp(:,2:rfftSize-1), real(tmp(:,rfftSize)), conj(fliplr(tmp(:,2:rfftSize-1)))];
-			sequence(bIdx,:,:) = ifft(tmpSpectrum,[],2);
-		    end
+		sequence = zeros(batchSize, numSegments, 2*(rfftSize-1));
+		for bIdx = 1:batchSize
+		    tmp = squeeze(input(bIdx, :,:));
+		    tmpSpectrum = [real(tmp(:,1)), tmp(:,2:rfftSize-1), real(tmp(:,rfftSize)), conj(fliplr(tmp(:,2:rfftSize-1)))];
+		    sequence(bIdx,:,:) = ifft(tmpSpectrum,[],2);
 		end
 	    else
 		error(['The input must be a 2 or 3 dimensional array. Received length(size(input)) = ' int2str(length(size(input))) ]);
