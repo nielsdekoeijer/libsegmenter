@@ -190,6 +190,61 @@ def test_segmenter_consistency(
     assert np.allclose(rA, rB, atol=1e-5)
 
 
+@pytest.mark.parametrize("window_name", WINDOWS)
+@pytest.mark.parametrize("scheme", ["ola", "wola"])
+@pytest.mark.parametrize("batched", [True, False])
+@pytest.mark.parametrize("backendA", BACKENDS)
+@settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate], deadline=None)
+@given(
+    num_hops=st.integers(min_value=1, max_value=32),
+    seed=st.integers(min_value=0, max_value=2**32 - 1),
+)
+def test_segmenter_reconstruction(
+    batched: bool,
+    backendA: BackendType,
+    num_hops: int,
+    seed: int,
+    window_name: WindowType,
+    scheme: SchemeType,
+) -> None:
+    np.random.seed(seed)
+
+    segment_size = 64
+
+    if window_name == "blackman67":
+        segment_size = 66
+
+    window = WindowSelector(window_name, scheme, segment_size)
+
+    if batched:
+        x: NDArray[np.float64] = np.random.randn(
+            2, 2 * segment_size + num_hops * window.hop_size
+        )
+    else:
+        x: NDArray[np.float64] = np.random.randn(
+            2 * segment_size + num_hops * window.hop_size
+        )
+
+    segA = Segmenter(backendA, window)
+
+    xA = as_backend(x, backendA)
+
+    sA = segA.segment(xA)
+    rA = segA.unsegment(sA)
+
+    sA, rA = as_numpy(sA, backendA), as_numpy(rA, backendA)
+    if batched:
+        assert np.allclose(
+            x[:, segment_size:-segment_size],
+            rA[:, segment_size:-segment_size],
+            atol=1e-5,
+        )
+    else:
+        assert np.allclose(
+            x[segment_size:-segment_size], rA[segment_size:-segment_size], atol=1e-5
+        )
+
+
 @pytest.mark.parametrize("batched", [True, False])
 @pytest.mark.parametrize("transform", TRANSFORMS)
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
@@ -550,6 +605,72 @@ def test_window_consistency_octave(
             exit(0);
         else
             exit(1);
+        end
+    end
+    """
+
+    print(octave_code)
+
+    assert not run_octave(octave_code)
+
+
+@pytest.mark.parametrize("window_name", WINDOWS)
+@pytest.mark.parametrize("scheme", ["ola", "wola"])
+@pytest.mark.parametrize("batched", [True, False])
+@settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate], deadline=None)
+@given(
+    num_hops=st.integers(min_value=1, max_value=32),
+    seed=st.integers(min_value=0, max_value=2**32 - 1),
+)
+def test_segmenter_reconstruction_octave(
+    batched: bool,
+    num_hops: int,
+    seed: int,
+    window_name: WindowType,
+    scheme: SchemeType,
+) -> None:
+    segment_size = 64
+
+    if window_name == "blackman67":
+        segment_size = 66
+
+    # Generate Octave script
+    octave_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../src/libsegmenter/")
+    )
+    assert os.path.exists(octave_path)
+    if batched:
+        b = 1
+    else:
+        b = 0
+
+    octave_code = f"""
+    addpath(genpath('{octave_path}'));
+
+    windowA = WindowSelector('{window_name}', '{scheme}', {segment_size});
+    segA = SegmenterOctave(windowA);
+
+    if({b})
+        x = randn(2, 2 * {segment_size} + {num_hops} * windowA.hopSize);
+    else
+        x = randn(1, 2 * {segment_size} + {num_hops} * windowA.hopSize);
+    end
+
+    sA = segA.segment(x);
+    rA = segA.unsegment(sA);
+
+    idx = {segment_size} : size(x,2) - {segment_size};
+    if({b})
+        if(all(all(abs(x(:, idx) - rA(:,idx)) < 1e-5)))
+            exit(0)
+        else
+            exit(1)
+        end
+    else
+        if(all(abs(x(idx) - rA(idx)) < 1e-5))
+            exit(0)
+        else
+            exit(1)
         end
     end
     """
