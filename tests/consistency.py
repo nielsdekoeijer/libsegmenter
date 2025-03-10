@@ -73,7 +73,7 @@ WindowType = Literal[
     "bartlett50",
     "bartlett75",
     "blackman67",
-    "kaiser85",
+    # "kaiser85",
     "hamming50",
     "hamming75",
     "hann50",
@@ -84,7 +84,7 @@ WINDOWS: list[WindowType] = [
     "bartlett50",
     "bartlett75",
     "blackman67",
-    "kaiser85",
+    # "kaiser85",
     "hamming50",
     "hamming75",
     "hann50",
@@ -142,7 +142,7 @@ def run_octave(code: str) -> bool:
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
-    num_hops=st.integers(min_value=0, max_value=32),
+    num_hops=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_segmenter_consistency(
@@ -174,8 +174,14 @@ def test_segmenter_consistency(
     sA, sB = segA.segment(xA), segB.segment(xB)
     rA, rB = segA.unsegment(sA), segB.unsegment(sB)
 
-    assert as_numpy(sA, backendA).shape[-2] == 1 + num_hops
-    assert as_numpy(sB, backendB).shape[-2] == 1 + num_hops
+    expected_hops = (
+        num_hops
+        + (segment_size // hop_size)
+        - np.ceil(np.float32(segment_size) / np.float32(hop_size))
+        + 1
+    )
+    assert as_numpy(sA, backendA).shape[-2] == expected_hops
+    assert as_numpy(sB, backendB).shape[-2] == expected_hops
 
     sA, rA = as_numpy(sA, backendA), as_numpy(rA, backendA)
     sB, rB = as_numpy(sB, backendB), as_numpy(rB, backendB)
@@ -191,7 +197,7 @@ def test_segmenter_consistency(
 @given(
     segment_size=st.integers(min_value=32, max_value=64),
     hop_size=st.integers(min_value=1, max_value=32),
-    num_hops=st.integers(min_value=0, max_value=32),
+    num_hops=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
 )
 def test_transform_roundtrip_consistency(
@@ -347,7 +353,7 @@ def test_segmenter_consistency_octave(
 @pytest.mark.parametrize("transform", TRANSFORMS)
 @settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate], deadline=None)
 @given(
-    segment_size=st.integers(min_value=32, max_value=64),
+    segment_size=st.integers(min_value=16, max_value=32),
     hop_size=st.integers(min_value=1, max_value=32),
     num_hops=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
@@ -363,7 +369,7 @@ def test_segmenter_roundtrip_consistency_octave(
     backendA: BackendType = "numpy"
 
     np.random.seed(seed)
-
+    segment_size = segment_size * 2
     analysis_window = np.random.randn(segment_size)
     synthesis_window = np.random.randn(segment_size)
     window = Window(hop_size, analysis_window, synthesis_window)

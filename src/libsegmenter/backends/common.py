@@ -31,7 +31,10 @@ def compute_num_segments(num_samples: int, hop_size: int, segment_size: int) -> 
         int: Total number of segments.
 
     """
-    return (num_samples // hop_size) - (segment_size // hop_size) + 1
+    if segment_size % hop_size > 0:
+        return (num_samples // hop_size) - (segment_size // hop_size)
+    else:
+        return (num_samples // hop_size) - (segment_size // hop_size) + 1
 
 
 def compute_num_samples(num_segments: int, hop_size: int, segment_size: int) -> int:

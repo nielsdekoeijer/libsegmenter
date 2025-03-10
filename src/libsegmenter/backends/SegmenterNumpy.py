@@ -76,7 +76,8 @@ class SegmenterNumpy:
 
         if num_segments <= 0:
             raise ValueError(
-                "Input signal is too short for segmentation with the given hop size "
+                "Input signal is too short for segmentation with the given num_samples "
+                + f"({num_samples}), hop size "
                 + f"({self.window.hop_size}) and segment size "
                 + f"({self.window.analysis_window.shape[-1]})."
             )
