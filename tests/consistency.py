@@ -195,7 +195,7 @@ def test_segmenter_consistency(
 @pytest.mark.parametrize("backendA, backendB", itertools.permutations(BACKENDS, 2))
 @settings(max_examples=NUM_EXAMPLES, phases=[Phase.generate])
 @given(
-    segment_size=st.integers(min_value=32, max_value=64),
+    segment_size=st.integers(min_value=16, max_value=32),
     hop_size=st.integers(min_value=1, max_value=32),
     num_hops=st.integers(min_value=1, max_value=32),
     seed=st.integers(min_value=0, max_value=2**32 - 1),
@@ -210,6 +210,7 @@ def test_transform_roundtrip_consistency(
     num_hops: int,
     seed: int,
 ) -> None:
+    segment_size = segment_size * 2
     np.random.seed(seed)
 
     analysis_window: NDArray[np.float64] = np.random.randn(segment_size)
@@ -250,6 +251,8 @@ def test_transform_roundtrip_consistency(
         assert np.allclose(tA, tB, atol=1e-4)  # pyright: ignore
         iA, iB = traA.inverse(tA), traB.inverse(tB)
         assert np.allclose(iA, iB, atol=1e-4)
+    assert np.allclose(sA, iA, atol=1e-4)  # pyright: ignore
+    assert np.allclose(sB, iB, atol=1e-4)  # pyright: ignore
 
 
 # we have a special case for octave

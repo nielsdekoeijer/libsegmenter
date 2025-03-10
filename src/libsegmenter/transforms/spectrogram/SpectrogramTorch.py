@@ -42,6 +42,11 @@ class SpectrogramTorch:
             torch.Tensor: Spectrogram representation.
 
         """
+        if x.shape[-1] % 2 != 0:
+            raise ValueError(
+                "Input segment size is expected to be even for a consistent definition "
+                + "of the inverse real-valued FFT."
+            )
         return torch.fft.rfft(x, dim=-1, norm="backward")  # pyright: ignore
 
     def inverse(self, y: torch.Tensor) -> torch.Tensor:
