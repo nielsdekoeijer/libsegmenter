@@ -22,4 +22,9 @@ from libsegmenter.WindowSelector import WindowSelector
 from libsegmenter.AsymmetricWindowSelector import AsymmetricWindowSelector
 from libsegmenter.TransformSelector import TransformSelector
 
-__all__ = ["Segmenter", "WindowSelector", "TransformSelector", "AsymmetricWindowSelector"]
+__all__ = [
+    "Segmenter",
+    "WindowSelector",
+    "TransformSelector",
+    "AsymmetricWindowSelector",
+]

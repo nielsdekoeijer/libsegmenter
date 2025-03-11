@@ -26,7 +26,10 @@ T = TypeVar("T", bound=np.generic)
 
 
 def AsymmetricWindowSelector(
-    scheme: str, analysis_segment_size: int, hop_size: int, synthesis_segment_size: int, 
+    scheme: str,
+    analysis_segment_size: int,
+    hop_size: int,
+    synthesis_segment_size: int,
 ) -> Window:
     """
     Designs an asymmetric Hann window pair based on the given parameters.
@@ -70,12 +73,16 @@ def AsymmetricWindowSelector(
     elif scheme == "ola":
         from libsegmenter.windows.hann import asymmetricHannOla
 
-        windows = asymmetricHannOla(analysis_segment_size, hop_size, synthesis_segment_size)
+        windows = asymmetricHannOla(
+            analysis_segment_size, hop_size, synthesis_segment_size
+        )
 
     else:  # WOLA
         from libsegmenter.windows.hann import asymmetricHannWola
 
-        windows = asymmetricHannWola(analysis_segment_size, hop_size, synthesis_segment_size)
+        windows = asymmetricHannWola(
+            analysis_segment_size, hop_size, synthesis_segment_size
+        )
 
     analysis_window = windows[0]
     synthesis_window = windows[1]
