@@ -18,6 +18,7 @@ tensorflow = [ "tensorflow-cpu>=2.14.0" ]
 packages = [
     "libsegmenter", 
     "libsegmenter.util", 
+    "libsegmenter.backends", 
     "libsegmenter.windows", 
     "libsegmenter.transforms",
     "libsegmenter.transforms.spectrogram",

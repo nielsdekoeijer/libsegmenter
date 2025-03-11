@@ -56,14 +56,14 @@ pip install libsegmenter
 To make a segmenter with a specific window:
 ```python
 import libsegmenter as seg
-segmenter = seg.Segmenter(backend="torch", seg.WindowSelector("hann75"))
+segmenter = seg.Segmenter(seg.WindowSelector("hann75", "ola", 1024), backend="torch")
 ```
 
 Use various supported transforms:
 ```python
 import libsegmenter as seg
-segmenter = seg.Segmenter(backend="torch", seg.WindowSelector("hann75"))
-transform = seg.TransformSelector(backend="torch", transform="spectrogram")
+segmenter = seg.Segmenter(seg.WindowSelector("hann75", "ola", 1024), backend="torch")
+transform = seg.TransformSelector(transform="spectrogram", backend="torch")
 X = transform.forward(segmenter.segment(x))
 x = transform.inverse(x)
 ```
