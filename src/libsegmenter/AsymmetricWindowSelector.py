@@ -26,7 +26,7 @@ T = TypeVar("T", bound=np.generic)
 
 
 def AsymmetricWindowSelector(
-    scheme: str, segment_size: int, hop_size: int, synthesis_segment_size: int
+    scheme: str, analysis_segment_size: int, hop_size: int, synthesis_segment_size: int, 
 ) -> Window:
     """
     Designs an asymmetric Hann window pair based on the given parameters.
@@ -40,7 +40,7 @@ def AsymmetricWindowSelector(
              `ola`,
              `wola`,
             ]
-        segment_size (int): The size of the segment / analysis_window.
+        analysis_segment_size (int): The size of the segment / analysis_window.
         hop_size (int): The hop size used for segmentation.
         synthesis_segment_size (int): The non-zero size of the systhesis_window.
 
@@ -52,10 +52,10 @@ def AsymmetricWindowSelector(
         ValueError: If an unknown window type or scheme is provided.
 
     """
-    if segment_size // hop_size != 0:
+    if analysis_segment_size // hop_size != 0:
         raise ValueError(
-            "The segment_size must be integer divisible by hop_size."
-            + f" Received segment_size = '{segment_size}' "
+            "The analysis_segment_size must be integer divisible by hop_size."
+            + f" Received analysis_segment_size = '{analysis_segment_size}' "
             + f" and hop_size = '{hop_size}'."
         )
     if synthesis_segment_size // hop_size != 0:
@@ -70,12 +70,12 @@ def AsymmetricWindowSelector(
     elif scheme == "ola":
         from libsegmenter.windows.hann import asymmetricHannOla
 
-        windows = asymmetricHannOla(segment_size, hop_size, synthesis_segment_size)
+        windows = asymmetricHannOla(analysis_segment_size, hop_size, synthesis_segment_size)
 
     else:  # WOLA
         from libsegmenter.windows.hann import asymmetricHannWola
 
-        windows = asymmetricHannWola(segment_size, hop_size, synthesis_segment_size)
+        windows = asymmetricHannWola(analysis_segment_size, hop_size, synthesis_segment_size)
 
     analysis_window = windows[0]
     synthesis_window = windows[1]

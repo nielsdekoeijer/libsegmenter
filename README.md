@@ -49,11 +49,24 @@ This is something to take into account when training.
 ## Installation
 Simply install from PyPi:
 ```bash
+# base version
 pip install libsegmenter
+
+# with torch
+pip install libsegmenter[torch]
+
+# with tensorflow
+pip install libsegmenter[tensorflow]
 ```
 
 ## Example
 To make a segmenter with a specific window:
+```python
+import libsegmenter as seg
+segmenter = seg.Segmenter(seg.WindowSelector("hann75", "ola", 1024), backend="torch")
+```
+
+With an asymetric window:
 ```python
 import libsegmenter as seg
 segmenter = seg.Segmenter(seg.WindowSelector("hann75", "ola", 1024), backend="torch")
