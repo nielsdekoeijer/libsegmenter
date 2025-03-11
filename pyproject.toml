@@ -1,6 +1,6 @@
 [project]
 name = "libsegmenter"
-version = "1.0.3"
+version = "1.0.4"
 description = "An opinionated segmentation library for (machine learning) audio"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,14 @@ octave = [ "oct2py>=5.8.0" ]
 tensorflow = [ "tensorflow-cpu>=2.14.0" ]
 
 [tool.setuptools]
+packages = [
+    "libsegmenter", 
+    "libsegmenter.util", 
+    "libsegmenter.windows", 
+    "libsegmenter.transforms",
+    "libsegmenter.transforms.spectrogram",
+    "libsegmenter.transforms.magnitude_phase"
+]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
