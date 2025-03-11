@@ -1,6 +1,6 @@
 [project]
 name = "libsegmenter"
-version = "1.0.4"
+version = "1.0.5"
 description = "An opinionated segmentation library for (machine learning) audio"
 readme = "README.md"
 requires-python = ">=3.10"
