@@ -8,6 +8,6 @@ authors:
   given-names: "Niels"
   orcid: "https://orcid.org/0009-0001-6931-8952"
 title: "libsegmenter: A python library for segmentation of audio"
-version: 1.0.5
+version: 1.0.6
 date-released: 2025-02-18
 url: "https://github.com/nielsdekoeijer/libsegmenter"
