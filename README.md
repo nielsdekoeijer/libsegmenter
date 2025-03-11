@@ -69,7 +69,7 @@ segmenter = seg.Segmenter(seg.WindowSelector("hann75", "ola", 1024), backend="to
 With an asymetric window:
 ```python
 import libsegmenter as seg
-segmenter = seg.Segmenter(seg.WindowSelector("hann75", "ola", 1024), backend="torch")
+segmenter = seg.Segmenter(seg.AsymmetricWindowSelector("ola", 1024, 128, 2048), backend="torch")
 ```
 
 Use various supported transforms:
