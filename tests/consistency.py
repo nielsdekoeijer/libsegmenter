@@ -165,8 +165,8 @@ def test_segmenter_consistency(
     else:
         x: NDArray[np.float64] = np.random.randn(segment_size + num_hops * hop_size)
 
-    segA = Segmenter(backendA, window)
-    segB = Segmenter(backendB, window)
+    segA = Segmenter(window, backend=backendA)
+    segB = Segmenter(window, backend=backendB)
 
     xA = as_backend(x, backendA)
     xB = as_backend(x, backendB)
@@ -225,7 +225,7 @@ def test_segmenter_reconstruction(
             2 * segment_size + num_hops * window.hop_size
         )
 
-    segA = Segmenter(backendA, window)
+    segA = Segmenter(window, backend=backendA)
 
     xA = as_backend(x, backendA)
 
@@ -277,8 +277,8 @@ def test_transform_roundtrip_consistency(
     else:
         x: NDArray[np.float64] = np.random.randn(segment_size + num_hops * hop_size)
 
-    segA = Segmenter(backendA, window)
-    segB = Segmenter(backendB, window)
+    segA = Segmenter(window, backend=backendA)
+    segB = Segmenter(window, backend=backendB)
 
     traA = TransformSelector(transform=transform, backend=backendA)
     traB = TransformSelector(transform=transform, backend=backendB)
@@ -339,7 +339,7 @@ def test_segmenter_consistency_octave(
     else:
         x = np.random.randn(segment_size + num_hops * hop_size)
 
-    segA = Segmenter(backendA, window)
+    segA = Segmenter(window, backend=backendA)
 
     xA = as_backend(x, backendA)
     sA = segA.segment(xA)
@@ -437,7 +437,7 @@ def test_segmenter_roundtrip_consistency_octave(
     else:
         x = np.random.randn(segment_size + num_hops * hop_size)
 
-    segA = Segmenter(backendA, window)
+    segA = Segmenter(window, backend=backendA)
     traA = TransformSelector(transform=transform, backend=backendA)
 
     if transform == "magnitude_phase":

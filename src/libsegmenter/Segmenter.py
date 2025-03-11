@@ -22,7 +22,7 @@ from typing import Any
 BACKENDS = ["torch", "tensorflow", "numpy", "octave"]
 
 
-def Segmenter(backend: str = "numpy", *args: Any, **kwargs: Any) -> Any:
+def Segmenter(*args: Any, backend: str = "numpy", **kwargs: Any) -> Any:
     """
     Factory function to create a segmenter instance based on the specified backend.
 
