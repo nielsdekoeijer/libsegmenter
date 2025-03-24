@@ -55,13 +55,13 @@ def AsymmetricWindowSelector(
         ValueError: If an unknown window type or scheme is provided.
 
     """
-    if analysis_segment_size // hop_size != 0:
+    if analysis_segment_size % hop_size != 0:
         raise ValueError(
             "The analysis_segment_size must be integer divisible by hop_size."
             + f" Received analysis_segment_size = '{analysis_segment_size}' "
             + f" and hop_size = '{hop_size}'."
         )
-    if synthesis_segment_size // hop_size != 0:
+    if synthesis_segment_size % hop_size != 0:
         raise ValueError(
             "The synthesis_segment_size must be integer divisible by hop_size."
             + f" Received synthesis_segment_size = '{synthesis_segment_size}' "
