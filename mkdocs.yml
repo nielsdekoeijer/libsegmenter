@@ -32,6 +32,7 @@ nav:
           - SegmenterNumpy: api/backends/SegmenterNumpy.md
       - Window: api/Window.md
       - WindowSelector: api/WindowSelector.md
+      - AsymmetricWindowSelector: api/AsymmetricWindowSelector.md
       - check_cola: api/util/check_cola.md
       - Window Implementations:
           - bartlett50: api/windows/bartlett50.md
