@@ -60,6 +60,14 @@ pip install libsegmenter[tensorflow]
 ```
 
 ## Example
+To create a specific window
+```python
+import libsegmenter as seg
+window = seg.WindowSelector("hann75", "ola", 1024)
+window.analysis_window  # numpy ndarray containing the analysis window
+window.synthesis_window # numpy ndarray containing the synthesis window
+```
+
 To make a segmenter with a specific window:
 ```python
 import libsegmenter as seg
