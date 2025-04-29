@@ -79,27 +79,16 @@ class SegmenterTorch(torch.nn.Module):
                 "Input signal is too short for segmentation with the given parameters."
             )
 
-        # Pre-allocation
-        y = torch.zeros(
-            (
-                batch_size if batch_size is not None else 1,
-                num_segments,
-                self.window.analysis_window.shape[-1],
-            ),
-            device=x.device,
-            dtype=x.dtype,
-        )
-
         # Windowing
         analysis_window = torch.tensor(
             self.window.analysis_window, device=x.device, dtype=x.dtype
         )
-        for k in range(num_segments):
-            start_idx = k * self.window.hop_size
-            y[:, k, :] = (
-                x[:, start_idx : start_idx + self.window.analysis_window.shape[-1]]
-                * analysis_window
-            )
+
+        idxs = torch.arange(num_segments, device=x.device) * self.window.hop_size
+        frame_idxs = idxs.unsqueeze(1) + torch.arange(
+            self.window.analysis_window.shape[-1], device=x.device
+        )
+        y = x[:, frame_idxs] * analysis_window
 
         return (
             y.squeeze(0) if batch_size is None else y
@@ -152,11 +141,17 @@ class SegmenterTorch(torch.nn.Module):
 
         # overlap-add method for reconstructing the original signal
         synthesis_window = torch.tensor(
-            self.window.synthesis_window, device=x.device, dtype=x.dtype
+            self.window.synthesis_window, device=y.device, dtype=y.dtype
         )
 
-        for k in range(num_segments):
-            start_idx = k * self.window.hop_size
-            x[:, start_idx : start_idx + segment_size] += y[:, k, :] * synthesis_window
+        frame_idxs = (
+            torch.arange(num_segments, device=y.device) * self.window.hop_size
+        ).unsqueeze(1) + torch.arange(segment_size, device=y.device)
+        frame_idxs = frame_idxs.flatten()
+        x.scatter_add_(
+            1,
+            frame_idxs.unsqueeze(0).expand(x.shape[0], -1),
+            (y * synthesis_window).reshape(x.shape[0], -1),
+        )
 
         return x.squeeze(0) if batch_size is None else x
